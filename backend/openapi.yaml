@@ -1,0 +1,399 @@
+openapi: 3.0.0
+info:
+  title: ScamGuard API
+  version: 1.0.0
+  description: AI-powered scam detection and learning platform for seniors
+  contact:
+    name: ScamGuard Team
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.scamguard.com
+    description: Production
+  - url: http://localhost:8000
+    description: Local development
+
+tags:
+  - name: Scenarios
+    description: Generate learning scenarios
+  - name: Analysis
+    description: Analyze messages and images
+  - name: Profile
+    description: User profile management
+  - name: Analytics
+    description: User learning analytics
+
+paths:
+  /api/v1/scenarios:
+    post:
+      tags:
+        - Scenarios
+      summary: Generate a learning scenario
+      operationId: postScenarios
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                difficulty:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Scenario difficulty level
+                  default: medium
+              example:
+                difficulty: medium
+      responses:
+        '200':
+          description: Scenario generated successfully
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Unique request identifier
+            X-Trace-ID:
+              schema:
+                type: string
+              description: AWS X-Ray trace ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining today
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Unix timestamp when limit resets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/analysis:
+    post:
+      tags:
+        - Analysis
+      summary: Analyze a message or image for scam indicators
+      operationId: postAnalysis
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image_url:
+                  type: string
+                  format: uri
+                  description: S3 presigned URL to image
+                message:
+                  type: string
+                  description: Optional text message to analyze
+              example:
+                image_url: "https://s3.amazonaws.com/bucket/presigned-url"
+                message: "You received an email claiming to be from your bank"
+      responses:
+        '200':
+          description: Analysis completed
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+            X-Trace-ID:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Analysis failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/profile:
+    get:
+      tags:
+        - Profile
+      summary: Get user profile
+      operationId: getProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/analytics/summary:
+    get:
+      tags:
+        - Analytics
+      summary: Get user learning analytics
+      operationId: getAnalytics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Cognito ID token
+
+  schemas:
+    ScenarioResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Scenario ID
+            difficulty:
+              type: string
+              enum: [easy, medium, hard]
+            scenario:
+              type: string
+              description: Scenario text
+            indicators:
+              type: array
+              items:
+                type: string
+              description: Red flags in this scenario
+            tactics:
+              type: array
+              items:
+                type: string
+              description: Social engineering tactics used
+            attempts:
+              type: integer
+              description: Number of retries needed
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+      example:
+        data:
+          id: scenario_user123_5678
+          difficulty: medium
+          scenario: "You receive an email claiming to be from your bank..."
+          indicators: ["Generic greeting", "Urgency", "Request for info"]
+          tactics: ["authority", "urgency"]
+          attempts: 1
+        meta:
+          request_id: req_abc123
+          processed_at: "2026-02-16T10:30:45Z"
+          trace_id: x-ray-123456
+
+    AnalysisResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            session_id:
+              type: string
+            detection:
+              type: object
+              properties:
+                risk_level:
+                  type: string
+                  enum: [low, medium, high]
+                confidence:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                indicators:
+                  type: array
+                  items:
+                    type: string
+                explanation:
+                  type: string
+                red_flags:
+                  type: array
+                  items:
+                    type: string
+                model:
+                  type: string
+                attempts:
+                  type: integer
+            coaching:
+              type: object
+              properties:
+                advice:
+                  type: array
+                  items:
+                    type: string
+                do_not_do:
+                  type: array
+                  items:
+                    type: string
+                real_world_example:
+                  type: string
+                safety_tips:
+                  type: array
+                  items:
+                    type: string
+                tone:
+                  type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ProfileResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            user_id:
+              type: string
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    AnalyticsResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            user_id:
+              type: string
+            total_scenarios:
+              type: integer
+            total_analyses:
+              type: integer
+            high_risk_detected:
+              type: integer
+            medium_risk_detected:
+              type: integer
+            low_risk_detected:
+              type: integer
+            accuracy_score:
+              type: number
+              format: float
+            learning_streak:
+              type: integer
+            last_activity:
+              type: string
+              format: date-time
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              example: VISION_ANALYSIS_TIMEOUT
+            message:
+              type: string
+              description: User-friendly error message
+            details:
+              type: string
+              description: Technical details
+            trace_id:
+              type: string
+              description: AWS X-Ray trace ID for debugging
+            timestamp:
+              type: string
+              format: date-time
+            retry_after:
+              type: integer
+              description: Seconds to wait before retrying (for rate limits)
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ResponseMeta:
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Unique request identifier for tracing
+        processed_at:
+          type: string
+          format: date-time
+          description: When request was processed
+        trace_id:
+          type: string
+          description: AWS X-Ray trace ID
+
+    ErrorCode:
+      type: string
+      enum:
+        - VISION_ANALYSIS_TIMEOUT
+        - GEMINI_FREE_TIER_EXCEEDED
+        - RATE_LIMIT_EXCEEDED
+        - INVALID_IMAGE_FORMAT
+        - IMAGE_TOO_LARGE
+        - COGNITO_EMAIL_NOT_VERIFIED
+        - AUTH_EXPIRED
+        - DB_QUERY_FAILED
+        - VISION_API_ERROR
+        - SCENARIO_GENERATION_FAILED

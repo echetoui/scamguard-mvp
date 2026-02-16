@@ -8,6 +8,7 @@ openai==1.8.0
 
 # HTTP & API
 requests==2.31.0
+pyyaml==6.0.1
 
 # Tracing & Monitoring
 aws-xray-sdk==2.12.0
