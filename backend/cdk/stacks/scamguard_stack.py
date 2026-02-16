@@ -1,6 +1,8 @@
 from aws_cdk import (
     Stack, Duration, RemovalPolicy, CfnOutput,
-    aws_lambda as lambda_, aws_apigateway as apigw,
+    aws_lambda as lambda_, aws_apigatewayv2 as apigwv2,
+    aws_apigatewayv2_integrations as integrations,
+    aws_apigatewayv2_authorizers as authorizers,
     aws_dynamodb as ddb, aws_s3 as s3,
     aws_cloudfront as cloudfront, aws_cloudfront_origins as origins,
     aws_cognito as cognito, aws_secretsmanager as secretsmanager,
@@ -26,7 +28,9 @@ class ScamGuardStack(Stack):
             self, "DataTable",
             partition_key=ddb.Attribute(name="PK", type=ddb.AttributeType.STRING),
             sort_key=ddb.Attribute(name="SK", type=ddb.AttributeType.STRING),
-            billing_mode=ddb.BillingMode.PAY_PER_REQUEST,
+            billing_mode=ddb.BillingMode.PROVISIONED,
+            read_capacity=5,
+            write_capacity=5,
             point_in_time_recovery=True,
             removal_policy=RemovalPolicy.RETAIN,
             time_to_live_attribute="TTL"
@@ -97,7 +101,7 @@ class ScamGuardStack(Stack):
             runtime=lambda_.Runtime.PYTHON_3_12,
             handler="index.handler",
             code=lambda_.Code.from_asset("../lambda"),
-            timeout=Duration.seconds(30),
+            timeout=Duration.seconds(60),
             memory_size=512,
             environment={
                 "TABLE_NAME": table.table_name,
@@ -116,45 +120,62 @@ class ScamGuardStack(Stack):
         gemini_secret.grant_read(api_lambda)
         openai_secret.grant_read(api_lambda)
 
-        api = apigw.RestApi(
+        api = apigwv2.HttpApi(
             self, "API",
-            rest_api_name="ScamGuard API",
-            description="ScamGuard AI v5.0 API",
-            default_cors_preflight_options=apigw.CorsOptions(
-                allow_origins=apigw.Cors.ALL_ORIGINS,
-                allow_methods=apigw.Cors.ALL_METHODS,
+            api_name="ScamGuard API",
+            description="ScamGuard AI v5.0 HTTP API",
+            cors_preflight=apigwv2.CorsPreflightOptions(
+                allow_origins=["*"],
+                allow_methods=[apigwv2.CorsHttpMethod.ANY],
                 allow_headers=["Content-Type", "Authorization"]
-            ),
-            deploy_options=apigw.StageOptions(
-                stage_name="prod",
-                throttling_rate_limit=10,
-                throttling_burst_limit=20,
-                logging_level=apigw.MethodLoggingLevel.INFO,
-                data_trace_enabled=True,
-                tracing_enabled=True
             )
         )
 
-        authorizer = apigw.CognitoUserPoolsAuthorizer(
-            self, "CognitoAuthorizer",
-            cognito_user_pools=[user_pool]
+        authorizer = authorizers.HttpUserPoolAuthorizer(
+            "CognitoAuthorizer",
+            user_pool,
+            user_pool_clients=[user_pool_client]
         )
 
-        lambda_integration = apigw.LambdaIntegration(api_lambda)
+        lambda_integration = integrations.HttpLambdaIntegration(
+            "LambdaIntegration",
+            api_lambda
+        )
 
-        scenario = api.root.add_resource("scenario")
-        scenario.add_method("POST", lambda_integration, authorizer=authorizer)
+        api.add_routes(
+            path="/scenario",
+            methods=[apigwv2.HttpMethod.POST],
+            integration=lambda_integration,
+            authorizer=authorizer
+        )
 
-        analyze = api.root.add_resource("analyze")
-        analyze.add_method("POST", lambda_integration, authorizer=authorizer)
+        api.add_routes(
+            path="/analyze",
+            methods=[apigwv2.HttpMethod.POST],
+            integration=lambda_integration,
+            authorizer=authorizer
+        )
 
-        profile = api.root.add_resource("profile")
-        profile.add_method("GET", lambda_integration, authorizer=authorizer)
-        profile.add_method("PUT", lambda_integration, authorizer=authorizer)
-        profile.add_method("DELETE", lambda_integration, authorizer=authorizer)
+        api.add_routes(
+            path="/profile",
+            methods=[apigwv2.HttpMethod.GET, apigwv2.HttpMethod.PUT, apigwv2.HttpMethod.DELETE],
+            integration=lambda_integration,
+            authorizer=authorizer
+        )
 
-        analytics = api.root.add_resource("analytics")
-        analytics.add_method("GET", lambda_integration, authorizer=authorizer)
+        api.add_routes(
+            path="/analytics",
+            methods=[apigwv2.HttpMethod.GET],
+            integration=lambda_integration,
+            authorizer=authorizer
+        )
+
+        # Throttling at API level
+        cfn_stage = api.default_stage.node.default_child
+        cfn_stage.default_route_settings = apigwv2.CfnStage.RouteSettingsProperty(
+            throttling_burst_limit=20,
+            throttling_rate_limit=10
+        )
 
         alarm_topic = sns.Topic(self, "AlarmTopic", display_name="ScamGuard Alarms")
 
