@@ -18,6 +18,8 @@ from agents import (
     CoachingAgent,
     AnalyticsAgent,
 )
+from utils.performance import monitor_performance, timeout_guard
+from utils.errors import ScamGuardError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -101,6 +103,8 @@ def error_response(
     )
 
 
+@monitor_performance
+@timeout_guard(60)
 @xray_recorder.capture("post_scenarios")
 def post_scenarios(event, context):
     """POST /api/v1/scenarios - Generate learning scenario."""
@@ -153,6 +157,8 @@ def post_scenarios(event, context):
         return {"statusCode": status, "body": json.dumps(err)}
 
 
+@monitor_performance
+@timeout_guard(60)
 @xray_recorder.capture("post_analysis")
 def post_analysis(event, context):
     """POST /api/v1/analysis - Analyze message/image."""
@@ -237,6 +243,8 @@ def post_analysis(event, context):
         return {"statusCode": status, "body": json.dumps(err)}
 
 
+@monitor_performance
+@timeout_guard(60)
 @xray_recorder.capture("get_profile")
 def get_profile(event, context):
     """GET /api/v1/profile - Get user profile."""
@@ -272,6 +280,8 @@ def get_profile(event, context):
         return {"statusCode": status, "body": json.dumps(err)}
 
 
+@monitor_performance
+@timeout_guard(60)
 @xray_recorder.capture("get_analytics")
 def get_analytics(event, context):
     """GET /api/v1/analytics/summary - Get user analytics."""

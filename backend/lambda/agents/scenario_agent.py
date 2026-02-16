@@ -2,9 +2,12 @@
 
 import json
 import logging
+import time
+import random
 from typing import Optional
 import google.generativeai as genai
 from aws_xray_sdk.core import xray_recorder
+from utils.errors import GeminiAPIError
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +56,7 @@ class ScenarioAgent:
         Returns:
             Scenario dict with id, difficulty, scenario text, indicators
         """
-        try:
-            prompt = f"""Generate a realistic scam scenario for educational purposes targeting seniors.
+        prompt = f"""Generate a realistic scam scenario for educational purposes targeting seniors.
 
 Difficulty: {difficulty}
 
@@ -73,37 +75,52 @@ Respond with valid JSON:
     "tactics": ["urgency", "authority"]
 }}"""
 
-            xray_recorder.put_annotation("difficulty", difficulty)
-            response = self.model.generate_content(prompt)
+        xray_recorder.put_annotation("difficulty", difficulty)
 
-            # Parse response
-            text = response.text
-            # Extract JSON from response
-            json_start = text.find("{")
-            json_end = text.rfind("}") + 1
-            json_str = text[json_start:json_end]
-            data = json.loads(json_str)
+        # Retry logic: 3 attempts with exponential backoff (0.5s, 1s, 2s)
+        attempt = 0
+        while attempt < 3:
+            attempt += 1
+            try:
+                xray_recorder.put_annotation("gemini_attempt", str(attempt))
+                response = self.model.generate_content(prompt)
 
-            return {
-                "id": f"scenario_{user_id}_{hash(data['scenario']) % 10000}",
-                "difficulty": difficulty,
-                "scenario": data["scenario"],
-                "indicators": data["indicators"],
-                "tactics": data.get("tactics", []),
-            }
+                # Parse response
+                text = response.text
+                json_start = text.find("{")
+                json_end = text.rfind("}") + 1
+                json_str = text[json_start:json_end]
+                data = json.loads(json_str)
 
-        except Exception as e:
-            logger.error(f"Gemini API failed: {str(e)}", exc_info=True)
-            xray_recorder.put_annotation("fallback_used", "true")
+                return {
+                    "id": f"scenario_{user_id}_{hash(data['scenario']) % 10000}",
+                    "difficulty": difficulty,
+                    "scenario": data["scenario"],
+                    "indicators": data["indicators"],
+                    "tactics": data.get("tactics", []),
+                    "attempts": attempt,
+                }
 
-            # Return random fallback scenario
-            import random
-            fallback = random.choice(self.FALLBACK_SCENARIOS)
-            return {
-                "id": fallback["id"],
-                "difficulty": fallback["difficulty"],
-                "scenario": fallback["scenario"],
-                "indicators": fallback["indicators"],
-                "tactics": [],
-                "source": "fallback",
-            }
+            except Exception as e:
+                if attempt >= 3:
+                    logger.error(f"Gemini API failed after {attempt} attempts: {str(e)}", exc_info=True)
+                    xray_recorder.put_annotation("fallback_used", "true")
+
+                    # Use fallback scenario
+                    fallback = random.choice(self.FALLBACK_SCENARIOS)
+                    return {
+                        "id": fallback["id"],
+                        "difficulty": fallback["difficulty"],
+                        "scenario": fallback["scenario"],
+                        "indicators": fallback["indicators"],
+                        "tactics": [],
+                        "source": "fallback",
+                    }
+
+                # Exponential backoff: 0.5s, 1s, 2s
+                delay = 0.5 * (2 ** (attempt - 1))
+                logger.warning(
+                    f"Gemini API attempt {attempt} failed, retrying in {delay}s: {str(e)}"
+                )
+                xray_recorder.put_annotation(f"gemini_retry_delay_attempt_{attempt}", f"{delay}s")
+                time.sleep(delay)

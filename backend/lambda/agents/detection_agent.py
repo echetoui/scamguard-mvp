@@ -2,11 +2,15 @@
 
 import json
 import logging
+import time
 from typing import Optional
 from base64 import b64encode
 import base64
 from openai import OpenAI
+from openai import APITimeoutError, RateLimitError as OpenAIRateLimitError
 from aws_xray_sdk.core import xray_recorder
+from utils.retry import retry_with_backoff, VISION_API_RETRY_CONFIG
+from utils.errors import VisionAPITimeout, RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
@@ -18,26 +22,11 @@ class DetectionAgent:
         """Initialize with OpenAI API key."""
         self.client = OpenAI(api_key=openai_key)
 
-    @xray_recorder.capture("vision_analysis")
-    def analyze_image(
-        self, image_url: str, message: Optional[str] = None, user_id: Optional[str] = None
+    def _call_vision_api(
+        self, image_url: str, message: Optional[str] = None
     ) -> dict:
-        """Analyze image for scam indicators using GPT-4o-mini vision.
-
-        Args:
-            image_url: Presigned S3 URL to image
-            message: Optional text message to analyze alongside
-            user_id: For tracking
-
-        Returns:
-            Analysis dict with risk_level, indicators, explanation
-        """
-        try:
-            xray_recorder.put_annotation("analysis_type", "image")
-            xray_recorder.put_annotation("user_id", user_id)
-
-            # Build prompt
-            prompt = f"""Analyze this message/image for scam indicators targeting seniors.
+        """Call GPT-4o-mini vision API (retry-able)."""
+        prompt = f"""Analyze this message/image for scam indicators targeting seniors.
 
 {f'Message text: {message}' if message else ''}
 
@@ -57,6 +46,7 @@ Focus on:
 - Unusual requests (gift cards, wire transfers)
 - Grammar/spelling errors (common in scams)"""
 
+        try:
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -75,26 +65,72 @@ Focus on:
                     }
                 ],
                 max_tokens=500,
+                timeout=55.0,  # Leave 5s buffer for Lambda 60s timeout
             )
 
-            # Parse response
             text = response.choices[0].message.content
             json_start = text.find("{")
             json_end = text.rfind("}") + 1
             json_str = text[json_start:json_end]
-            data = json.loads(json_str)
+            return json.loads(json_str)
 
-            xray_recorder.put_annotation("risk_level", data["risk_level"])
-            xray_recorder.put_annotation("confidence", str(data["confidence"]))
+        except APITimeoutError as e:
+            raise VisionAPITimeout(60) from e
+        except OpenAIRateLimitError as e:
+            raise RateLimitExceeded(60) from e
 
-            return {
-                "risk_level": data["risk_level"],
-                "confidence": data["confidence"],
-                "indicators": data["indicators"],
-                "explanation": data["explanation"],
-                "red_flags": data["red_flags"],
-                "model": "gpt-4o-mini",
-            }
+    @xray_recorder.capture("vision_analysis")
+    def analyze_image(
+        self, image_url: str, message: Optional[str] = None, user_id: Optional[str] = None
+    ) -> dict:
+        """Analyze image for scam indicators using GPT-4o-mini vision.
+
+        Args:
+            image_url: Presigned S3 URL to image
+            message: Optional text message to analyze alongside
+            user_id: For tracking
+
+        Returns:
+            Analysis dict with risk_level, indicators, explanation
+        """
+        try:
+            xray_recorder.put_annotation("analysis_type", "image")
+            xray_recorder.put_annotation("user_id", user_id)
+
+            # Retry vision API call with exponential backoff
+            attempt = 0
+            last_error = None
+
+            while attempt < 3:
+                attempt += 1
+                try:
+                    xray_recorder.put_annotation("vision_attempt", str(attempt))
+                    data = self._call_vision_api(image_url, message)
+
+                    xray_recorder.put_annotation("risk_level", data["risk_level"])
+                    xray_recorder.put_annotation("confidence", str(data["confidence"]))
+
+                    return {
+                        "risk_level": data["risk_level"],
+                        "confidence": data["confidence"],
+                        "indicators": data["indicators"],
+                        "explanation": data["explanation"],
+                        "red_flags": data["red_flags"],
+                        "model": "gpt-4o-mini",
+                        "attempts": attempt,
+                    }
+
+                except (VisionAPITimeout, RateLimitExceeded) as e:
+                    last_error = e
+                    if attempt >= 3:
+                        logger.error(f"Vision API failed after {attempt} attempts: {e}")
+                        raise
+
+                    # Exponential backoff: 1s, 2s, 4s
+                    delay = 2 ** (attempt - 1)
+                    logger.warning(f"Vision API attempt {attempt} failed, retrying in {delay}s")
+                    xray_recorder.put_annotation(f"vision_retry_delay_attempt_{attempt}", f"{delay}s")
+                    time.sleep(delay)
 
         except Exception as e:
             logger.error(f"Vision analysis failed: {str(e)}", exc_info=True)
