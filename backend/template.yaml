@@ -2,12 +2,16 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: 'ScamGuard MVP - Scam Detection & Education Platform for Elderly Users'
 
+Conditions:
+  IsPOC: !Equals [!Ref Environment, poc]
+  IsProduction: !Equals [!Ref Environment, prod]
+
 Parameters:
   Environment:
     Type: String
     Default: dev
-    AllowedValues: [dev, staging, prod]
-    Description: Deployment environment
+    AllowedValues: [poc, dev, staging, prod]
+    Description: Deployment environment (poc = free tier, dev/staging = intermediate, prod = full capacity)
 
   ImageRepoUri:
     Type: String
@@ -69,10 +73,13 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub '${DynamoDBTableName}-${Environment}'
-      BillingMode: PROVISIONED
-      ProvisionedThroughputSettings:
-        ReadCapacityUnits: 25
-        WriteCapacityUnits: 25
+      # POC: Use PAY_PER_REQUEST ($0-5/mth). Prod: Use PROVISIONED ($25/mth)
+      BillingMode: !If [IsPOC, PAY_PER_REQUEST, PROVISIONED]
+      ProvisionedThroughputSettings: !If
+        - IsPOC
+        - !Ref AWS::NoValue
+        - ReadCapacityUnits: 25
+          WriteCapacityUnits: 25
       AttributeDefinitions:
         - AttributeName: PK
           AttributeType: S
@@ -98,10 +105,13 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub '${AuditTableName}-${Environment}'
-      BillingMode: PROVISIONED
-      ProvisionedThroughputSettings:
-        ReadCapacityUnits: 25
-        WriteCapacityUnits: 25
+      # POC: Use PAY_PER_REQUEST ($0-5/mth). Prod: Use PROVISIONED ($25/mth)
+      BillingMode: !If [IsPOC, PAY_PER_REQUEST, PROVISIONED]
+      ProvisionedThroughputSettings: !If
+        - IsPOC
+        - !Ref AWS::NoValue
+        - ReadCapacityUnits: 25
+          WriteCapacityUnits: 25
       AttributeDefinitions:
         - AttributeName: PK
           AttributeType: S
