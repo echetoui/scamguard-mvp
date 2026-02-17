@@ -13,10 +13,10 @@ from aws_xray_sdk.core import patch_all
 patch_all()
 
 from agents import (
-    ScenarioAgent,
-    DetectionAgent,
-    CoachingAgent,
-    AnalyticsAgent,
+    ScenarioAgentWithCompliance,
+    DetectionAgentWithCompliance,
+    CoachingAgentWithCompliance,
+    AnalyticsAgentWithCompliance,
 )
 from utils.performance import monitor_performance, timeout_guard
 from utils.errors import ScamGuardError
@@ -50,23 +50,23 @@ def get_secrets(secret_name: str) -> dict:
 
 
 def init_agents():
-    """Initialize AI agents (lazy loading)."""
+    """Initialize AI agents with compliance (lazy loading)."""
     global scenario_agent, detection_agent, coaching_agent, analytics_agent
 
     if scenario_agent is None:
         secrets = get_secrets("scamguard/gemini-key")
-        scenario_agent = ScenarioAgent(secrets["api_key"])
+        scenario_agent = ScenarioAgentWithCompliance(secrets["api_key"])
 
     if detection_agent is None:
         secrets = get_secrets("scamguard/openai-key")
-        detection_agent = DetectionAgent(secrets["api_key"])
+        detection_agent = DetectionAgentWithCompliance(secrets["api_key"])
 
     if coaching_agent is None:
         secrets = get_secrets("scamguard/openai-key")
-        coaching_agent = CoachingAgent(secrets["api_key"])
+        coaching_agent = CoachingAgentWithCompliance(secrets["api_key"])
 
     if analytics_agent is None:
-        analytics_agent = AnalyticsAgent(table)
+        analytics_agent = AnalyticsAgentWithCompliance(table)
 
 
 def standardize_response(data: dict, request_id: str, trace_id: str) -> dict:
@@ -131,8 +131,8 @@ def post_scenarios(event, context):
             )
             return {"statusCode": status, "body": json.dumps(err)}
 
-        # Generate scenario
-        scenario = scenario_agent.generate(difficulty, user_id)
+        # Generate scenario with compliance checks
+        scenario = scenario_agent.generate_compliant(difficulty, user_id)
 
         return {
             "statusCode": 200,
@@ -185,19 +185,19 @@ def post_analysis(event, context):
             )
             return {"statusCode": status, "body": json.dumps(err)}
 
-        # Run detection
-        detection_result = detection_agent.analyze_image(image_url, message, user_id)
+        # Run detection with compliance checks
+        detection_result = detection_agent.analyze_image_compliant(image_url, message, user_id)
 
-        # Get coaching
-        coaching = coaching_agent.generate_coaching(
+        # Get coaching with compliance checks
+        coaching = coaching_agent.generate_coaching_compliant(
             detection_result["risk_level"],
             detection_result["indicators"],
             detection_result["explanation"],
             user_id,
         )
 
-        # Update analytics
-        analytics_agent.update_analytics(user_id, detection_result)
+        # Update analytics with compliance checks
+        analytics_agent.update_analytics_compliant(user_id, detection_result)
 
         # Store session
         session_id = str(uuid.uuid4())
@@ -291,7 +291,7 @@ def get_analytics(event, context):
 
     try:
         init_agents()
-        analytics = analytics_agent.get_user_analytics(user_id)
+        analytics = analytics_agent.get_user_analytics_compliant(user_id)
 
         return {
             "statusCode": 200,
