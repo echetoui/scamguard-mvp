@@ -1,0 +1,509 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'ScamGuard MVP - Scam Detection & Education Platform for Elderly Users'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+    Description: Deployment environment
+
+  ImageRepoUri:
+    Type: String
+    Default: public.ecr.aws/lambda/python:3.12
+    Description: Docker image for Lambda
+
+  DynamoDBTableName:
+    Type: String
+    Default: ScamGuardData
+    Description: DynamoDB table for user data
+
+  AuditTableName:
+    Type: String
+    Default: ScamGuardAudit
+    Description: DynamoDB table for audit logs
+
+  ReservedConcurrentExecutions:
+    Type: Number
+    Default: 10
+    MinValue: 1
+    MaxValue: 1000
+    Description: Reserved concurrent executions for Lambda
+
+  OpenAIApiKeySecret:
+    Type: String
+    Default: scamguard/openai-key
+    Description: Secrets Manager secret name for OpenAI key
+
+  GeminiApiKeySecret:
+    Type: String
+    Default: scamguard/gemini-key
+    Description: Secrets Manager secret name for Gemini key
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 1536
+    Runtime: python3.12
+    Architectures:
+      - x86_64
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMODB_TABLE: !Ref DataTable
+        DYNAMODB_AUDIT_TABLE: !Ref AuditTable
+        ENVIRONMENT: !Ref Environment
+        OPENAI_SECRET: !Ref OpenAIApiKeySecret
+        GEMINI_SECRET: !Ref GeminiApiKeySecret
+        XRAY_ENABLED: 'true'
+    Layers:
+      - !Ref PythonDependenciesLayer
+
+Resources:
+  # ============================================================================
+  # DynamoDB Tables
+  # ============================================================================
+
+  DataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DynamoDBTableName}-${Environment}'
+      BillingMode: PROVISIONED
+      ProvisionedThroughputSettings:
+        ReadCapacityUnits: 25
+        WriteCapacityUnits: 25
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: ttl
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+
+  AuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${AuditTableName}-${Environment}'
+      BillingMode: PROVISIONED
+      ProvisionedThroughputSettings:
+        ReadCapacityUnits: 25
+        WriteCapacityUnits: 25
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: ttl
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================================================
+  # Lambda Layer - Python Dependencies
+  # ============================================================================
+
+  PythonDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub 'scamguard-dependencies-${Environment}'
+      Description: Python dependencies for ScamGuard
+      ContentUri: ./layers/python_dependencies/
+      CompatibleRuntimes:
+        - python3.12
+
+  # ============================================================================
+  # Cognito User Pool (Authentication)
+  # ============================================================================
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub 'scamguard-users-${Environment}'
+      MfaConfiguration: OPTIONAL
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+        - Name: name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: family_name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: email_verified
+          AttributeDataType: Boolean
+          Mutable: true
+        - Name: age_verified
+          AttributeDataType: Boolean
+          Mutable: true
+        - Name: terms_accepted
+          AttributeDataType: Boolean
+          Mutable: true
+        - Name: data_consent
+          AttributeDataType: Boolean
+          Mutable: true
+        - Name: mfa_enabled
+          AttributeDataType: Boolean
+          Mutable: true
+      Tags:
+        Application: ScamGuard
+        Environment: !Ref Environment
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: !Sub 'scamguard-client-${Environment}'
+      GenerateSecret: true
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_CUSTOM_AUTH
+      PreventUserExistenceErrors: LEGACY
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      CallbackURLs:
+        - !Sub 'https://${ApiDomain}/oauth2/callback'
+      AllowedOAuthFlowsUserPoolClient: true
+
+  # ============================================================================
+  # API Gateway
+  # ============================================================================
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'scamguard-api-${Environment}'
+      StageName: !Ref Environment
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+      TracingEnabled: true
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          LoggingLevel: INFO
+          DataTraceEnabled: true
+          MetricsEnabled: true
+      Tags:
+        Application: ScamGuard
+        Environment: !Ref Environment
+
+  ApiDomain:
+    Type: AWS::CloudFormation::GetAtt
+    Properties:
+      LogicalId: ApiGateway
+      AttributeType: DomainName
+
+  # ============================================================================
+  # Lambda Functions
+  # ============================================================================
+
+  ScamGuardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-handler-${Environment}'
+      CodeUri: ./
+      Handler: lambda/handler.lambda_handler
+      Runtime: python3.12
+      MemorySize: 1536
+      Timeout: 60
+      ReservedConcurrentExecutions: !Ref ReservedConcurrentExecutions
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref DataTable
+          DYNAMODB_AUDIT_TABLE: !Ref AuditTable
+          ENVIRONMENT: !Ref Environment
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${OpenAIApiKeySecret}-*'
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${GeminiApiKeySecret}-*'
+            - Effect: Allow
+              Action:
+                - xray:PutTraceSegments
+                - xray:PutTelemetryRecords
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostScenarios:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/scenarios
+            Method: POST
+        PostAnalysis:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/analysis
+            Method: POST
+        GetProfile:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/profile
+            Method: GET
+        GetAnalytics:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/analytics/summary
+            Method: GET
+      Layers:
+        - !Ref PythonDependenciesLayer
+      Tags:
+        Application: ScamGuard
+        Environment: !Ref Environment
+
+  AuthHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-auth-${Environment}'
+      CodeUri: ./
+      Handler: lambda/auth_handler.lambda_handler
+      Runtime: python3.12
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref UserPool
+          COGNITO_CLIENT_ID: !Ref UserPoolClient
+          DYNAMODB_TABLE: !Ref DataTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:*
+              Resource: !GetAtt UserPool.Arn
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostSignup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/signup
+            Method: POST
+        PostLogin:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/login
+            Method: POST
+        PostLogout:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/logout
+            Method: POST
+        PostVerifyEmail:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-email
+            Method: POST
+        PostResendCode:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/resend-code
+            Method: POST
+      Tags:
+        Application: ScamGuard
+        Environment: !Ref Environment
+
+  # ============================================================================
+  # CloudWatch Monitoring
+  # ============================================================================
+
+  ComplianceViolationsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'scamguard-compliance-violations-${Environment}'
+      AlarmDescription: Alert when compliance checks are blocked
+      MetricName: operation_blocked
+      Namespace: ScamGuard
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  LambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'scamguard-lambda-errors-${Environment}'
+      AlarmDescription: Alert on Lambda function errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ScamGuardFunction
+
+  DynamoDBThrottlingAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'scamguard-dynamodb-throttling-${Environment}'
+      AlarmDescription: Alert on DynamoDB throttling
+      MetricName: ConsumedWriteCapacityUnits
+      Namespace: AWS/DynamoDB
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 20
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: TableName
+          Value: !Ref DataTable
+
+  # ============================================================================
+  # S3 Bucket for Lambda Artifacts & Backups
+  # ============================================================================
+
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'scamguard-artifacts-${AWS::AccountId}-${Environment}'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================================================
+  # CloudFormation Outputs
+  # ============================================================================
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/'
+    Export:
+      Name: !Sub 'ScamGuard-ApiEndpoint-${Environment}'
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub 'ScamGuard-UserPoolId-${Environment}'
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+    Export:
+      Name: !Sub 'ScamGuard-UserPoolClientId-${Environment}'
+
+  DataTableName:
+    Description: DynamoDB Data Table Name
+    Value: !Ref DataTable
+    Export:
+      Name: !Sub 'ScamGuard-DataTable-${Environment}'
+
+  AuditTableName:
+    Description: DynamoDB Audit Table Name
+    Value: !Ref AuditTable
+    Export:
+      Name: !Sub 'ScamGuard-AuditTable-${Environment}'
+
+  ScamGuardFunctionArn:
+    Description: ScamGuard Lambda Function ARN
+    Value: !GetAtt ScamGuardFunction.Arn
+    Export:
+      Name: !Sub 'ScamGuard-FunctionArn-${Environment}'
+
+  AuthHandlerArn:
+    Description: Auth Handler Lambda Function ARN
+    Value: !GetAtt AuthHandler.Arn
+    Export:
+      Name: !Sub 'ScamGuard-AuthHandlerArn-${Environment}'
+
+  ArtifactsBucketName:
+    Description: S3 Bucket for artifacts and backups
+    Value: !Ref ArtifactsBucket
+    Export:
+      Name: !Sub 'ScamGuard-ArtifactsBucket-${Environment}'
