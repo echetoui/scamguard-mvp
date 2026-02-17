@@ -469,6 +469,7 @@ pytest backend/tests/test_compliance_*.py --cov=compliance --cov-report=html
 - `test_compliance_validator.py` - Test validator logic
 - `test_audit_logger.py` - Test audit logging
 - `test_agents_with_compliance.py` - Test wrapped agents
+- `test_elder_protection.py` - Test 12 elder protection rules + anonymization
 
 ## Deployment Checklist
 
@@ -515,20 +516,234 @@ Security Dashboard:
 └─ Data Access Events (24h)
 ```
 
+## Elder Protection (Vulnerable Population Safeguards)
+
+### Context
+
+ScamGuard targets **elderly users (65+)** to help them identify and avoid scams. This vulnerable population requires enhanced protection beyond standard compliance rules.
+
+### 12 Elder Protection Rules
+
+| Code | Level | Category | Purpose |
+|------|-------|----------|---------|
+| `ACCESSIBLE_UI` | 🔴 CRITICAL | Accessibility | Large fonts (18pt+), simple navigation |
+| `IMAGE_AUTO_DELETE` | 🔴 CRITICAL | Privacy | Images deleted within 24h of analysis |
+| `FAMILY_NOTIFICATION` | 🟠 ERROR | Support | Option to notify trusted family members |
+| `NO_ELDER_PROFILING` | 🔴 CRITICAL | Privacy | No marketing/behavioral profiling |
+| `SIMPLIFIED_LANGUAGE` | 🟠 ERROR | Accessibility | 8th grade reading level max |
+| `PHONE_SUPPORT` | 🟠 ERROR | Support | Phone support available during business hours |
+| `EMAIL_ONLY_AUTH` | 🟠 ERROR | Security | Email verification only (no complex TOTP) |
+| `NO_DARK_PATTERNS` | 🔴 CRITICAL | Legal | No pre-checked boxes, hidden options |
+| `EASY_DATA_DELETION` | 🟠 ERROR | Privacy | Delete account in ≤ 3 clicks |
+| `ANONYMIZED_TRAINING_DATA` | 🔴 CRITICAL | Privacy | No user IDs in training analytics |
+| `EXPLICIT_ELDER_CONSENT` | 🔴 CRITICAL | Legal | User explicitly consents before image upload |
+| `CONSENT_REFRESH` | 🟡 WARNING | Legal | Re-confirm consent every 30 days |
+
+### Elder Validator Usage
+
+```python
+from compliance.elder_validator import ElderValidator
+
+elder_validator = ElderValidator()
+
+# Validate elderly user meets protection requirements
+user = {
+    "user_id": "elder_user_123",
+    "large_font_enabled": True,
+    "family_notification_enabled": True,
+    "marketing_profiling_disabled": True,
+    "phone_support_enabled": True,
+    "auth_method": "email_only",
+    "mfa_optional": True,
+    "dark_patterns_audit_passed": True,
+    "deletion_clicks_required": 2,
+    "has_explicit_consent": True,
+    "consent_timestamp": "2026-02-16T10:00:00"
+}
+
+is_safe, issues = elder_validator.validate_elder_user(user)
+if not is_safe:
+    for issue in issues:
+        if issue["level"] == "critical":
+            logger.error(f"Critical elder protection issue: {issue['code']}")
+```
+
+### Image Upload Protection
+
+```python
+# Before elderly user uploads image, validate consent
+is_allowed, issues = elder_validator.validate_image_upload(
+    user_id="elder_user_123",
+    user_config={
+        "has_explicit_consent": True,
+        "consent_timestamp": "2026-02-16T10:00:00"
+    }
+)
+
+if not is_allowed:
+    return {
+        "error": "Cannot proceed with image analysis",
+        "reason": "Consent required to analyze images",
+        "issues": issues
+    }
+```
+
+### Training Data Anonymization
+
+Elderly users' training data must be **completely anonymized** before analytics:
+
+```python
+from utils.anonymization import AnonymizationUtil
+
+# Original session data
+session = {
+    "user_id": "elder_user_123",
+    "email": "elder@example.com",
+    "difficulty": "easy",
+    "risk_level": "high",
+    "confidence_before": 3,
+    "confidence_after": 8,
+    "learning_effective": True,
+    "timestamp": "2026-02-16T10:00:00"
+}
+
+# Anonymize for analytics
+anon_session = AnonymizationUtil.anonymize_training_session(session)
+# Returns: {
+#   "difficulty": "easy",
+#   "risk_level": "high",
+#   "confidence_before": 3,
+#   "confidence_after": 8,
+#   "learning_effective": True,
+#   "session_hash": "a1b2c3d4...",
+#   "timestamp": "2026-02-16T10:00:00"
+# } ← NO user_id or email!
+```
+
+### Image Metadata Anonymization
+
+```python
+# Original image data
+image = {
+    "image_url": "https://s3.../elder_user_123/scam_email.jpg",
+    "user_id": "elder_user_123",
+    "file_size_kb": 512,
+    "format": "jpg",
+    "analysis_result": {"risk_level": "high", "confidence": 0.95},
+}
+
+# Anonymize for storage
+anon_image = AnonymizationUtil.anonymize_image_metadata(image)
+# Returns: {
+#   "image_hash": "a1b2c3d4f5...",
+#   "file_size_kb": 512,
+#   "format": "jpg",
+#   "analysis_result": {"risk_level": "high", "confidence": 0.95},
+# } ← NO image_url or user_id!
+```
+
+### Aggregated Analytics (Privacy-Safe)
+
+```python
+# Create aggregated analytics for reporting (no individual tracking)
+analytics = AnonymizationUtil.create_aggregated_analytics(
+    sessions=[...anonymized sessions...],
+    cohort="age_70-80"
+)
+# Returns: {
+#   "cohort": "age_70-80",
+#   "session_count": 127,
+#   "learning_effective_percent": 73.2,
+#   "avg_confidence_improvement_percent": 28.5,
+#   "difficulty_breakdown": {...},
+#   "common_red_flags": {
+#       "urgency": 89,
+#       "authority": 76,
+#       "fear": 45,
+#       ...
+#   }
+# } ← Aggregate data only, no individuals identified
+```
+
+### Consent Management Best Practices
+
+1. **Initial Consent** (First Login):
+   - Show simple, clear consent dialog
+   - Explain what images will be analyzed
+   - Explain 24h automatic deletion
+   - Require explicit "I agree" click (no default)
+
+2. **Consent Refresh** (Every 30 days):
+   - Simple reminder: "Confirm you still want to use ScamGuard"
+   - Track re-confirmation date
+   - Block operations if consent expired
+
+3. **Easy Withdrawal**:
+   - One-click "Delete my account" in settings
+   - Confirm deletion with email
+   - Delete all data within 24h
+   - Send confirmation when complete
+
+### Audit Logging for Elderly Users
+
+```python
+from compliance.audit_logger import AuditLogger
+
+logger = AuditLogger()
+
+# Log training session (anonymized)
+logger.log_action(
+    user_id="ELDER_a1b2c3d4",  # Hashed user ID
+    action="training_scenario_completed",
+    resource="training",
+    status="success",
+    details={
+        "difficulty": "easy",
+        "learning_effective": True,
+        "time_seconds": 45,
+        # NO image URL, no original user_id
+    }
+)
+
+# Log data access request
+logger.log_data_access(
+    user_id="ELDER_a1b2c3d4",
+    data_type="training_sessions",
+    operation="export",  # GDPR right to access
+    data_count=25
+)
+```
+
+### Testing Elder Protection
+
+```bash
+# Test elder protection rules
+pytest backend/tests/test_elder_protection.py -v
+
+# Test specific validator
+pytest backend/tests/test_elder_protection.py::TestElderValidator -v
+
+# Test anonymization
+pytest backend/tests/test_elder_protection.py::TestAnonymization -v
+```
+
 ## References
 
 - [FDP Platform Documentation](https://fdp.example.com/docs)
 - [GDPR Article 6-10 (Lawful Basis)](https://gdpr-info.eu/)
 - [AWS Data Protection Best Practices](https://aws.amazon.com/compliance/)
 - [OWASP Data Protection Cheat Sheet](https://cheatsheetseries.owasp.org/)
+- [Elder Abuse Prevention Guide](https://www.ncoa.org/article/elder-fraud-resources/)
 
 ## Future Enhancements (Phase 5)
 
 - [ ] Implement GDPR right to erasure endpoint
 - [ ] Implement GDPR right to portability endpoint
-- [ ] Add data anonymization for analytics
+- [x] Add data anonymization for analytics (Phase 4b)
 - [ ] Implement consent withdrawal handling
 - [ ] Add audit log archival to S3 Glacier
 - [ ] Implement fine-grained access control (FGAC)
 - [ ] Add compliance dashboard UI
 - [ ] Implement automated compliance scanning
+- [ ] Add elder user onboarding flow
+- [ ] Implement family member notification system
