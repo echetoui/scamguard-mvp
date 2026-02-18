@@ -1,0 +1,818 @@
+/**
+ * Animations & Transitions System
+ * Phase 3.1.4 - Accessible Motion Design
+ *
+ * All animations respect prefers-reduced-motion preference.
+ * Senior-friendly durations (300ms-500ms) for smooth transitions.
+ * Reduced motion users see instant state changes instead of animations.
+ */
+
+/* ============ EASING FUNCTIONS ============ */
+
+:root {
+  /* Standard easing for smooth motion */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-out-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-back: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ============ FADE ANIMATIONS ============ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 300ms var(--ease-out) forwards;
+}
+
+.fade-out {
+  animation: fadeOut 300ms var(--ease-in) forwards;
+}
+
+/* ============ SLIDE ANIMATIONS ============ */
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 300ms var(--ease-out) forwards;
+}
+
+.slide-in-down {
+  animation: slideInDown 300ms var(--ease-out) forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 300ms var(--ease-out) forwards;
+}
+
+.slide-in-right {
+  animation: slideInRight 300ms var(--ease-out) forwards;
+}
+
+.slide-out-up {
+  animation: slideOutUp 300ms var(--ease-in) forwards;
+}
+
+.slide-out-down {
+  animation: slideOutDown 300ms var(--ease-in) forwards;
+}
+
+.slide-out-left {
+  animation: slideOutLeft 300ms var(--ease-in) forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 300ms var(--ease-in) forwards;
+}
+
+/* ============ SCALE ANIMATIONS ============ */
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes scaleDown {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 300ms var(--ease-out) forwards;
+}
+
+.scale-out {
+  animation: scaleOut 300ms var(--ease-in) forwards;
+}
+
+/* ============ ROTATE ANIMATIONS ============ */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes jiggle {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.spin-reverse {
+  animation: spinReverse 1s linear infinite;
+}
+
+.pulse {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+.bounce {
+  animation: bounce 1s var(--ease-in-out) infinite;
+}
+
+.jiggle {
+  animation: jiggle 500ms var(--ease-in-out);
+}
+
+/* ============ BACKGROUND ANIMATIONS ============ */
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-animated {
+  background-size: 200% 200%;
+  animation: gradientShift 3s var(--ease-in-out) infinite;
+}
+
+/* ============ SHIMMER LOADING ANIMATION ============ */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer-loading {
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f0f0f0 50%,
+    #e0e0e0 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ============ INTERACTION ANIMATIONS ============ */
+
+/* Button press animation */
+@keyframes pressDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes pressUp {
+  from {
+    transform: translateY(2px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+button:active {
+  animation: pressDown 100ms var(--ease-out) forwards;
+}
+
+/* Focus pulse */
+@keyframes focusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(46, 125, 50, 0);
+  }
+}
+
+/* Hover lift */
+@keyframes liftUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes liftDown {
+  from {
+    transform: translateY(-2px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ============ SMOOTH TRANSITIONS ============ */
+
+/* Standard property transitions */
+.transition-all {
+  transition: all 300ms var(--ease-in-out);
+}
+
+.transition-colors {
+  transition: background-color 300ms var(--ease-in-out),
+              color 300ms var(--ease-in-out),
+              border-color 300ms var(--ease-in-out);
+}
+
+.transition-transform {
+  transition: transform 300ms var(--ease-in-out);
+}
+
+.transition-opacity {
+  transition: opacity 300ms var(--ease-in-out);
+}
+
+.transition-shadow {
+  transition: box-shadow 300ms var(--ease-in-out);
+}
+
+/* Fast transitions for interactive feedback */
+.transition-fast {
+  transition: all 150ms var(--ease-out);
+}
+
+/* Slow transitions for content changes */
+.transition-slow {
+  transition: all 500ms var(--ease-in-out);
+}
+
+/* ============ TAB & PAGE TRANSITIONS ============ */
+
+/* Tab panel fade */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tabFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.tab-panel {
+  animation: tabFadeIn 300ms var(--ease-out);
+}
+
+.tab-panel.exiting {
+  animation: tabFadeOut 300ms var(--ease-in);
+}
+
+/* Page slide transition */
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.page-transition {
+  animation: pageSlideIn 400ms var(--ease-out);
+}
+
+/* ============ MODAL & DROPDOWN ANIMATIONS ============ */
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dropdownSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownSlideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.modal-overlay {
+  animation: modalFadeIn 300ms var(--ease-out);
+}
+
+.modal-content {
+  animation: modalScaleIn 300ms var(--ease-out-back);
+}
+
+.dropdown {
+  animation: dropdownSlideDown 250ms var(--ease-out);
+}
+
+.dropdown.closing {
+  animation: dropdownSlideUp 250ms var(--ease-in);
+}
+
+/* ============ TOAST/NOTIFICATION ANIMATIONS ============ */
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.toast {
+  animation: toastSlideIn 300ms var(--ease-out);
+}
+
+.toast.closing {
+  animation: toastSlideOut 300ms var(--ease-in);
+}
+
+/* ============ FORM INPUT ANIMATIONS ============ */
+
+/* Input focus ripple */
+@keyframes inputFocus {
+  from {
+    border-color: var(--color-border);
+    box-shadow: none;
+  }
+  to {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+  }
+}
+
+/* Input error shake */
+@keyframes inputShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+input:focus,
+textarea:focus {
+  animation: inputFocus 300ms var(--ease-out);
+}
+
+input.error,
+textarea.error {
+  animation: inputShake 400ms var(--ease-in-out);
+}
+
+/* ============ PROGRESS ANIMATIONS ============ */
+
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes progressIndeterminate {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.progress-bar {
+  animation: progressFill 1s var(--ease-out);
+}
+
+.progress-bar.indeterminate::after {
+  animation: progressIndeterminate 1.5s linear infinite;
+}
+
+/* ============ DISABLED/LOADING STATES ============ */
+
+@keyframes disableFade {
+  to {
+    opacity: 0.5;
+  }
+}
+
+.button-disabled {
+  animation: disableFade 300ms var(--ease-out) forwards;
+}
+
+/* Disabled state with pointer-events: none */
+[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============ ACCESSIBILITY: REDUCED MOTION ============ */
+
+/**
+ * CRITICAL: All animations are disabled when prefers-reduced-motion is set
+ * Users see instant state changes instead of smooth animations
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations - instant state changes */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  /* Specific overrides to ensure no animations */
+  .fade-in,
+  .fade-out,
+  .slide-in-up,
+  .slide-in-down,
+  .slide-in-left,
+  .slide-in-right,
+  .scale-in,
+  .scale-out,
+  .spin,
+  .pulse,
+  .bounce,
+  .gradient-animated,
+  .shimmer-loading,
+  .transition-all,
+  .transition-colors,
+  .transition-transform,
+  .transition-opacity,
+  .transition-shadow,
+  .transition-fast,
+  .transition-slow {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Tab panel shows immediately */
+  .tab-panel {
+    opacity: 1;
+    animation: none;
+  }
+
+  /* Modal shows immediately */
+  .modal-overlay,
+  .modal-content {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Dropdown shows immediately */
+  .dropdown {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Toast shows immediately */
+  .toast {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Button hover has no lift effect */
+  button:hover {
+    transform: none;
+  }
+
+  /* Input focus has no animation */
+  input:focus,
+  textarea:focus {
+    animation: none;
+    border-color: var(--color-primary);
+  }
+}
+
+/* ============ PERFORMANCE OPTIMIZATION ============ */
+
+/**
+ * Use GPU acceleration for smoother animations
+ * will-change tells browser to prepare for animation
+ */
+
+.animate-transform {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.animate-opacity {
+  will-change: opacity;
+}
+
+.animate-colors {
+  will-change: background-color, color, border-color;
+}
+
+/* Remove will-change after animation completes to save memory */
+.fade-in:not(.animating) {
+  will-change: auto;
+}
+
+/* ============ TRANSFORM HELPERS ============ */
+
+.translate-y-up {
+  transform: translateY(-2px);
+}
+
+.translate-y-down {
+  transform: translateY(2px);
+}
+
+.scale-hover {
+  transform: scale(1.05);
+}
+
+.scale-pressed {
+  transform: scale(0.95);
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* ============ ANIMATION DURATIONS FOR SENIORS ============ */
+
+/**
+ * Senior-friendly animation durations (300-500ms)
+ * Slower than default (150ms) for better comprehension
+ */
+
+.senior-animation-slow {
+  animation-duration: 500ms !important;
+  transition-duration: 500ms !important;
+}
+
+.senior-animation-medium {
+  animation-duration: 400ms !important;
+  transition-duration: 400ms !important;
+}
+
+/* ============ COLOR ANIMATIONS ============ */
+
+@keyframes colorPulse {
+  0%, 100% {
+    color: var(--color-text-primary);
+  }
+  50% {
+    color: var(--color-primary);
+  }
+}
+
+@keyframes bgColorPulse {
+  0%, 100% {
+    background-color: var(--color-background);
+  }
+  50% {
+    background-color: var(--color-primary-bg-light);
+  }
+}
+
+.color-pulse {
+  animation: colorPulse 2s var(--ease-in-out) infinite;
+}
+
+.bg-color-pulse {
+  animation: bgColorPulse 2s var(--ease-in-out) infinite;
+}
