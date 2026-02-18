@@ -11,6 +11,16 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [history, setHistory] = useState(() => {
+    const saved = localStorage.getItem('scamguard_history');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [toast, setToast] = useState(null); // { message, type }
+
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Synthèse vocale (Le téléphone lit le texte)
   const speak = (text) => {
@@ -26,7 +36,7 @@ export default function App() {
   // Reconnaissance vocale (L'utilisateur parle au lieu de taper)
   const startListening = () => {
     if (!('webkitSpeechRecognition' in window)) {
-      alert("La dictée vocale n'est pas supportée sur ce navigateur.");
+      showToast("La dictée vocale n'est pas supportée sur ce navigateur.", "error");
       return;
     }
     const recognition = new window.webkitSpeechRecognition();
@@ -64,7 +74,7 @@ export default function App() {
       // Lecture automatique du scénario pour l'accessibilité
       setTimeout(() => speak(`Nouveau message reçu. ${data.content}. Que faites-vous ?`), 500);
     } catch (e) {
-      alert("Une petite erreur de connexion. Réessayez.");
+      showToast("Erreur de connexion. Vérifiez votre internet.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +87,18 @@ export default function App() {
       reader.onloadend = () => setImage(reader.result.split(',')[1]);
       reader.readAsDataURL(file);
     }
+  };
+
+  const saveToHistory = (analysisResult) => {
+    const newItem = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('fr-FR'),
+      score: analysisResult.detection.score,
+      summary: analysisResult.coaching.feedback.substring(0, 60) + "..."
+    };
+    const updatedHistory = [newItem, ...history].slice(0, 20);
+    setHistory(updatedHistory);
+    localStorage.setItem('scamguard_history', JSON.stringify(updatedHistory));
   };
 
   const submitAnalysis = async () => {
@@ -98,10 +120,12 @@ export default function App() {
       const data = await res.json();
       setResult(data);
       setView('result');
+      saveToHistory(data);
+      showToast("Analyse terminée !", "success");
       // Lecture du feedback principal
       setTimeout(() => speak(`Résultat : ${data.detection.score} sur 100. ${data.coaching.feedback}`), 500);
     } catch (e) {
-      alert("Impossible d'analyser pour le moment.");
+      showToast("Impossible d'analyser pour le moment.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +136,7 @@ export default function App() {
     return (
       <div className="container loading-screen">
         <div className="spinner">⏳</div>
-        <p>L'intelligence artificielle réfléchit...</p>
+        <p>Analyse en cours...</p>
       </div>
     );
   }
@@ -120,13 +144,26 @@ export default function App() {
   return (
     <div className="container">
       <header className="app-header">
-        <h1>🛡️ ScamGuard</h1>
+        <div className="logo-area">
+          <h1>🛡️ ScamGuard</h1>
+        </div>
+        {view !== 'home' && view !== 'history' && (
+          <button onClick={() => setView('home')} className="btn-close">✕</button>
+        )}
       </header>
       
-      <main>
+      <main className="main-content">
         {view === 'home' && (
-          <div className="menu-grid">
-            <p className="welcome-text">Bonjour ! Que voulez-vous faire aujourd'hui ?</p>
+          <div className="home-view fade-in">
+            <div className="welcome-card">
+              <p className="welcome-sub">Bonjour,</p>
+              <p className="welcome-title">Prêt à vous protéger ?</p>
+            </div>
+
+            <div className="tip-card">
+              <span className="tip-icon">💡</span>
+              <p><strong>Conseil du jour :</strong> Ne donnez jamais votre mot de passe par téléphone, même à votre banque.</p>
+            </div>
             
             <button onClick={getScenario} className="btn-primary large-touch">
               <span className="icon">🎯</span>
@@ -141,7 +178,7 @@ export default function App() {
         )}
         
         {view === 'scenario' && scenario && (
-          <div className="scenario-card">
+          <div className="scenario-card slide-up">
             <div className="scenario-header">
               <h2>{scenario.title}</h2>
               <button onClick={() => speak(scenario.content)} className="btn-icon" aria-label="Relire le message">
@@ -183,7 +220,7 @@ export default function App() {
         )}
         
         {view === 'detection' && (
-          <div className="detection-card">
+          <div className="detection-card slide-up">
             <h2>📸 Analyse de message</h2>
             <p>Prenez une photo de l'écran ou du message qui vous inquiète.</p>
             
@@ -213,7 +250,7 @@ export default function App() {
         )}
         
         {view === 'result' && result && (
-          <div className="result-card">
+          <div className="result-card fade-in">
             <h2>Résultat de l'analyse</h2>
             <div className={`score-circle score-${result.detection.score > 50 ? 'good' : 'bad'}`}>
               {result.detection.score}/100
@@ -232,7 +269,45 @@ export default function App() {
             </button>
           </div>
         )}
+
+        {view === 'history' && (
+          <div className="history-view fade-in">
+            <h2>📜 Historique</h2>
+            {history.length === 0 ? (
+              <p className="empty-state">Aucune analyse pour le moment.</p>
+            ) : (
+              <div className="history-list">
+                {history.map((item) => (
+                  <div key={item.id} className="history-item">
+                    <div className={`history-score ${item.score > 50 ? 'good' : 'bad'}`}>
+                      {item.score}
+                    </div>
+                    <div className="history-details">
+                      <span className="history-date">{item.date}</span>
+                      <p>{item.summary}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
+
+      {/* Navigation du bas */}
+      <nav className="bottom-nav">
+        <button onClick={() => setView('home')} className={`nav-item ${view === 'home' ? 'active' : ''}`}>
+          <span className="nav-icon">🏠</span>
+          <span>Accueil</span>
+        </button>
+        <button onClick={() => setView('history')} className={`nav-item ${view === 'history' ? 'active' : ''}`}>
+          <span className="nav-icon">📜</span>
+          <span>Historique</span>
+        </button>
+      </nav>
+
+      {/* Toast Notification */}
+      {toast && <div className={`toast toast-${toast.type}`}>{toast.message}</div>}
     </div>
   );
 }
