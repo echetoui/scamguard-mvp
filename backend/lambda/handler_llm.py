@@ -13,6 +13,9 @@ from datetime import datetime
 secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 
+# Import anonymization utilities
+from utils.anonymization import anonymize_item, get_anonymization_manager
+
 # Get API keys from Secrets Manager
 def get_secret(secret_id):
     try:
@@ -165,14 +168,24 @@ def lambda_handler(event, context):
                 'xp_earned': 10 if result.get('risk_score', 50) > 60 else 5
             }
 
-            # Store in DynamoDB
+            # Store in DynamoDB with anonymization and TTL
             try:
                 table = dynamodb.Table(os.environ.get('TABLE_NAME', 'ScamGuardStack-DataTable447BC44E-1BID2SBGQEELH'))
-                table.put_item(Item={
+
+                # Create item with user ID and analysis
+                item = {
                     'userId': body.get('userId', 'anonymous'),
-                    'timestamp': datetime.utcnow().isoformat(),
+                    'timestamp': datetime.utcnow().isoformat() + 'Z',
                     'analysis': result
-                })
+                }
+
+                # Anonymize the item (hash user ID, add TTL)
+                anonymized_item = anonymize_item(item)
+
+                # Store anonymized item in DynamoDB
+                table.put_item(Item=anonymized_item)
+
+                print(f"Item stored: hashedUserId={anonymized_item.get('hashedUserId')[:16]}..., expirationTime={anonymized_item.get('expirationTime')}")
             except Exception as e:
                 print(f"DynamoDB error: {e}")
 
