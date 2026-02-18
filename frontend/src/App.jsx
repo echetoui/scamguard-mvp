@@ -1,9 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import './App.css';
+import './styles/design-tokens.css';
+import './styles/animations.css';
+import SecurityHeartDashboard from './components/SecurityHeartDashboard';
+import BottomNavigation, { TabPanel, NavigationLayout } from './components/BottomNavigation';
 
 const LAMBDA_URL = process.env.REACT_APP_LAMBDA_URL;
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('securite'); // Default: Security tab
   const [view, setView] = useState('home');
   const [scenario, setScenario] = useState(null);
   const [response, setResponse] = useState('');
@@ -118,12 +123,15 @@ export default function App() {
   }
 
   return (
-    <div className="container">
+    <div className="app-wrapper" style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
       <header className="app-header">
-        <h1>🛡️ ScamGuard</h1>
+        <h1>🛡️ ScamGuard MVP - Phase 3</h1>
       </header>
-      
-      <main>
+
+      <div className="navigation-content" style={{flex: 1, overflowY: 'auto', paddingBottom: '100px'}}>
+        {/* Tab 1: Vérifier - Message/Photo Analysis */}
+        <TabPanel tabId="verifier" activeTab={activeTab}>
+          <div className="container">
         {view === 'home' && (
           <div className="menu-grid">
             <p className="welcome-text">Bonjour ! Que voulez-vous faire aujourd'hui ?</p>
@@ -232,7 +240,38 @@ export default function App() {
             </button>
           </div>
         )}
-      </main>
+          </div>
+        </TabPanel>
+
+        {/* Tab 2: Sécurité - Security Heart Dashboard (DEFAULT) */}
+        <TabPanel tabId="securite" activeTab={activeTab}>
+          <div className="security-view" style={{paddingBottom: '40px'}}>
+            <SecurityHeartDashboard userId="user-demo" />
+          </div>
+        </TabPanel>
+
+        {/* Tab 3: Académie - Learning Modules (Placeholder) */}
+        <TabPanel tabId="academie" activeTab={activeTab}>
+          <div className="container" style={{padding: '20px', textAlign: 'center'}}>
+            <h2>🎓 Académie</h2>
+            <p>Modules d'apprentissage coming soon...</p>
+          </div>
+        </TabPanel>
+
+        {/* Tab 4: Paramètres - Settings (Placeholder) */}
+        <TabPanel tabId="parametres" activeTab={activeTab}>
+          <div className="container" style={{padding: '20px', textAlign: 'center'}}>
+            <h2>⚙️ Paramètres</h2>
+            <p>Paramètres coming soon...</p>
+          </div>
+        </TabPanel>
+      </div>
+
+      {/* Bottom Navigation - Sticky Tab Bar */}
+      <BottomNavigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
     </div>
   );
 }
