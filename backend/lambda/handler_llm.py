@@ -16,6 +16,14 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 # Import anonymization utilities
 from utils.anonymization import anonymize_item, get_anonymization_manager
 
+# Import Quebec expert prompt
+try:
+    from prompts import get_quebec_expert_prompt
+except ImportError:
+    # Fallback if prompt module not available
+    def get_quebec_expert_prompt():
+        return "Tu es un expert en cybersécurité spécialisé dans la détection d'arnaque au Québec."
+
 # Get API keys from Secrets Manager
 def get_secret(secret_id):
     try:
@@ -129,6 +137,55 @@ def analyze_with_gemini(text):
         print(f"Gemini error: {e}")
         return None
 
+def analyze_with_quebec_expert(text):
+    """
+    Analyze text using Quebec cybersecurity expert prompt
+    Returns enriched analysis with institution detection and local remediation
+    """
+    try:
+        quebec_prompt = get_quebec_expert_prompt()
+        api_key = get_secret('scamguard/openai-key')
+        if not api_key:
+            return None
+
+        response = requests.post(
+            'https://api.openai.com/v1/chat/completions',
+            headers={'Authorization': f'Bearer {api_key}'},
+            json={
+                'model': 'gpt-3.5-turbo',
+                'messages': [
+                    {
+                        'role': 'system',
+                        'content': quebec_prompt
+                    },
+                    {
+                        'role': 'user',
+                        'content': f'Analyser ce texte suspect: {text}'
+                    }
+                ],
+                'temperature': 0.3,
+                'max_tokens': 500
+            }
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            content = data['choices'][0]['message']['content'].strip()
+
+            # Parse JSON response
+            try:
+                result = json.loads(content)
+                result['llm_used'] = 'Quebec Expert (OpenAI)'
+                return result
+            except json.JSONDecodeError:
+                # If JSON parsing fails, try to extract from response
+                print(f"Failed to parse Quebec expert response: {content}")
+                return None
+    except Exception as e:
+        print(f"Quebec expert analysis error: {e}")
+        return None
+
+
 def fallback_scam_detection(text):
     """Fallback keyword-based detection"""
     keywords = detect_scam_keywords(text)
@@ -155,8 +212,10 @@ def lambda_handler(event, context):
         if action == 'analyze':
             user_response = body.get('userResponse', '')
 
-            # Try LLM services in order
-            result = analyze_with_openai(user_response)
+            # Try LLM services in order (Quebec expert first for Quebec focus)
+            result = analyze_with_quebec_expert(user_response)
+            if not result:
+                result = analyze_with_openai(user_response)
             if not result:
                 result = analyze_with_gemini(user_response)
             if not result:
