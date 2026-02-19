@@ -1,0 +1,490 @@
+/**
+ * Account Profile Styles
+ * Phase 4.2 - User profile and account management
+ */
+
+.account-profile {
+  width: 100%;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Profile Card */
+.profile-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+  border-radius: 12px;
+  padding: 32px 24px;
+  border: 1px solid var(--color-border);
+  text-align: center;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.avatar-display {
+  font-size: 64px;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.avatar-picker {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.avatar-option {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-color: var(--color-background-secondary);
+  font-size: 28px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-option:hover {
+  background-color: var(--color-hover-bg);
+  transform: scale(1.1);
+}
+
+.avatar-option.selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-bg-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Name Section */
+.name-section {
+  margin-bottom: 16px;
+}
+
+.name-display,
+.name-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.name-label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.name-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.btn-edit {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all var(--transition-base);
+}
+
+.btn-edit:hover {
+  background-color: var(--color-background-tertiary);
+}
+
+.name-input {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 2px solid var(--color-primary);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  background-color: white;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--color-focus-shadow);
+}
+
+.btn-save,
+.btn-cancel {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-base);
+}
+
+.btn-save {
+  background-color: var(--color-safe);
+  color: white;
+}
+
+.btn-save:hover {
+  background-color: var(--color-safe-dark);
+  transform: scale(1.05);
+}
+
+.btn-cancel {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: var(--color-danger-dark);
+}
+
+/* Join Date */
+.join-date {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+}
+
+/* Section Headers */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+  margin-top: 24px;
+}
+
+/* Statistics Section */
+.stats-section {
+  margin-bottom: 32px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.stat-box {
+  background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-base);
+}
+
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Preferences Section */
+.preferences-section {
+  margin-bottom: 32px;
+}
+
+.preferences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.preference-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: var(--color-background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.pref-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.pref-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-border);
+  border-radius: 28px;
+  transition: all var(--transition-base);
+}
+
+.toggle-slider:before {
+  content: '';
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-xs);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--color-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* Data & Privacy Section */
+.data-section {
+  margin-bottom: 32px;
+}
+
+.btn-export,
+.btn-reset {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-align: center;
+}
+
+.btn-export {
+  color: white;
+  background-color: var(--color-primary);
+}
+
+.btn-export:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-reset {
+  color: white;
+  background-color: var(--color-danger);
+}
+
+.btn-reset:hover {
+  background-color: var(--color-danger-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .profile-card,
+  .stat-box {
+    background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
+    border-color: var(--color-border);
+  }
+
+  .avatar-option {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .avatar-option:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .avatar-option.selected {
+    background-color: rgba(0, 86, 179, 0.2);
+  }
+
+  .preference-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-border);
+  }
+
+  .name-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .toggle-slider:before {
+    background-color: #2a2a2a;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .account-profile {
+    padding: 12px;
+  }
+
+  .profile-card {
+    padding: 24px 16px;
+  }
+
+  .avatar-display {
+    font-size: 48px;
+  }
+
+  .avatar-picker {
+    gap: 8px;
+  }
+
+  .avatar-option {
+    width: 42px;
+    height: 42px;
+    font-size: 24px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-box {
+    padding: 12px;
+  }
+
+  .preference-item {
+    padding: 12px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-profile {
+    padding: 8px;
+  }
+
+  .profile-card {
+    padding: 20px 12px;
+  }
+
+  .avatar-display {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  .avatar-picker {
+    gap: 6px;
+  }
+
+  .avatar-option {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-box {
+    padding: 10px;
+  }
+
+  .stat-icon {
+    font-size: 20px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .name-display,
+  .name-edit {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .btn-export,
+  .btn-reset {
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .preference-item {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .pref-label {
+    font-size: 13px;
+  }
+
+  .toggle-switch {
+    width: 44px;
+    height: 24px;
+  }
+
+  .toggle-slider:before {
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+  }
+}
