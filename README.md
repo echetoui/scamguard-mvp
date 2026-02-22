@@ -171,14 +171,28 @@ npm test
 
 ## 📋 Tâches en Cours
 
+### Phase 4 (Actuelle)
 **Voir [ACTION_PLAN_2026_02_22.md](ACTION_PLAN_2026_02_22.md) pour le plan détaillé**
 
-- [ ] Tâche 1: Tests d'authentification complets (Phase 4.1)
-- [ ] Tâche 2: Intégration frontend-backend
-- [ ] Tâche 3: Validation configurations
-- [ ] Tâche 4: Cleanup des artefacts
-- [ ] Tâche 5: Mise à jour documentation
-- [ ] Tâche 6: Commit et versioning
+- [x] Tâche 1: Tests d'authentification complets (Phase 4.1)
+- [x] Tâche 2: Intégration frontend-backend
+- [x] Tâche 3: Validation configurations
+- [x] Tâche 4: Cleanup des artefacts
+- [x] Tâche 5: Mise à jour documentation
+- [x] Tâche 6: Commit et versioning
+
+### Phase 4.3 (Planifié) - 🆕 Scam Intelligence
+**Voir [PHASE_4.3_SCAM_INTELLIGENCE_PLAN.md](PHASE_4.3_SCAM_INTELLIGENCE_PLAN.md)**
+
+- [ ] Tâche 1: Architecture & Design (4h)
+- [ ] Tâche 2: Backend Scraper (1 jour)
+- [ ] Tâche 3: DynamoDB & API (1 jour)
+- [ ] Tâche 4: Frontend Components (1 jour)
+- [ ] Tâche 5: LLM Integration (4h)
+- [ ] Tâche 6: Notifications & Alertes (4h)
+- [ ] Tâche 7: Documentation & Tests (4h)
+
+**Durée Totale:** 3-4 jours | **Priorité:** 🔴 HAUTE
 
 ---
 
