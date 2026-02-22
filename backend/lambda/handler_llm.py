@@ -8,6 +8,7 @@ import os
 import boto3
 import requests
 from datetime import datetime
+import uuid
 
 # Initialize AWS SDK
 secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
@@ -227,24 +228,27 @@ def lambda_handler(event, context):
                 'xp_earned': 10 if result.get('risk_score', 50) > 60 else 5
             }
 
-            # Store in DynamoDB with anonymization and TTL
+            # Store in DynamoDB with correct schema
             try:
-                table = dynamodb.Table(os.environ.get('TABLE_NAME', 'ScamGuardStack-DataTable447BC44E-1BID2SBGQEELH'))
+                table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+                user_id = body.get('userId', 'anonymous')
+                timestamp = datetime.utcnow().isoformat()
+                analysis_id = str(uuid.uuid4())[:8]
 
-                # Create item with user ID and analysis
+                # Create item with PK/SK schema for DynamoDB
                 item = {
-                    'userId': body.get('userId', 'anonymous'),
-                    'timestamp': datetime.utcnow().isoformat() + 'Z',
-                    'analysis': result
+                    'PK': f'USER#{user_id}',
+                    'SK': f'ANALYSIS#{timestamp}#{analysis_id}',
+                    'userId': user_id,
+                    'timestamp': timestamp,
+                    'analysis': result,
+                    'ttl': int(datetime.utcnow().timestamp()) + (90 * 24 * 60 * 60)  # 90 days
                 }
 
-                # Anonymize the item (hash user ID, add TTL)
-                anonymized_item = anonymize_item(item)
+                # Store item in DynamoDB
+                table.put_item(Item=item)
 
-                # Store anonymized item in DynamoDB
-                table.put_item(Item=anonymized_item)
-
-                print(f"Item stored: hashedUserId={anonymized_item.get('hashedUserId')[:16]}..., expirationTime={anonymized_item.get('expirationTime')}")
+                print(f"Item stored: PK=USER#{user_id}, SK=ANALYSIS#{timestamp}#{analysis_id}")
             except Exception as e:
                 print(f"DynamoDB error: {e}")
 
@@ -289,6 +293,89 @@ def lambda_handler(event, context):
                     'data': scenario
                 })
             }
+
+        # Get user profile
+        elif action == 'get_profile':
+            try:
+                user_id = body.get('userId', 'anonymous')
+                table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+
+                response = table.get_item(
+                    Key={
+                        'PK': f'USER#{user_id}',
+                        'SK': 'PROFILE'
+                    }
+                )
+
+                profile = response.get('Item', {})
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps({
+                        'success': True,
+                        'data': profile
+                    })
+                }
+            except Exception as e:
+                print(f"Error getting profile: {e}")
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'error': str(e)})
+                }
+
+        # Save/update user profile
+        elif action == 'save_profile':
+            try:
+                user_id = body.get('userId', 'anonymous')
+                table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+
+                profile_data = body.get('profile', {})
+                profile_data['PK'] = f'USER#{user_id}'
+                profile_data['SK'] = 'PROFILE'
+                profile_data['updated_at'] = datetime.utcnow().isoformat()
+
+                table.put_item(Item=profile_data)
+
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps({
+                        'success': True,
+                        'data': {'message': 'Profile saved successfully'}
+                    })
+                }
+            except Exception as e:
+                print(f"Error saving profile: {e}")
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'error': str(e)})
+                }
+
+        # Get analytics summary
+        elif action == 'get_analytics':
+            try:
+                user_id = body.get('userId', 'anonymous')
+                table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+
+                response = table.get_item(
+                    Key={
+                        'PK': f'USER#{user_id}',
+                        'SK': 'ANALYSIS_SUMMARY'
+                    }
+                )
+
+                analytics = response.get('Item', {})
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps({
+                        'success': True,
+                        'data': analytics
+                    })
+                }
+            except Exception as e:
+                print(f"Error getting analytics: {e}")
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'error': str(e)})
+                }
 
         else:
             return {

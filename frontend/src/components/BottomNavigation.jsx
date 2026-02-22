@@ -95,7 +95,6 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange }) => {
 
   const handleKeyDown = (e, tabId) => {
     const currentIndex = tabs.findIndex((tab) => tab.id === activeTab);
-    const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
 
     if (e.key === 'ArrowLeft' && currentIndex > 0) {
       e.preventDefault();

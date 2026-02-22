@@ -61,8 +61,6 @@ Globals:
         OPENAI_SECRET: !Ref OpenAIApiKeySecret
         GEMINI_SECRET: !Ref GeminiApiKeySecret
         XRAY_ENABLED: 'true'
-    Layers:
-      - !Ref PythonDependenciesLayer
 
 Resources:
   # ============================================================================
@@ -75,7 +73,7 @@ Resources:
       TableName: !Sub '${DynamoDBTableName}-${Environment}'
       # POC: Use PAY_PER_REQUEST ($0-5/mth). Prod: Use PROVISIONED ($25/mth)
       BillingMode: !If [IsPOC, PAY_PER_REQUEST, PROVISIONED]
-      ProvisionedThroughputSettings: !If
+      ProvisionedThroughput: !If
         - IsPOC
         - !Ref AWS::NoValue
         - ReadCapacityUnits: 25
@@ -107,7 +105,7 @@ Resources:
       TableName: !Sub '${AuditTableName}-${Environment}'
       # POC: Use PAY_PER_REQUEST ($0-5/mth). Prod: Use PROVISIONED ($25/mth)
       BillingMode: !If [IsPOC, PAY_PER_REQUEST, PROVISIONED]
-      ProvisionedThroughputSettings: !If
+      ProvisionedThroughput: !If
         - IsPOC
         - !Ref AWS::NoValue
         - ReadCapacityUnits: 25
@@ -154,7 +152,7 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub 'scamguard-users-${Environment}'
-      MfaConfiguration: OPTIONAL
+      MfaConfiguration: 'OFF'
       EmailConfiguration:
         EmailSendingAccount: COGNITO_DEFAULT
       Policies:
@@ -196,30 +194,18 @@ Resources:
         - Name: mfa_enabled
           AttributeDataType: Boolean
           Mutable: true
-      Tags:
-        Application: ScamGuard
-        Environment: !Ref Environment
 
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       UserPoolId: !Ref UserPool
       ClientName: !Sub 'scamguard-client-${Environment}'
-      GenerateSecret: true
+      GenerateSecret: false
       ExplicitAuthFlows:
         - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_CUSTOM_AUTH
       PreventUserExistenceErrors: LEGACY
-      AllowedOAuthFlows:
-        - code
-      AllowedOAuthScopes:
-        - email
-        - openid
-        - profile
-      CallbackURLs:
-        - !Sub 'https://${ApiDomain}/oauth2/callback'
-      AllowedOAuthFlowsUserPoolClient: true
 
   # ============================================================================
   # API Gateway
@@ -235,22 +221,6 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
-      TracingEnabled: true
-      MethodSettings:
-        - ResourcePath: '/*'
-          HttpMethod: '*'
-          LoggingLevel: INFO
-          DataTraceEnabled: true
-          MetricsEnabled: true
-      Tags:
-        Application: ScamGuard
-        Environment: !Ref Environment
-
-  ApiDomain:
-    Type: AWS::CloudFormation::GetAtt
-    Properties:
-      LogicalId: ApiGateway
-      AttributeType: DomainName
 
   # ============================================================================
   # Lambda Functions
@@ -260,8 +230,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub 'scamguard-handler-${Environment}'
-      CodeUri: ./
-      Handler: lambda/handler.lambda_handler
+      CodeUri: lambda/
+      Handler: handler.lambda_handler
       Runtime: python3.12
       MemorySize: 1536
       Timeout: 60
@@ -322,16 +292,13 @@ Resources:
             Method: GET
       Layers:
         - !Ref PythonDependenciesLayer
-      Tags:
-        Application: ScamGuard
-        Environment: !Ref Environment
 
   AuthHandler:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub 'scamguard-auth-${Environment}'
-      CodeUri: ./
-      Handler: lambda/auth_handler.lambda_handler
+      CodeUri: lambda/
+      Handler: auth_handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
       Timeout: 30
@@ -362,12 +329,16 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /api/v1/auth/signup
             Method: POST
+            Auth:
+              Authorizer: NONE
         PostLogin:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /api/v1/auth/login
             Method: POST
+            Auth:
+              Authorizer: NONE
         PostLogout:
           Type: Api
           Properties:
@@ -380,15 +351,16 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /api/v1/auth/verify-email
             Method: POST
+            Auth:
+              Authorizer: NONE
         PostResendCode:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /api/v1/auth/resend-code
             Method: POST
-      Tags:
-        Application: ScamGuard
-        Environment: !Ref Environment
+            Auth:
+              Authorizer: NONE
 
   # ============================================================================
   # CloudWatch Monitoring

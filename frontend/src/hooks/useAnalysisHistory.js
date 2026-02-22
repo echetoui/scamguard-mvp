@@ -7,6 +7,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { analysisAPI } from '../services/api';
 
 const STORAGE_KEY = 'scamguard_analysis_history';
 
@@ -68,6 +69,23 @@ export const useAnalysisHistory = () => {
     };
 
     setAnalyses((prev) => [newAnalysis, ...prev]);
+
+    // Fire-and-forget cloud sync to DynamoDB
+    try {
+      const userId = localStorage.getItem('userId') || 'anonymous';
+      // Async call without awaiting
+      analysisAPI.analyze(
+        analysisData.content,
+        userId,
+        null,
+        null
+      ).catch((err) => {
+        console.warn('Cloud sync failed for analysis:', err);
+      });
+    } catch (err) {
+      console.warn('Cloud sync error:', err);
+    }
+
     return newAnalysis.id;
   }, []);
 

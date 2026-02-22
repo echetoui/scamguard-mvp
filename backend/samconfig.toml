@@ -6,11 +6,11 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "scamguard-mvp"
-s3_bucket = "scamguard-deployment-artifacts"
+s3_bucket = "scamguard-sam-deployments-034362029181"
 s3_prefix = "sam-deployments"
 region = "us-east-1"
 confirm_changeset = false
-capabilities = "CAPABILITY_IAM,CAPABILITY_NAMED_IAM"
+capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"]
 disable_rollback = false
 parameter_overrides = [
   "Environment=dev",

@@ -17,7 +17,6 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
     avgScore = 0,
     totalXpEarned = 0,
     safePercentage = 0,
-    riskPercentage = 0,
   } = statistics;
 
   // Calculate additional metrics

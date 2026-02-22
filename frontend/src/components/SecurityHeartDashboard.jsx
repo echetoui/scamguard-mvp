@@ -30,13 +30,6 @@ const SecurityHeartDashboard = ({ userId }) => {
   const [scoreHistory, setScoreHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchSecurityData();
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchSecurityData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [userId]);
-
   const fetchSecurityData = async () => {
     try {
       setIsLoading(true);
@@ -61,6 +54,13 @@ const SecurityHeartDashboard = ({ userId }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSecurityData();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchSecurityData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const getScoreStatus = (score) => {
     if (score >= 70) return 'safe';

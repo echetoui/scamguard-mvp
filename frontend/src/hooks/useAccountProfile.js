@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { analysisAPI } from '../services/api';
 
 const STORAGE_KEY = 'scamguard_profile';
 
@@ -47,6 +48,17 @@ export default function useAccountProfile() {
     if (!isLoading) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // Fire-and-forget cloud sync to DynamoDB
+        try {
+          const userId = localStorage.getItem('userId') || 'anonymous';
+          // Async call without awaiting
+          analysisAPI.saveProfile(userId, data).catch((err) => {
+            console.warn('Cloud sync failed for profile:', err);
+          });
+        } catch (err) {
+          console.warn('Profile cloud sync error:', err);
+        }
       } catch (error) {
         console.error('Error saving profile:', error);
       }
