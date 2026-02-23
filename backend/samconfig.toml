@@ -16,5 +16,7 @@ parameter_overrides = [
   "Environment=dev",
   "ImageRepoUri=public.ecr.aws/lambda/python:3.12",
   "DynamoDBTableName=ScamGuardData",
-  "AuditTableName=ScamGuardAudit"
+  "AuditTableName=ScamGuardAudit",
+  "OTPTableName=ScamGuardOTP",
+  "PinpointProjectId="
 ]

@@ -28,6 +28,16 @@ Parameters:
     Default: ScamGuardAudit
     Description: DynamoDB table for audit logs
 
+  OTPTableName:
+    Type: String
+    Default: ScamGuardOTP
+    Description: DynamoDB table for SMS OTP tracking
+
+  PinpointProjectId:
+    Type: String
+    Default: ''
+    Description: AWS Pinpoint project ID for SMS delivery
+
   ReservedConcurrentExecutions:
     Type: Number
     Default: 10
@@ -57,6 +67,7 @@ Globals:
       Variables:
         DYNAMODB_TABLE: !Ref DataTable
         DYNAMODB_AUDIT_TABLE: !Ref AuditTable
+        OTP_TABLE: !Ref OTPTable
         ENVIRONMENT: !Ref Environment
         OPENAI_SECRET: !Ref OpenAIApiKeySecret
         GEMINI_SECRET: !Ref GeminiApiKeySecret
@@ -130,6 +141,33 @@ Resources:
           Value: ScamGuard
         - Key: Environment
           Value: !Ref Environment
+
+  OTPTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${OTPTableName}-${Environment}'
+      # SMS OTP is time-sensitive, use PAY_PER_REQUEST for cost efficiency
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: ttl
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: SMS OTP Tracking
 
   # ============================================================================
   # Lambda Layer - Python Dependencies
@@ -362,6 +400,66 @@ Resources:
             Auth:
               Authorizer: NONE
 
+  SMSOTPHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-sms-otp-${Environment}'
+      CodeUri: lambda/
+      Handler: sms_otp_handler.lambda_handler
+      Runtime: python3.12
+      MemorySize: 1024
+      Timeout: 60
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref UserPool
+          COGNITO_CLIENT_ID: !Ref UserPoolClient
+          OTP_TABLE: !Ref OTPTable
+          AUDIT_TABLE: !Ref AuditTable
+          PINPOINT_PROJECT_ID: !Ref PinpointProjectId
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OTPTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:SignUp
+                - cognito-idp:AdminConfirmSignUp
+                - cognito-idp:InitiateAuth
+                - cognito-idp:AdminGetUser
+              Resource: !GetAtt UserPool.Arn
+            - Effect: Allow
+              Action:
+                - pinpoint:SendMessages
+              Resource: !Sub 'arn:aws:pinpoint:${AWS::Region}:${AWS::AccountId}:app/${PinpointProjectId}'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        RequestOTP:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/request-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        VerifyOTP:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+      Layers:
+        - !Ref PythonDependenciesLayer
+
   # ============================================================================
   # CloudWatch Monitoring
   # ============================================================================
@@ -472,6 +570,12 @@ Outputs:
     Export:
       Name: !Sub 'ScamGuard-AuditTable-${Environment}'
 
+  OTPTableName:
+    Description: DynamoDB OTP Table Name
+    Value: !Ref OTPTable
+    Export:
+      Name: !Sub 'ScamGuard-OTPTable-${Environment}'
+
   ScamGuardFunctionArn:
     Description: ScamGuard Lambda Function ARN
     Value: !GetAtt ScamGuardFunction.Arn
@@ -483,6 +587,12 @@ Outputs:
     Value: !GetAtt AuthHandler.Arn
     Export:
       Name: !Sub 'ScamGuard-AuthHandlerArn-${Environment}'
+
+  SMSOTPHandlerArn:
+    Description: SMS OTP Handler Lambda Function ARN
+    Value: !GetAtt SMSOTPHandler.Arn
+    Export:
+      Name: !Sub 'ScamGuard-SMSOTPHandlerArn-${Environment}'
 
   ArtifactsBucketName:
     Description: S3 Bucket for artifacts and backups
