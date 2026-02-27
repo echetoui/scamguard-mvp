@@ -366,6 +366,7 @@ export default function App() {
             onResetProfile={resetProfile}
             joinDate={getJoinDateFormatted()}
             onExportData={handleExportData}
+            onLogout={auth.logout}
           />
           {/* Phase 4.0.4: Credit System Section */}
           <CreditSystem

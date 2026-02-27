@@ -18,7 +18,8 @@ export default function AccountProfile({
   onTogglePreference,
   onResetProfile,
   joinDate = '',
-  onExportData
+  onExportData,
+  onLogout
 }) {
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState(profile.name || '');
@@ -180,6 +181,22 @@ export default function AccountProfile({
         </button>
         <button className="btn-reset" onClick={handleReset}>
           🗑️ Réinitialiser le compte
+        </button>
+      </div>
+
+      {/* Section 5: Authentication */}
+      <div className="auth-section">
+        <h3 className="section-title">🔐 Authentification</h3>
+        <button
+          className="btn-logout"
+          onClick={() => {
+            if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter?')) {
+              onLogout();
+            }
+          }}
+          title="Déconnexion"
+        >
+          🚪 Se déconnecter
         </button>
       </div>
     </div>
