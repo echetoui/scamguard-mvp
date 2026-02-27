@@ -316,6 +316,58 @@ def post_login(event, context):
         return error_response(500, "INTERNAL_ERROR", f"Error during login: {str(e)}")
 
 
+def post_refresh_token(event, context):
+    """
+    Refresh expired JWT tokens using refresh_token.
+
+    Cognito's refresh_token is long-lived and can be used to get new id_token and access_token.
+    """
+    try:
+        body_raw = event.get("body", "{}")
+        if isinstance(body_raw, str):
+            body = json.loads(body_raw)
+        else:
+            body = body_raw
+        refresh_token = body.get("refresh_token", "").strip()
+
+        if not refresh_token:
+            return error_response(400, "MISSING_REFRESH_TOKEN", "Refresh token is required.")
+
+        try:
+            # Use Cognito's initiate_auth with REFRESH_TOKEN_AUTH flow
+            auth_response = cognito_client.initiate_auth(
+                ClientId=COGNITO_CLIENT_ID,
+                AuthFlow="REFRESH_TOKEN_AUTH",
+                AuthParameters={
+                    "REFRESH_TOKEN": refresh_token
+                }
+            )
+
+            # Extract new tokens
+            auth_result = auth_response.get("AuthenticationResult", {})
+            tokens = {
+                "id_token": auth_result.get("IdToken"),
+                "access_token": auth_result.get("AccessToken"),
+                # Refresh token remains the same (unless Cognito rotates it)
+                "refresh_token": refresh_token,
+                "expires_in": auth_result.get("ExpiresIn", 3600),
+            }
+
+            return success_response(200, {
+                **tokens,
+                "message": "Token refreshed successfully."
+            })
+
+        except cognito_client.exceptions.NotAuthorizedException:
+            return error_response(401, "INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired.")
+        except ClientError as e:
+            error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
+            return error_response(401, error_code, str(e))
+
+    except Exception as e:
+        return error_response(500, "INTERNAL_ERROR", f"Error during token refresh: {str(e)}")
+
+
 def post_logout(event, context):
     """
     Handle user logout.
@@ -360,6 +412,8 @@ def lambda_handler(event, context):
         return post_resend_code(event, context)
     elif path == "/api/v1/auth/login" and method == "POST":
         return post_login(event, context)
+    elif path == "/api/v1/auth/refresh-token" and method == "POST":
+        return post_refresh_token(event, context)
     elif path == "/api/v1/auth/logout" and method == "POST":
         return post_logout(event, context)
     else:

@@ -18,6 +18,57 @@ function getAuthToken() {
 }
 
 /**
+ * Retrieve the refresh token from localStorage
+ */
+function getRefreshToken() {
+  try {
+    const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
+    return auth.refresh_token || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Attempt to refresh the JWT token using refresh_token
+ */
+async function refreshAccessToken() {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      return false;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    const result = data.data || data;
+
+    // Store new tokens
+    localStorage.setItem('scamguard_auth', JSON.stringify({
+      id_token: result.id_token,
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+      expires_in: result.expires_in,
+      timestamp: Date.now(),
+    }));
+
+    return true;
+  } catch (err) {
+    console.error('Token refresh failed:', err);
+    return false;
+  }
+}
+
+/**
  * Make an authenticated API request with automatic token refresh on 401
  */
 async function apiCall(endpoint, options = {}) {
@@ -38,23 +89,41 @@ async function apiCall(endpoint, options = {}) {
     headers,
   });
 
-  // Retry once on 401 (token might have expired)
+  // Retry once on 401 (token might have expired, try to refresh)
   if (response.status === 401 && token) {
-    // In a real app, would refresh token here
-    // For now, clear auth and require re-login
-    localStorage.removeItem('scamguard_auth');
-    localStorage.removeItem('userId');
+    // Try to refresh the token
+    const refreshSuccess = await refreshAccessToken();
 
-    // Retry without token
-    token = null;
-    const retryHeaders = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-    response = await fetch(url, {
-      ...options,
-      headers: retryHeaders,
-    });
+    if (refreshSuccess) {
+      // Get new token and retry request
+      token = getAuthToken();
+      const retryHeaders = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
+
+      if (token) {
+        retryHeaders['Authorization'] = `Bearer ${token}`;
+      }
+
+      response = await fetch(url, {
+        ...options,
+        headers: retryHeaders,
+      });
+    } else {
+      // Refresh failed, clear auth and retry without token
+      localStorage.removeItem('scamguard_auth');
+      localStorage.removeItem('userId');
+
+      const retryHeaders = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
+      response = await fetch(url, {
+        ...options,
+        headers: retryHeaders,
+      });
+    }
   }
 
   // Parse response
@@ -117,6 +186,15 @@ export const authAPI = {
     } catch {
       // Logout from backend failed, but clear local auth anyway
     }
+  },
+
+  // Phase 4B: Token refresh
+  refreshToken: async (refreshToken) => {
+    const response = await apiCall('/auth/refresh-token', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    return response.data;
   },
 
   // Phase 4.4: SMS OTP authentication

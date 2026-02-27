@@ -3,7 +3,7 @@
  * Integrates with Cognito via API Lambda and manages JWT tokens
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { authAPI } from '../services/api';
 
 /**
@@ -53,13 +53,80 @@ export default function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const refreshTimerRef = useRef(null);
 
-  // Check for existing valid token on mount
+  // Refresh token using refresh_token
+  const refreshAuthToken = useCallback(async () => {
+    try {
+      const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
+      const refreshToken = auth.refresh_token;
+
+      if (!refreshToken) {
+        console.warn('No refresh token available');
+        return false;
+      }
+
+      // Call refresh token endpoint
+      const result = await authAPI.refreshToken(refreshToken);
+
+      // Store new tokens
+      const authData = {
+        id_token: result.id_token,
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+        expires_in: result.expires_in,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('scamguard_auth', JSON.stringify(authData));
+
+      // Update user from new token
+      const userData = getUserFromToken(result.id_token);
+      if (userData) {
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Token refresh failed:', err);
+      // Refresh failed, clear auth
+      localStorage.removeItem('scamguard_auth');
+      localStorage.removeItem('userId');
+      setUser(null);
+      setIsAuthenticated(false);
+      return false;
+    }
+  }, []);
+
+  // Setup token refresh timer
+  const setupRefreshTimer = useCallback((expiresIn) => {
+    // Clear any existing timer
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+    }
+
+    // Refresh token 5 minutes before expiration
+    const refreshBeforeExpiry = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const timeUntilRefresh = Math.max(expiresIn * 1000 - refreshBeforeExpiry, 1000);
+
+    const newTimer = setTimeout(async () => {
+      const success = await refreshAuthToken();
+      if (success) {
+        // Recursively setup next refresh
+        setupRefreshTimer(expiresIn);
+      }
+    }, timeUntilRefresh);
+
+    refreshTimerRef.current = newTimer;
+  }, [refreshAuthToken]);
+
+  // Check for existing valid token on mount and setup refresh
   useEffect(() => {
     const checkAuth = () => {
       try {
         const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
         const token = auth.id_token || auth.idToken;
+        const expiresIn = auth.expires_in || 3600;
 
         if (token && isTokenValid(token)) {
           const userData = getUserFromToken(token);
@@ -68,6 +135,8 @@ export default function useAuth() {
             setIsAuthenticated(true);
             // Store userId for backward compatibility
             localStorage.setItem('userId', userData.sub);
+            // Setup auto-refresh timer
+            setupRefreshTimer(expiresIn);
           }
         } else {
           // Token is invalid or missing
@@ -84,7 +153,14 @@ export default function useAuth() {
     };
 
     checkAuth();
-  }, []);
+
+    // Cleanup timer on unmount
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+    };
+  }, [setupRefreshTimer]);
 
   /**
    * Signup new user
@@ -194,6 +270,8 @@ export default function useAuth() {
         setIsAuthenticated(true);
         // Store userId for backward compatibility
         localStorage.setItem('userId', userData.sub);
+        // Setup auto-refresh timer
+        setupRefreshTimer(result.expires_in);
       }
 
       return {
@@ -212,7 +290,7 @@ export default function useAuth() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setupRefreshTimer]);
 
   /**
    * Logout
