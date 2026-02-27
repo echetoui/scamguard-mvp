@@ -437,9 +437,9 @@ def lambda_handler(event, context):
     path = event.get("rawPath", "")
     method = event.get("requestContext", {}).get("http", {}).get("method", "")
 
-    if path == "/auth/request-sms-otp" and method == "POST":
+    if path.endswith("/auth/request-sms-otp") and method == "POST":
         return request_otp(event, context)
-    elif path == "/auth/verify-sms-otp" and method == "POST":
+    elif path.endswith("/auth/verify-sms-otp") and method == "POST":
         return verify_otp(event, context)
     else:
         return error_response(404, "NOT_FOUND", "Endpoint not found")
