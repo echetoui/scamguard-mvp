@@ -118,6 +118,23 @@ export const authAPI = {
       // Logout from backend failed, but clear local auth anyway
     }
   },
+
+  // Phase 4.4: SMS OTP authentication
+  requestSmsOtp: async (email, phone, password) => {
+    const response = await apiCall('/auth/request-sms-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, phone, password }),
+    });
+    return response.data;
+  },
+
+  verifySmsOtp: async (email, phone, code, password) => {
+    const response = await apiCall('/auth/verify-sms-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, phone, code, password }),
+    });
+    return response.data;
+  },
 };
 
 /**
