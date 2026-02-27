@@ -1,0 +1,333 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "description": "Configuration for personalized recommendation engine",
+    "phase": "2.2.3"
+  },
+  "algorithm": {
+    "type": "content-based",
+    "scoring_method": "relevance_score",
+    "components": {
+      "category_match": {
+        "weight": 0.5,
+        "description": "User interest in tip category"
+      },
+      "difficulty_match": {
+        "weight": 0.2,
+        "description": "Match between user experience level and tip difficulty"
+      },
+      "engagement_bonus": {
+        "weight": 0.2,
+        "description": "Bonus for users with high engagement"
+      },
+      "popularity_bonus": {
+        "weight": 0.1,
+        "description": "Boost for popular content by views"
+      }
+    },
+    "min_score_threshold": 0.0,
+    "max_recommendations": 5,
+    "recency_window_days": 30,
+    "collaborative_filtering": {
+      "enabled": false,
+      "future_implementation": "Phase 3"
+    }
+  },
+  "content": {
+    "total_tips": 100,
+    "categories": [
+      "romance",
+      "phishing",
+      "tech_support",
+      "investment",
+      "employment",
+      "prize",
+      "impersonation",
+      "money_flip",
+      "grandparent",
+      "general"
+    ],
+    "difficulties": ["beginner", "intermediate", "advanced"],
+    "content_refresh_frequency_days": 7,
+    "minimum_content_items": 80,
+    "target_content_items": 150
+  },
+  "user_profiling": {
+    "methods": [
+      "report_history",
+      "learning_history",
+      "engagement_tracking",
+      "achievement_progress"
+    ],
+    "profile_update_frequency_hours": 24,
+    "experience_levels": {
+      "beginner": {
+        "max_reports": 5,
+        "description": "New to scam awareness"
+      },
+      "intermediate": {
+        "min_reports": 5,
+        "max_reports": 20,
+        "description": "Moderate scam awareness experience"
+      },
+      "advanced": {
+        "min_reports": 20,
+        "description": "Extensive scam awareness experience"
+      }
+    },
+    "engagement_levels": {
+      "low": {
+        "max_events_per_week": 3,
+        "description": "Minimal app interaction"
+      },
+      "medium": {
+        "min_events": 3,
+        "max_events": 20,
+        "description": "Regular app interaction"
+      },
+      "high": {
+        "min_events": 20,
+        "description": "Very active user"
+      }
+    }
+  },
+  "recommendations": {
+    "delivery_frequency": "daily",
+    "batch_processing": {
+      "enabled": true,
+      "frequency_hours": 6,
+      "batch_size": 1000
+    },
+    "personalization_depth": "comprehensive",
+    "include_reasons": true,
+    "explain_why_recommended": {
+      "enabled": true,
+      "example_reasons": [
+        "Based on your interest in phishing prevention",
+        "Matched to your beginner level",
+        "Highly rated by other users",
+        "Addresses a scam type you reported"
+      ]
+    }
+  },
+  "notifications": {
+    "channels": {
+      "push": {
+        "enabled": true,
+        "priority": "high",
+        "max_per_day": 3,
+        "delivery_platform": "Firebase Cloud Messaging"
+      },
+      "email": {
+        "enabled": true,
+        "priority": "medium",
+        "frequency": "weekly",
+        "send_time": "09:00 UTC",
+        "template": "personalized_recommendations"
+      },
+      "in_app": {
+        "enabled": true,
+        "priority": "low",
+        "display_location": "dashboard",
+        "expiry_days": 7
+      }
+    },
+    "quiet_hours": {
+      "enabled": true,
+      "default_start": "22:00",
+      "default_end": "08:00"
+    },
+    "personalization_message": {
+      "enabled": true,
+      "templates": [
+        "Based on your learning journey",
+        "Recommended for your interests",
+        "Perfect for your experience level",
+        "Trending in your scam prevention area"
+      ]
+    }
+  },
+  "tracking": {
+    "events_tracked": [
+      "recommendation_sent",
+      "recommendation_viewed",
+      "recommendation_clicked",
+      "content_opened",
+      "content_read",
+      "content_completed",
+      "content_rated",
+      "content_shared"
+    ],
+    "metrics_calculated": [
+      "click_through_rate",
+      "completion_rate",
+      "average_rating",
+      "time_to_completion",
+      "recommendation_relevance"
+    ],
+    "tracking_enabled": true,
+    "data_retention_days": 365,
+    "privacy_compliant": true
+  },
+  "performance": {
+    "goals": {
+      "click_through_rate": 0.25,
+      "completion_rate": 0.15,
+      "average_rating_min": 3.5,
+      "relevance_accuracy": 0.80
+    },
+    "monitoring": {
+      "enabled": true,
+      "check_frequency_hours": 6,
+      "alert_threshold": 0.20
+    },
+    "sla": {
+      "recommendation_response_time_ms": 500,
+      "notification_delivery_time_seconds": 60
+    }
+  },
+  "integrations": {
+    "user_analytics": {
+      "enabled": true,
+      "sync_frequency_hours": 1,
+      "metrics_used": ["engagement_score", "retention", "feature_adoption"]
+    },
+    "gamification_system": {
+      "enabled": true,
+      "sync_frequency_hours": 1,
+      "metrics_used": ["achievements", "xp_level", "streak"]
+    },
+    "threat_detection": {
+      "enabled": true,
+      "metrics_used": ["report_accuracy", "scam_types_targeted"]
+    },
+    "notification_service": {
+      "enabled": true,
+      "channels": ["push", "email", "in_app"]
+    }
+  },
+  "api_endpoints": {
+    "get_recommendations": "/api/recommendations/{user_id}",
+    "get_recommendations_with_reasons": "/api/recommendations/{user_id}?include_reasons=true",
+    "get_recommendation_metrics": "/api/recommendations/metrics",
+    "track_recommendation": "/api/recommendations/{recommendation_id}/track",
+    "track_engagement": "/api/recommendations/{recommendation_id}/engagement",
+    "get_top_tips": "/api/recommendations/top?category={category}&limit={limit}",
+    "search_content": "/api/content/search?query={query}"
+  },
+  "ab_testing": {
+    "enabled": true,
+    "experiments": [
+      {
+        "name": "recommendation_frequency",
+        "variants": ["daily", "weekly", "on_demand"],
+        "metric": "click_through_rate"
+      },
+      {
+        "name": "explanation_style",
+        "variants": ["personalized", "generic", "minimal"],
+        "metric": "engagement_score"
+      },
+      {
+        "name": "content_length",
+        "variants": ["short", "medium", "long"],
+        "metric": "completion_rate"
+      }
+    ]
+  },
+  "rollout": {
+    "phase": "gradual",
+    "initial_percentage": 10,
+    "ramp_up_schedule": [
+      {
+        "percentage": 10,
+        "duration_days": 3
+      },
+      {
+        "percentage": 25,
+        "duration_days": 3
+      },
+      {
+        "percentage": 50,
+        "duration_days": 3
+      },
+      {
+        "percentage": 100,
+        "duration_days": 0
+      }
+    ]
+  },
+  "content_management": {
+    "tip_categories": {
+      "romance": {
+        "name": "Romance Scam Prevention",
+        "priority": "high",
+        "target_tips": 15,
+        "update_frequency_days": 30
+      },
+      "phishing": {
+        "name": "Phishing & Email Safety",
+        "priority": "high",
+        "target_tips": 15,
+        "update_frequency_days": 14
+      },
+      "tech_support": {
+        "name": "Tech Support Scam Protection",
+        "priority": "high",
+        "target_tips": 15,
+        "update_frequency_days": 21
+      },
+      "investment": {
+        "name": "Investment Fraud Prevention",
+        "priority": "medium",
+        "target_tips": 12,
+        "update_frequency_days": 30
+      },
+      "employment": {
+        "name": "Employment Scam Awareness",
+        "priority": "medium",
+        "target_tips": 12,
+        "update_frequency_days": 30
+      },
+      "prize": {
+        "name": "Prize & Lottery Scam Awareness",
+        "priority": "medium",
+        "target_tips": 12,
+        "update_frequency_days": 30
+      },
+      "general": {
+        "name": "General Cybersecurity",
+        "priority": "low",
+        "target_tips": 12,
+        "update_frequency_days": 45
+      }
+    }
+  },
+  "privacy": {
+    "gdpr_compliant": true,
+    "loi_25_compliant": true,
+    "data_minimization": true,
+    "user_consent_required": true,
+    "opt_out_enabled": true,
+    "data_anonymization": "user_ids_hashed_in_reports",
+    "retention_policy": {
+      "raw_events": 90,
+      "aggregated_metrics": 365,
+      "user_data": 730
+    }
+  },
+  "quality_assurance": {
+    "testing": {
+      "unit_tests_required": true,
+      "integration_tests_required": true,
+      "user_acceptance_testing": true,
+      "a_b_testing": true
+    },
+    "monitoring": {
+      "error_rate_threshold": 0.01,
+      "latency_threshold_ms": 500,
+      "availability_target": 0.999
+    }
+  }
+}

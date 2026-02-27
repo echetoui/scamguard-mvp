@@ -1,0 +1,252 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "description": "Configuration for multi-provider LLM system",
+    "phase": "2.4.1"
+  },
+  "providers": [
+    {
+      "name": "Claude (Anthropic)",
+      "type": "claude",
+      "enabled": true,
+      "priority": 0,
+      "api_key_secret": "scamguard/claude-key",
+      "model_name": "claude-3-sonnet-20240229",
+      "temperature": 0.3,
+      "max_tokens": 1024,
+      "timeout_seconds": 10,
+      "retry_count": 3,
+      "cost_per_1k_tokens": 0.003,
+      "healthcheck_interval_minutes": 60,
+      "features": {
+        "scam_detection": true,
+        "quebec_expert": true,
+        "streaming": false,
+        "vision": false
+      },
+      "capabilities": {
+        "max_input_tokens": 200000,
+        "thinking_tokens": false,
+        "tool_use": true,
+        "vision_processing": false
+      }
+    },
+    {
+      "name": "GPT-3.5 (OpenAI)",
+      "type": "openai",
+      "enabled": true,
+      "priority": 1,
+      "api_key_secret": "scamguard/openai-key",
+      "model_name": "gpt-3.5-turbo",
+      "temperature": 0.3,
+      "max_tokens": 500,
+      "timeout_seconds": 10,
+      "retry_count": 3,
+      "cost_per_1k_tokens": 0.0005,
+      "healthcheck_interval_minutes": 60,
+      "features": {
+        "scam_detection": true,
+        "quebec_expert": true,
+        "streaming": true,
+        "vision": false
+      }
+    },
+    {
+      "name": "Gemini (Google)",
+      "type": "gemini",
+      "enabled": true,
+      "priority": 2,
+      "api_key_secret": "scamguard/gemini-key",
+      "model_name": "gemini-pro",
+      "temperature": 0.3,
+      "max_tokens": 500,
+      "timeout_seconds": 10,
+      "retry_count": 3,
+      "cost_per_1k_tokens": 0.0,
+      "healthcheck_interval_minutes": 60,
+      "features": {
+        "scam_detection": true,
+        "quebec_expert": true,
+        "streaming": false,
+        "vision": false
+      }
+    },
+    {
+      "name": "Keyword Detection",
+      "type": "keyword",
+      "enabled": true,
+      "priority": 999,
+      "cost_per_1k_tokens": 0.0,
+      "features": {
+        "scam_detection": true,
+        "quebec_expert": false,
+        "streaming": false,
+        "vision": false
+      }
+    }
+  ],
+  "routing": {
+    "default_strategy": "priority",
+    "strategies": {
+      "priority": "Use first available provider by priority order",
+      "round_robin": "Alternate between all healthy providers",
+      "cost_optimized": "Use cheapest provider first",
+      "latency_optimized": "Use fastest provider first"
+    },
+    "current_strategy": "priority",
+    "fallback_order": ["Claude (Anthropic)", "GPT-3.5 (OpenAI)", "Gemini (Google)", "Keyword Detection"],
+    "enable_parallel_requests": false
+  },
+  "feature_parity": {
+    "required_features": ["scam_detection"],
+    "optional_features": ["quebec_expert", "streaming", "vision"],
+    "test_cases": [
+      {
+        "name": "Basic Scam Detection",
+        "input": "Click here to verify your account. Action urgent requise.",
+        "expected_is_scam": true,
+        "min_risk_score": 70
+      },
+      {
+        "name": "Quebec Context",
+        "input": "Votre compte Desjardins a été suspendu",
+        "expected_is_scam": true,
+        "min_risk_score": 80
+      },
+      {
+        "name": "Safe Message",
+        "input": "Thank you for your purchase. Your order has been confirmed.",
+        "expected_is_scam": false,
+        "max_risk_score": 30
+      }
+    ]
+  },
+  "performance_comparison": {
+    "enabled": true,
+    "comparison_frequency_hours": 24,
+    "metrics_tracked": [
+      "latency_ms",
+      "success_rate",
+      "cost_per_request",
+      "accuracy_on_benchmarks"
+    ],
+    "benchmarking": {
+      "enabled": true,
+      "sample_size": 100,
+      "frequency_days": 7,
+      "metrics": ["accuracy", "latency", "cost", "consistency"]
+    }
+  },
+  "fallback_logic": {
+    "enabled": true,
+    "max_retries": 3,
+    "retry_delay_ms": 1000,
+    "exponential_backoff": true,
+    "fallback_triggers": {
+      "timeout": true,
+      "api_error": true,
+      "invalid_response": true,
+      "low_confidence": false
+    },
+    "low_confidence_threshold": 0.5
+  },
+  "health_checking": {
+    "enabled": true,
+    "interval_minutes": 60,
+    "timeout_seconds": 10,
+    "consecutive_failures_threshold": 3,
+    "auto_disable_on_failure": false,
+    "recovery_check_interval_minutes": 30
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "claude": {
+      "requests_per_minute": 50,
+      "tokens_per_minute": 40000
+    },
+    "openai": {
+      "requests_per_minute": 90,
+      "tokens_per_minute": 90000
+    },
+    "gemini": {
+      "requests_per_minute": 100,
+      "tokens_per_minute": 1000000
+    }
+  },
+  "cost_management": {
+    "enabled": true,
+    "monthly_budget": 5000,
+    "cost_alert_percentage": 80,
+    "provider_budgets": {
+      "Claude (Anthropic)": 2000,
+      "GPT-3.5 (OpenAI)": 2000,
+      "Gemini (Google)": 1000
+    },
+    "cost_optimization": {
+      "prefer_cheaper_when_equal": false,
+      "batch_requests": false,
+      "token_caching": false
+    }
+  },
+  "dpa_status": {
+    "claude": {
+      "dpa_signed": true,
+      "dpa_date": "2026-02-18",
+      "dpa_version": "1.0",
+      "data_location": "US",
+      "gdpr_compliant": true,
+      "loi_25_compliant": true,
+      "notes": "Standard Anthropic DPA with US data processing"
+    },
+    "openai": {
+      "dpa_signed": true,
+      "dpa_date": "2025-01-15",
+      "dpa_version": "1.0",
+      "data_location": "US/EU",
+      "gdpr_compliant": true,
+      "loi_25_compliant": true,
+      "notes": "OpenAI Standard Agreement with EU safeguards"
+    },
+    "gemini": {
+      "dpa_signed": true,
+      "dpa_date": "2025-02-01",
+      "dpa_version": "1.0",
+      "data_location": "US",
+      "gdpr_compliant": true,
+      "loi_25_compliant": true,
+      "notes": "Google Cloud Standard Agreement"
+    }
+  },
+  "logging_and_monitoring": {
+    "enabled": true,
+    "log_level": "INFO",
+    "log_requests": true,
+    "log_responses": true,
+    "log_errors": true,
+    "mask_sensitive_data": true,
+    "monitoring_dashboards": [
+      "provider_health",
+      "cost_tracking",
+      "latency_metrics",
+      "error_rates"
+    ]
+  },
+  "api_endpoints": {
+    "analyze": "/api/llm/analyze",
+    "analyze_with_expert": "/api/llm/analyze/expert",
+    "provider_status": "/api/llm/providers/status",
+    "provider_metrics": "/api/llm/providers/metrics",
+    "compare_providers": "/api/llm/providers/compare",
+    "set_provider_priority": "/api/llm/providers/{name}/priority"
+  },
+  "testing": {
+    "enabled": true,
+    "unit_tests": true,
+    "integration_tests": true,
+    "feature_parity_tests": true,
+    "performance_benchmarks": true,
+    "stress_testing": false,
+    "test_environment": "sandbox"
+  }
+}

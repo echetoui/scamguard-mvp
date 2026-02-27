@@ -1,0 +1,301 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "description": "Configuration for user engagement analytics system",
+    "phase": "2.2.2"
+  },
+  "tracking": {
+    "enabled": true,
+    "events": [
+      {
+        "name": "signup",
+        "description": "User created account",
+        "frequency": "once_per_user"
+      },
+      {
+        "name": "login",
+        "description": "User logged in",
+        "frequency": "per_session"
+      },
+      {
+        "name": "report_submitted",
+        "description": "Scam report submitted",
+        "frequency": "per_report"
+      },
+      {
+        "name": "accurate_report",
+        "description": "Report confirmed accurate",
+        "frequency": "per_validation"
+      },
+      {
+        "name": "quiz_completed",
+        "description": "Educational quiz completed",
+        "frequency": "per_quiz"
+      },
+      {
+        "name": "module_completed",
+        "description": "Learning module completed",
+        "frequency": "per_module"
+      },
+      {
+        "name": "achievement_unlocked",
+        "description": "Achievement/badge earned",
+        "frequency": "per_achievement"
+      },
+      {
+        "name": "leaderboard_viewed",
+        "description": "User viewed leaderboard",
+        "frequency": "per_view"
+      },
+      {
+        "name": "community_helped",
+        "description": "Helped another user",
+        "frequency": "per_interaction"
+      },
+      {
+        "name": "social_share",
+        "description": "Shared achievement",
+        "frequency": "per_share"
+      },
+      {
+        "name": "session_end",
+        "description": "User session ended",
+        "frequency": "per_session"
+      }
+    ],
+    "features_tracked": [
+      "report_submission",
+      "threat_analysis",
+      "leaderboards",
+      "achievements",
+      "education",
+      "community",
+      "gamification",
+      "social_sharing",
+      "events",
+      "profile"
+    ],
+    "retention_periods": {
+      "raw_events": 90,
+      "aggregated_data": 365,
+      "cohort_data": 730
+    }
+  },
+  "metrics": {
+    "core_metrics": [
+      {
+        "name": "dau",
+        "display_name": "Daily Active Users",
+        "description": "Unique users active on a given day",
+        "calculation": "count distinct user_ids per day"
+      },
+      {
+        "name": "wau",
+        "display_name": "Weekly Active Users",
+        "description": "Unique users active in a 7-day window",
+        "calculation": "count distinct user_ids per 7-day period"
+      },
+      {
+        "name": "mau",
+        "display_name": "Monthly Active Users",
+        "description": "Unique users active in a 30-day window",
+        "calculation": "count distinct user_ids per 30-day period"
+      },
+      {
+        "name": "new_users",
+        "display_name": "New Users",
+        "description": "Users who signed up in period",
+        "calculation": "count users with signup event in period"
+      }
+    ],
+    "retention_metrics": [
+      {
+        "name": "retention_day1",
+        "display_name": "Day 1 Retention",
+        "description": "% of users active 1 day after signup",
+        "calculation": "active_day1 / signups"
+      },
+      {
+        "name": "retention_day7",
+        "display_name": "Day 7 Retention",
+        "description": "% of users active 7 days after signup",
+        "calculation": "active_day7 / signups"
+      },
+      {
+        "name": "retention_day30",
+        "display_name": "Day 30 Retention",
+        "description": "% of users active 30 days after signup",
+        "calculation": "active_day30 / signups"
+      }
+    ],
+    "engagement_metrics": [
+      {
+        "name": "avg_session_length",
+        "display_name": "Average Session Length",
+        "unit": "minutes",
+        "description": "Average time spent per session"
+      },
+      {
+        "name": "sessions_per_user",
+        "display_name": "Sessions Per User",
+        "unit": "number",
+        "description": "Average sessions per user per month"
+      },
+      {
+        "name": "engagement_score",
+        "display_name": "Engagement Score",
+        "unit": "0-100",
+        "description": "User engagement metric (frequency, diversity, consistency)"
+      },
+      {
+        "name": "churn_rate",
+        "display_name": "Churn Rate",
+        "unit": "percentage",
+        "description": "% of users inactive from previous period"
+      }
+    ]
+  },
+  "kpis": [
+    {
+      "name": "dau",
+      "target": 500,
+      "alert_if_below": 250,
+      "alert_if_above": null,
+      "description": "Daily active users target"
+    },
+    {
+      "name": "retention_day7",
+      "target": 0.40,
+      "alert_if_below": 0.25,
+      "description": "7-day retention target (40%)"
+    },
+    {
+      "name": "retention_day30",
+      "target": 0.25,
+      "alert_if_below": 0.15,
+      "description": "30-day retention target (25%)"
+    },
+    {
+      "name": "churn_rate",
+      "target": 0.10,
+      "alert_if_above": 0.25,
+      "description": "Monthly churn rate target (<10%)"
+    },
+    {
+      "name": "avg_engagement_score",
+      "target": 50,
+      "alert_if_below": 30,
+      "description": "Average user engagement score target"
+    },
+    {
+      "name": "feature_adoption",
+      "target": 0.60,
+      "alert_if_below": 0.40,
+      "description": "% users adopting new features (target 60%)"
+    }
+  ],
+  "cohorts": {
+    "enabled": true,
+    "grouping_period": "week",
+    "retention_days": [1, 7, 14, 30],
+    "analysis_depth": "comprehensive"
+  },
+  "dashboards": {
+    "realtime": {
+      "enabled": true,
+      "refresh_interval_seconds": 60,
+      "metrics_displayed": [
+        "dau",
+        "wau",
+        "mau",
+        "retention_day7",
+        "churn_rate",
+        "avg_engagement_score",
+        "active_alerts"
+      ]
+    },
+    "daily_report": {
+      "enabled": true,
+      "generation_time": "00:05",
+      "timezone": "UTC",
+      "recipients": ["analytics@scamguard.ca"],
+      "format": "json"
+    },
+    "weekly_report": {
+      "enabled": true,
+      "generation_day": "monday",
+      "generation_time": "08:00",
+      "timezone": "UTC",
+      "recipients": ["leadership@scamguard.ca"],
+      "format": "pdf"
+    },
+    "monthly_report": {
+      "enabled": true,
+      "generation_day": "1",
+      "generation_time": "08:00",
+      "timezone": "UTC",
+      "recipients": ["executive@scamguard.ca"],
+      "format": "pdf"
+    }
+  },
+  "anomaly_detection": {
+    "enabled": true,
+    "detection_types": [
+      "low_dau",
+      "high_churn",
+      "low_retention",
+      "low_engagement",
+      "feature_adoption_drop",
+      "session_length_drop"
+    ],
+    "thresholds": {
+      "low_dau": 0.50,
+      "high_churn": 0.25,
+      "low_retention_day7": 0.25,
+      "low_engagement_score": 30,
+      "feature_adoption_drop": 0.30
+    }
+  },
+  "privacy": {
+    "pii_handling": "anonymized",
+    "data_retention": 365,
+    "user_consent": true,
+    "opt_out_enabled": true,
+    "gdpr_compliant": true,
+    "loi_25_compliant": true
+  },
+  "integrations": {
+    "gamification_engine": {
+      "enabled": true,
+      "sync_frequency_hours": 1,
+      "metrics": ["engagement_score", "achievement_unlock_rate"]
+    },
+    "incident_response": {
+      "enabled": true,
+      "alert_on_anomalies": true,
+      "alert_severity_threshold": "high"
+    },
+    "dashboard": {
+      "enabled": true,
+      "api_endpoint": "/analytics/api",
+      "websocket_enabled": true,
+      "real_time_updates": true
+    }
+  },
+  "api_endpoints": {
+    "realtime_dashboard": "/analytics/realtime",
+    "daily_report": "/analytics/daily",
+    "weekly_report": "/analytics/weekly",
+    "monthly_report": "/analytics/monthly",
+    "user_journey": "/analytics/journey/{user_id}",
+    "cohort_analysis": "/analytics/cohort/{cohort_id}",
+    "anomalies": "/analytics/anomalies",
+    "metrics": "/analytics/metrics"
+  },
+  "export": {
+    "enabled": true,
+    "formats": ["json", "csv"],
+    "retention_days": 30
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "description": "Configuration for real-time threat intelligence feeds",
+    "phase": "2.1.3"
+  },
+  "feeds": {
+    "alienvault_otx": {
+      "enabled": true,
+      "name": "AlienVault Open Threat Exchange",
+      "endpoint": "https://otx.alienvault.com/api/v1",
+      "description": "Community-driven threat intelligence with indicators and analysis",
+      "update_frequency_hours": 24,
+      "requires_api_key": true,
+      "timeout_seconds": 30,
+      "max_indicators_per_fetch": 500,
+      "indicator_types": [
+        "domain",
+        "ip",
+        "url",
+        "hash",
+        "email"
+      ],
+      "severity_mapping": {
+        "high": "HIGH",
+        "medium": "MEDIUM",
+        "low": "LOW"
+      },
+      "confidence_base": 0.85,
+      "supported_scam_types": [
+        "phishing",
+        "malware",
+        "c2_command_control",
+        "tech_support"
+      ]
+    },
+    "abuse_ch_phishing": {
+      "enabled": true,
+      "name": "Abuse.ch Phishing Database",
+      "endpoint": "https://phishing.abuse.ch/downloads/phishing_feed.csv",
+      "description": "Active phishing website collection and analysis",
+      "update_frequency_hours": 6,
+      "requires_api_key": false,
+      "timeout_seconds": 30,
+      "max_indicators_per_fetch": 10000,
+      "indicator_types": [
+        "url",
+        "domain"
+      ],
+      "severity_mapping": {
+        "phishing": "HIGH"
+      },
+      "confidence_base": 0.90,
+      "supported_scam_types": [
+        "phishing"
+      ]
+    },
+    "abuse_ch_malware": {
+      "enabled": true,
+      "name": "Abuse.ch Malware Tracker",
+      "endpoint": "https://malware-traffic-analysis.net/api",
+      "description": "Malware samples and C2 infrastructure tracking",
+      "update_frequency_hours": 12,
+      "requires_api_key": false,
+      "timeout_seconds": 30,
+      "max_indicators_per_fetch": 1000,
+      "indicator_types": [
+        "hash",
+        "ip",
+        "domain"
+      ],
+      "severity_mapping": {
+        "malware": "CRITICAL",
+        "c2": "CRITICAL",
+        "trojan": "HIGH"
+      },
+      "confidence_base": 0.95,
+      "supported_scam_types": [
+        "tech_support",
+        "phishing"
+      ]
+    },
+    "cisa_alerts": {
+      "enabled": true,
+      "name": "CISA Known Exploited Vulnerabilities",
+      "endpoint": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "description": "US government cybersecurity alerts and known exploited vulnerabilities",
+      "update_frequency_hours": 24,
+      "requires_api_key": false,
+      "timeout_seconds": 30,
+      "max_indicators_per_fetch": 500,
+      "indicator_types": [
+        "cve",
+        "vulnerability"
+      ],
+      "severity_mapping": {
+        "critical": "CRITICAL",
+        "high": "HIGH",
+        "medium": "MEDIUM"
+      },
+      "confidence_base": 0.95,
+      "supported_scam_types": [
+        "tech_support",
+        "phishing",
+        "investment"
+      ]
+    }
+  },
+  "scheduler": {
+    "enabled": true,
+    "timezone": "UTC",
+    "daily_update_time": "02:00",
+    "description": "2 AM UTC daily update (can be run multiple times)",
+    "parallel_fetch": true,
+    "fetch_timeout_seconds": 120,
+    "retry_failed_feeds": true,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 300
+  },
+  "indicator_processing": {
+    "deduplication": {
+      "enabled": true,
+      "merge_across_sources": true,
+      "use_fuzzy_matching": false,
+      "description": "Remove duplicate indicators across sources"
+    },
+    "filtering": {
+      "enabled": true,
+      "exclude_low_confidence": true,
+      "confidence_threshold": 0.70,
+      "exclude_old_indicators": true,
+      "max_age_days": 30
+    },
+    "enrichment": {
+      "enabled": true,
+      "add_geolocation": false,
+      "add_whois_data": false,
+      "add_dns_records": false
+    }
+  },
+  "cross_referencing": {
+    "enabled": true,
+    "internal_patterns_source": "emerging_threat_detection",
+    "matching_threshold": 0.8,
+    "generate_alerts": true,
+    "alert_on_severities": [
+      "CRITICAL",
+      "HIGH"
+    ],
+    "description": "Cross-reference external indicators with internal scam patterns"
+  },
+  "database": {
+    "table_name": "threat_indicators",
+    "index_fields": [
+      "indicator_type",
+      "indicator_value",
+      "severity",
+      "scam_types",
+      "source"
+    ],
+    "retention_policy": {
+      "enabled": true,
+      "retention_days": 365,
+      "archive_old_records": true,
+      "description": "Keep indicators for 1 year, archive after"
+    },
+    "batch_size": 500,
+    "duplicate_key_strategy": "update_last_seen"
+  },
+  "notifications": {
+    "enable_alerts": true,
+    "alert_channels": [
+      "dashboard",
+      "incident_response",
+      "email"
+    ],
+    "alert_thresholds": {
+      "critical": {
+        "notify_immediately": true,
+        "escalate_to": "security_team",
+        "create_incident": true
+      },
+      "high": {
+        "notify_immediately": true,
+        "escalate_to": "threat_analyst",
+        "create_incident": true
+      },
+      "medium": {
+        "notify_after_minutes": 60,
+        "escalate_to": "analyst",
+        "create_incident": false
+      },
+      "low": {
+        "batch_daily": true,
+        "escalate_to": "dashboard",
+        "create_incident": false
+      }
+    }
+  },
+  "api_endpoints": {
+    "health_check": "/threat-intel/health",
+    "feeds_status": "/threat-intel/feeds",
+    "indicators": "/threat-intel/indicators",
+    "cross_references": "/threat-intel/cross-ref",
+    "force_update": "/threat-intel/force-update",
+    "statistics": "/threat-intel/stats"
+  },
+  "monitoring": {
+    "kris": [
+      {
+        "name": "feed_availability",
+        "target": 0.99,
+        "alert_if_below": 0.95,
+        "description": "Percentage of feeds successfully fetching"
+      },
+      {
+        "name": "update_latency_minutes",
+        "target": 15,
+        "alert_if_exceeds": 60,
+        "description": "Time to complete daily update cycle"
+      },
+      {
+        "name": "indicator_freshness_hours",
+        "target": 24,
+        "alert_if_exceeds": 48,
+        "description": "Age of newest indicators in database"
+      },
+      {
+        "name": "cross_reference_latency_seconds",
+        "target": 30,
+        "alert_if_exceeds": 120,
+        "description": "Time to cross-reference indicators with patterns"
+      },
+      {
+        "name": "false_positive_rate",
+        "target": 0.05,
+        "alert_if_exceeds": 0.15,
+        "description": "Rate of invalid threat indicator matches"
+      }
+    ],
+    "performance_targets": {
+      "fetch_single_feed_seconds": 15,
+      "fetch_all_feeds_parallel_seconds": 30,
+      "deduplication_seconds": 5,
+      "database_insert_per_1k_records_seconds": 3,
+      "cross_reference_per_100_indicators_seconds": 2
+    },
+    "alerting": {
+      "alert_on_feed_failure": true,
+      "alert_on_slow_update": true,
+      "alert_on_high_false_positives": true,
+      "slack_webhook": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+      "email_recipients": [
+        "security-team@scamguard.ca"
+      ]
+    }
+  },
+  "testing": {
+    "enable_test_mode": true,
+    "test_sample_sizes": {
+      "otx_indicators": 50,
+      "abuse_ch_urls": 100,
+      "cisa_vulnerabilities": 30
+    },
+    "expected_results": {
+      "total_indicators": 180,
+      "cross_reference_matches": 15,
+      "alerts_generated": 5,
+      "processing_time_seconds": 45
+    }
+  },
+  "security": {
+    "encrypt_api_keys": true,
+    "api_key_rotation_days": 90,
+    "sanitize_indicators": true,
+    "validate_indicator_format": true,
+    "max_indicator_string_length": 2048,
+    "tls_verification": true,
+    "allowed_indicator_types": [
+      "domain",
+      "ip",
+      "url",
+      "hash",
+      "email",
+      "cve",
+      "vulnerability"
+    ]
+  }
+}
