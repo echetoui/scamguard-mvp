@@ -264,7 +264,7 @@ export default function SMSAuthScreen() {
   };
 
   return (
-    <div className="sms-auth-screen">
+    <main className="sms-auth-screen" role="main">
       <div className="auth-container">
         {/* Header */}
         <div className="auth-header">
@@ -484,15 +484,15 @@ export default function SMSAuthScreen() {
 
       {/* Footer */}
       {mode === 'choose' && (
-        <div className="auth-footer">
+        <footer className="auth-footer">
           <p className="privacy">
             Protégez-vous contre les arnaques par SMS et les faux messages
           </p>
-        </div>
+        </footer>
       )}
 
       {mode === 'signup' && (
-        <div className="auth-footer">
+        <footer className="auth-footer">
           <p>
             Vous possédez un compte? {' '}
             <button
@@ -507,11 +507,11 @@ export default function SMSAuthScreen() {
           <p className="privacy">
             En créant un compte, vous acceptez nos <a href="#terms">Conditions</a>
           </p>
-        </div>
+        </footer>
       )}
 
       {mode === 'login' && (
-        <div className="auth-footer">
+        <footer className="auth-footer">
           <p>
             Pas encore de compte? {' '}
             <button
@@ -523,8 +523,8 @@ export default function SMSAuthScreen() {
               Créer un compte
             </button>
           </p>
-        </div>
+        </footer>
       )}
-    </div>
+    </main>
   );
 }
