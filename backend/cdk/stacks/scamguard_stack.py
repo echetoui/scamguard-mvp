@@ -1,5 +1,5 @@
 from aws_cdk import (
-    Stack, Duration, RemovalPolicy, CfnOutput,
+    Stack, Duration, RemovalPolicy, CfnOutput, BundlingOptions,
     aws_lambda as lambda_, aws_apigatewayv2 as apigwv2,
     aws_apigatewayv2_integrations as integrations,
     aws_apigatewayv2_authorizers as authorizers,
@@ -207,6 +207,6 @@ class ScamGuardStack(Stack):
         CfnOutput(self, "UserPoolId", value=user_pool.user_pool_id)
         CfnOutput(self, "UserPoolClientId", value=user_pool_client.user_pool_client_id)
         CfnOutput(self, "CloudFrontURL", value=f"https://{distribution.distribution_domain_name}")
-        CfnOutput(self, "FrontendBucket", value=frontend_bucket.bucket_name)
+        CfnOutput(self, "FrontendBucketName", value=frontend_bucket.bucket_name)
         CfnOutput(self, "TableName", value=table.table_name)
         CfnOutput(self, "AlarmTopicArn", value=alarm_topic.topic_arn)

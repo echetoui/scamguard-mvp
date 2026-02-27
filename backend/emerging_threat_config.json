@@ -1,0 +1,268 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "description": "Configuration for emerging threat detection system",
+    "phase": "2.1.2"
+  },
+  "anomaly_detection": {
+    "isolation_forest": {
+      "enabled": true,
+      "n_estimators": 100,
+      "contamination": 0.05,
+      "random_state": 42,
+      "anomaly_score_threshold": 0.7,
+      "description": "Primary anomaly detection using Isolation Forest"
+    },
+    "clustering": {
+      "enabled": true,
+      "algorithm": "DBSCAN",
+      "eps": 0.3,
+      "min_samples": 2,
+      "description": "Cluster-based anomaly detection for noise point identification"
+    },
+    "statistical": {
+      "enabled": true,
+      "z_score_threshold": 3.0,
+      "moving_window_days": 30,
+      "description": "Z-score based statistical anomaly detection on threat scores"
+    },
+    "similarity": {
+      "enabled": true,
+      "cosine_similarity_threshold": 0.8,
+      "description": "Find similar patterns to detected anomalies in historical data"
+    }
+  },
+  "pattern_analysis": {
+    "keyword_tracking": {
+      "enabled": true,
+      "min_keyword_length": 3,
+      "min_occurrence_for_tracking": 1,
+      "track_historical": true,
+      "description": "Track keyword frequency and temporal trends"
+    },
+    "emerging_pattern_detection": {
+      "enabled": true,
+      "min_recent_occurrences": 2,
+      "max_total_count": 10,
+      "recent_period_days": 3,
+      "emerging_score_threshold": 0.3,
+      "high_confidence_threshold": 0.5,
+      "description": "Identify new patterns with high recent activity but low historical frequency"
+    },
+    "trend_analysis": {
+      "enabled": true,
+      "velocity_calculation": "exponential_weighted",
+      "trend_window_days": 7,
+      "rising_threshold": 0.5,
+      "declining_threshold": -0.5,
+      "description": "Analyze growth/decline rates for keywords and scam types"
+    }
+  },
+  "alert_generation": {
+    "high_risk_keywords": {
+      "enabled": true,
+      "keywords": [
+        "urgent",
+        "emergency",
+        "immediate",
+        "wire",
+        "payment",
+        "transfer",
+        "account",
+        "bank",
+        "verify",
+        "confirm",
+        "crypto",
+        "password",
+        "credit card"
+      ],
+      "min_count_for_medium_alert": 3,
+      "min_count_for_high_alert": 10,
+      "description": "Alert when high-risk keywords appear frequently"
+    },
+    "emerging_patterns": {
+      "enabled": true,
+      "max_results_to_alert": 5,
+      "medium_severity_threshold": 0.3,
+      "high_severity_threshold": 0.5,
+      "description": "Alert on emerging scam patterns detected in last 3 days"
+    },
+    "scam_type_surges": {
+      "enabled": true,
+      "min_count_for_medium_alert": 5,
+      "min_count_for_high_alert": 15,
+      "description": "Alert when specific scam types surge in volume"
+    },
+    "pattern_rules": {
+      "enabled": true,
+      "rule_categories": [
+        {
+          "name": "money_request",
+          "patterns": ["send money", "wire", "payment", "transfer", "cash", "fund"],
+          "reliability_threshold": "medium"
+        },
+        {
+          "name": "urgency",
+          "patterns": ["urgent", "immediate", "asap", "right now", "emergency", "quickly"],
+          "reliability_threshold": "high"
+        },
+        {
+          "name": "trust_building",
+          "patterns": ["trust me", "believe me", "promise", "guarantee", "i love you", "i need you"],
+          "reliability_threshold": "medium"
+        },
+        {
+          "name": "identity_mimicry",
+          "patterns": ["official", "government", "bank", "revenue", "police", "cra"],
+          "reliability_threshold": "high"
+        },
+        {
+          "name": "prize_offering",
+          "patterns": ["won", "prize", "reward", "million", "free", "congratulations", "claim"],
+          "reliability_threshold": "medium"
+        },
+        {
+          "name": "personal_info_request",
+          "patterns": ["info", "details", "name", "address", "ssn", "sin", "birth date"],
+          "reliability_threshold": "high"
+        }
+      ],
+      "description": "Pattern-based rules for detection"
+    }
+  },
+  "alert_routing": {
+    "severity_levels": {
+      "CRITICAL": {
+        "escalation_time_minutes": 5,
+        "recipients": ["incident_commander", "security_team"],
+        "notification_method": "phone + email + slack"
+      },
+      "HIGH": {
+        "escalation_time_minutes": 30,
+        "recipients": ["threat_analyst", "incident_commander"],
+        "notification_method": "email + slack"
+      },
+      "MEDIUM": {
+        "escalation_time_minutes": 120,
+        "recipients": ["threat_analyst"],
+        "notification_method": "email + dashboard"
+      },
+      "LOW": {
+        "escalation_time_minutes": 1440,
+        "recipients": ["dashboard"],
+        "notification_method": "dashboard_only"
+      }
+    },
+    "incident_response_threshold": "HIGH",
+    "description": "How alerts are routed based on severity"
+  },
+  "monitoring": {
+    "kris": [
+      {
+        "name": "anomaly_detection_rate",
+        "target": 0.05,
+        "alert_if_exceeds": 0.15,
+        "description": "Percentage of reports flagged as anomalous"
+      },
+      {
+        "name": "pattern_detection_latency_hours",
+        "target": 24,
+        "alert_if_exceeds": 48,
+        "description": "Time to detect new emerging pattern"
+      },
+      {
+        "name": "alert_processing_time_minutes",
+        "target": 60,
+        "alert_if_exceeds": 240,
+        "description": "Time from alert generation to analyst review"
+      },
+      {
+        "name": "false_positive_rate",
+        "target": 0.05,
+        "alert_if_exceeds": 0.10,
+        "description": "Rate of invalid/dismissed alerts"
+      },
+      {
+        "name": "pattern_detection_coverage",
+        "target": 0.90,
+        "alert_if_below": 0.80,
+        "description": "Percentage of actual new patterns detected"
+      }
+    ],
+    "performance_metrics": [
+      {
+        "name": "anomaly_detection_latency_ms",
+        "target": 150,
+        "warning_threshold": 300,
+        "critical_threshold": 500
+      },
+      {
+        "name": "pattern_analysis_latency_ms",
+        "target": 250,
+        "warning_threshold": 500,
+        "critical_threshold": 1000
+      },
+      {
+        "name": "total_pipeline_latency_ms",
+        "target": 500,
+        "warning_threshold": 1000,
+        "critical_threshold": 2000
+      }
+    ],
+    "dashboard_refresh_interval_seconds": 300,
+    "alert_log_retention_days": 90,
+    "pattern_history_retention_days": 365
+  },
+  "integration": {
+    "ml_model_integration": {
+      "enabled": true,
+      "use_threat_scores": true,
+      "threat_score_deviation_threshold_sigma": 2.5,
+      "combine_with_anomaly_scores": true,
+      "description": "Use ML threat scores as context for anomaly detection"
+    },
+    "incident_response_integration": {
+      "enabled": true,
+      "auto_create_incident": true,
+      "severity_mapping": {
+        "CRITICAL": "SEV0",
+        "HIGH": "SEV1",
+        "MEDIUM": "SEV2",
+        "LOW": "SEV3"
+      },
+      "auto_incident_on_types": ["emerging_pattern", "scam_type_surge"],
+      "description": "Automatically create incidents for high-severity threats"
+    },
+    "knowledge_base_integration": {
+      "enabled": true,
+      "auto_update_on_confirmation": true,
+      "update_confidence_level": 0.85,
+      "require_manual_approval": true,
+      "description": "Update threat knowledge base with confirmed patterns"
+    },
+    "dashboard_integration": {
+      "enabled": true,
+      "real_time_updates": true,
+      "alert_widget": true,
+      "pattern_visualization": true,
+      "description": "Display threat data on user-facing dashboard"
+    }
+  },
+  "data_retention": {
+    "anomaly_scores_retention_days": 90,
+    "pattern_history_retention_days": 365,
+    "alert_log_retention_days": 90,
+    "baseline_snapshots_retention_days": 365,
+    "encryption_at_rest": true,
+    "anonymize_patterns": true
+  },
+  "testing": {
+    "sample_test_size": 150,
+    "expected_anomaly_rate": 0.05,
+    "expected_emerging_patterns": 5,
+    "expected_alerts_per_batch": 9,
+    "expected_processing_time_ms": 460,
+    "description": "Performance expectations for test dataset"
+  }
+}

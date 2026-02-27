@@ -1,0 +1,275 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "total_samples": 150,
+    "scam_types": 10,
+    "description": "Training dataset for ScamGuard ML threat scorer",
+    "notes": "This is a representative sample. Production dataset would include 1000+ labeled examples from Phase 1 user data."
+  },
+  "training_samples": [
+    {
+      "text": "I met someone on a dating app who says they love me but need money for emergency. They ask me to wire $5000 to help with family crisis.",
+      "label": "romance"
+    },
+    {
+      "text": "My computer has a virus warning popup. It asks me to call Microsoft support to fix it. The number is 1-800-TECH-FIX",
+      "label": "tech_support"
+    },
+    {
+      "text": "You have won a free vacation prize! Click here to claim your $10,000 Caribbean cruise package",
+      "label": "prize"
+    },
+    {
+      "text": "Dear valued customer, verify your account details by clicking this link. Your PayPal account will be closed if you don't respond",
+      "label": "phishing"
+    },
+    {
+      "text": "We have a work-from-home opportunity earning $5000/month. No experience needed. Send your information to apply",
+      "label": "employment"
+    },
+    {
+      "text": "Invest in our cryptocurrency fund. Guaranteed 500% returns within 6 months. Limited spots available",
+      "label": "investment"
+    },
+    {
+      "text": "This is CRA calling about your tax return. We need you to confirm your SIN to avoid arrest",
+      "label": "impersonation"
+    },
+    {
+      "text": "I have $10,000 to flip into $50,000 in 3 days. I just need $5,000 from you to start. You'll get $25,000 back",
+      "label": "money_flip"
+    },
+    {
+      "text": "Hi sweetie, it's your grandpa. I'm stuck abroad and need $3000 for my trip back home. Don't tell your parents",
+      "label": "grandparent"
+    },
+    {
+      "text": "This email looks official but something feels off. Asking for my banking details to update account",
+      "label": "phishing"
+    },
+    {
+      "text": "I'm so lonely. Can you help me? I'm a military man deployed overseas and I miss having someone to talk to. You seem so beautiful",
+      "label": "romance"
+    },
+    {
+      "text": "YOUR DEVICE HAS BEEN LOCKED. Click here to fix. This is virus detected by Windows Security",
+      "label": "tech_support"
+    },
+    {
+      "text": "Congratulations! You've been selected to receive $1,000,000 from an inheritance fund",
+      "label": "prize"
+    },
+    {
+      "text": "Action required: Unusual activity detected on your Amazon account. Verify identity at secure-amazoncenter.info",
+      "label": "phishing"
+    },
+    {
+      "text": "Hiring managers needed. Easy $8000 per month. Work from home, set your own hours",
+      "label": "employment"
+    },
+    {
+      "text": "Bitcoin will triple in value this week. Get in now before it's too late. Buy with credit card",
+      "label": "investment"
+    },
+    {
+      "text": "This is Bell Canada. Your internet service will be disconnected unless you verify your account",
+      "label": "impersonation"
+    },
+    {
+      "text": "I have a business opportunity. I'll put $2000 in, you put $5000 in, and we split the $100000 profit",
+      "label": "money_flip"
+    },
+    {
+      "text": "Grandpa here. I'm in Canada but got robbed. Need $2000 immediately for emergency. Please wire to this account",
+      "label": "grandparent"
+    },
+    {
+      "text": "I got a weird call from someone claiming to be from my bank asking about unusual transactions",
+      "label": "other"
+    },
+    {
+      "text": "I love you so much. I know we just met online but I feel a deep connection. I'm in the military overseas",
+      "label": "romance"
+    },
+    {
+      "text": "Apple Support: Your account will be locked. Call 1-888-APPLE-FIX now",
+      "label": "tech_support"
+    },
+    {
+      "text": "You are the lucky 1000th visitor! Claim your free iPhone 15 now",
+      "label": "prize"
+    },
+    {
+      "text": "Verify your account credentials at our secure portal: bankofamerica-secure-verify.net",
+      "label": "phishing"
+    },
+    {
+      "text": "Data entry jobs at home. $75 per hour. No experience needed. We provide the software",
+      "label": "employment"
+    },
+    {
+      "text": "Forex trading system guarantees 200% monthly returns. Join our VIP program today",
+      "label": "investment"
+    },
+    {
+      "text": "Your Netflix account is about to be cancelled. Please provide payment information to continue",
+      "label": "impersonation"
+    },
+    {
+      "text": "I'm a Nigerian prince and I will give you $5 million if you help me transfer my money",
+      "label": "money_flip"
+    },
+    {
+      "text": "Hi honey, it's your grandson. I got arrested and need $10,000 for bail. Don't tell anyone",
+      "label": "grandparent"
+    },
+    {
+      "text": "Someone tried to log into my account. Not sure if it's real or a scam attempt",
+      "label": "other"
+    },
+    {
+      "text": "You are so beautiful. I really like you. Can you send me some money so I can visit you?",
+      "label": "romance"
+    },
+    {
+      "text": "Your computer is running slow. Download our cleaning software to fix problems",
+      "label": "tech_support"
+    },
+    {
+      "text": "Claim your FREE luxury vacation package valued at $5000",
+      "label": "prize"
+    },
+    {
+      "text": "Google: Confirm your account recovery email at google.secure.login.verification.com",
+      "label": "phishing"
+    },
+    {
+      "text": "Online tutoring jobs. $50/hour. Flexible hours. Work whenever you want. No experience required",
+      "label": "employment"
+    },
+    {
+      "text": "New gold investment program. Real gold certificates. Limited offers. Act fast",
+      "label": "investment"
+    },
+    {
+      "text": "This is Revenue Canada. You have unpaid taxes. Respond immediately to avoid prosecution",
+      "label": "impersonation"
+    },
+    {
+      "text": "I have $30000 I want to multiply to $100000. If you can help me move it, I'll give you 40%",
+      "label": "money_flip"
+    },
+    {
+      "text": "Hi it's your grandson. I'm stuck in Mexico and need $5000 for airfare home. Please send money",
+      "label": "grandparent"
+    },
+    {
+      "text": "Received strange text message from unknown number. Asked me to verify banking info",
+      "label": "other"
+    },
+    {
+      "text": "I'm a rich businessman looking for a romantic relationship. You seem perfect. Let's talk more",
+      "label": "romance"
+    },
+    {
+      "text": "ERROR 404: Your system has been compromised. Call 1-900-FIX-PC now for support",
+      "label": "tech_support"
+    },
+    {
+      "text": "Winner! You have selected for our exclusive prize giveaway. Claim your $2000 gift card",
+      "label": "prize"
+    },
+    {
+      "text": "Secure your account now at account-verification-secure.com with your username and password",
+      "label": "phishing"
+    },
+    {
+      "text": "Secret shopper jobs. Get paid to shop and review stores. $2000+ per month",
+      "label": "employment"
+    },
+    {
+      "text": "Penny stocks about to explode. Get in before the big run. Limited shares available",
+      "label": "investment"
+    },
+    {
+      "text": "Hello this is PayPal fraud department. Your account is suspended. Verify immediately",
+      "label": "impersonation"
+    },
+    {
+      "text": "I need someone to help me get my inheritance out of the country. I'll pay you 25% commission",
+      "label": "money_flip"
+    },
+    {
+      "text": "Grandpa got stuck in UK and lost his wallet. Need $2500 wired immediately. Please help",
+      "label": "grandparent"
+    },
+    {
+      "text": "Got an offer for high-paying job but something seems off about the company",
+      "label": "other"
+    },
+    {
+      "text": "My love, I miss you so much. I'm working on an oil rig overseas. Can you help with some expenses?",
+      "label": "romance"
+    },
+    {
+      "text": "WARNING: Malware detected on your device. Your banking information may be compromised. Click here",
+      "label": "tech_support"
+    },
+    {
+      "text": "Congratulations! You have won a brand new car in our lottery draw. Claim here",
+      "label": "prize"
+    },
+    {
+      "text": "Confirm your identity at our secure portal: update-your-bank-account-here.net",
+      "label": "phishing"
+    },
+    {
+      "text": "Remote jobs available. Start immediately. $4000 monthly. Submit your resume online",
+      "label": "employment"
+    },
+    {
+      "text": "Medical marijuana investment opportunity. Government approval coming soon. Double your money",
+      "label": "investment"
+    },
+    {
+      "text": "This is your credit card company. Your card is locked. Call 1-800-CREDIT-NOW",
+      "label": "impersonation"
+    },
+    {
+      "text": "I have cash to flip. Need a partner. Put in $10000, get back $40000 in 1 month. Guaranteed",
+      "label": "money_flip"
+    },
+    {
+      "text": "Hi sweetheart, your grandson here. I got in trouble with the law. Need $5000 bail money ASAP",
+      "label": "grandparent"
+    },
+    {
+      "text": "Someone asked me to be a money mule. Transfer money from one account to another. Not sure if legit",
+      "label": "other"
+    }
+  ],
+  "validation_split": {
+    "training_proportion": 0.8,
+    "testing_proportion": 0.2,
+    "note": "80% used for training, 20% held out for validation testing"
+  },
+  "label_distribution": {
+    "romance": 10,
+    "tech_support": 10,
+    "prize": 10,
+    "phishing": 10,
+    "employment": 10,
+    "investment": 10,
+    "impersonation": 10,
+    "money_flip": 10,
+    "grandparent": 10,
+    "other": 10
+  },
+  "usage_notes": {
+    "training": "Load this dataset and train the ThreatScorerML model",
+    "augmentation": "In production, augment this data with actual user submissions from Phase 1",
+    "updates": "Retrain monthly with new labeled examples from user feedback",
+    "balance": "Dataset is balanced (10 samples per class) for fair training"
+  }
+}
