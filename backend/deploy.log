@@ -1,0 +1,2 @@
+Error: Unable to upload artifact ../../layers/python_dependencies referenced by ContentUri parameter of PythonDependenciesLayer resource.
+Your session has expired or credentials have changed. Please reauthenticate using 'aws login'.

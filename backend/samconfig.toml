@@ -18,5 +18,5 @@ parameter_overrides = [
   "DynamoDBTableName=ScamGuardData",
   "AuditTableName=ScamGuardAudit",
   "OTPTableName=ScamGuardOTP",
-  "PinpointProjectId="
+  "PinpointProjectId=7422bf6714644482b8100da38abcd4ae"
 ]
