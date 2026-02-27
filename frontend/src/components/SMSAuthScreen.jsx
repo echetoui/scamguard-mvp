@@ -16,6 +16,7 @@ import './SMSAuthScreen.css';
 
 export default function SMSAuthScreen() {
   // State
+  const [mode, setMode] = useState('choose'); // choose | signup | login
   const [step, setStep] = useState('email'); // email | phone | otp | success
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -55,7 +56,7 @@ export default function SMSAuthScreen() {
     return `+1${lastTen}`;
   };
 
-  // Handle email submission
+  // Handle email submission (signup: go to phone step; login: authenticate)
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -65,7 +66,53 @@ export default function SMSAuthScreen() {
       return;
     }
 
-    setStep('phone');
+    if (mode === 'login') {
+      // Login mode: call /auth/login endpoint
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email.toLowerCase(),
+            password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error?.message || 'Identifiants invalides');
+          setLoading(false);
+          return;
+        }
+
+        // Store tokens
+        localStorage.setItem('scamguard_auth', JSON.stringify({
+          id_token: data.data.id_token,
+          access_token: data.data.access_token,
+          refresh_token: data.data.refresh_token,
+          expires_in: data.data.expires_in,
+          timestamp: Date.now()
+        }));
+
+        localStorage.setItem('userId', data.data.user.sub);
+
+        setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
+        setStep('success');
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } catch (err) {
+        setError('Erreur réseau. Veuillez réessayer.');
+        setLoading(false);
+      }
+    } else {
+      // Signup mode: go to phone step
+      setStep('phone');
+    }
   };
 
   // Handle phone submission
@@ -225,10 +272,48 @@ export default function SMSAuthScreen() {
           <p>Protégez-vous contre les arnaques</p>
         </div>
 
+        {/* Mode Selection */}
+        {mode === 'choose' && (
+          <div className="auth-form mode-selection">
+            <h2>Que voulez-vous faire?</h2>
+            <p className="step-description">
+              Choisissez entre créer un nouveau compte ou vous connecter
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                type="button"
+                className="auth-button"
+                onClick={() => {
+                  setMode('signup');
+                  setStep('email');
+                  setError('');
+                }}
+                aria-label="Créer un nouveau compte"
+              >
+                ➕ Créer un compte
+              </button>
+
+              <button
+                type="button"
+                className="auth-button"
+                onClick={() => {
+                  setMode('login');
+                  setStep('email');
+                  setError('');
+                }}
+                aria-label="Se connecter"
+              >
+                🔑 Se connecter
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: Email & Password */}
         {step === 'email' && (
           <form onSubmit={handleEmailSubmit} className="auth-form">
-            <h2>Créer votre compte</h2>
+            <h2>{mode === 'login' ? 'Connectez-vous' : 'Créer votre compte'}</h2>
 
             <div className="form-group">
               <label htmlFor="email">Adresse email</label>
@@ -240,6 +325,7 @@ export default function SMSAuthScreen() {
                 placeholder="votre@email.com"
                 aria-label="Adresse email"
                 disabled={loading}
+                autoFocus
               />
             </div>
 
@@ -250,11 +336,13 @@ export default function SMSAuthScreen() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Au moins 12 caractères"
+                placeholder={mode === 'login' ? 'Votre mot de passe' : 'Au moins 12 caractères'}
                 aria-label="Mot de passe"
                 disabled={loading}
               />
-              <small>Min. 12 caractères avec majuscules, minuscules, chiffres et symboles</small>
+              {mode === 'signup' && (
+                <small>Min. 12 caractères avec majuscules, minuscules, chiffres et symboles</small>
+              )}
             </div>
 
             {error && <div className="error-message" role="alert">{error}</div>}
@@ -263,15 +351,24 @@ export default function SMSAuthScreen() {
               type="submit"
               className="auth-button"
               disabled={loading}
-              aria-label="Créer mon compte"
+              aria-label={mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
             >
-              {loading ? '⏳ Chargement...' : 'Continuer'}
+              {loading ? '⏳ Chargement...' : mode === 'login' ? 'Se connecter' : 'Continuer'}
+            </button>
+
+            <button
+              type="button"
+              className="auth-link-button"
+              onClick={() => setMode('choose')}
+              disabled={loading}
+            >
+              ← Retour
             </button>
           </form>
         )}
 
-        {/* Step 2: Phone Number */}
-        {step === 'phone' && (
+        {/* Step 2: Phone Number (Signup only) */}
+        {step === 'phone' && mode === 'signup' && (
           <form onSubmit={handlePhoneSubmit} className="auth-form">
             <h2>Vérifiez votre téléphone</h2>
             <p className="step-description">
@@ -386,14 +483,48 @@ export default function SMSAuthScreen() {
       </div>
 
       {/* Footer */}
-      <div className="auth-footer">
-        <p>
-          Vous possédez un compte? <a href="#login">Se connecter</a>
-        </p>
-        <p className="privacy">
-          En créant un compte, vous acceptez nos <a href="#terms">Conditions</a>
-        </p>
-      </div>
+      {mode === 'choose' && (
+        <div className="auth-footer">
+          <p className="privacy">
+            Protégez-vous contre les arnaques par SMS et les faux messages
+          </p>
+        </div>
+      )}
+
+      {mode === 'signup' && (
+        <div className="auth-footer">
+          <p>
+            Vous possédez un compte? {' '}
+            <button
+              type="button"
+              onClick={() => setMode('choose')}
+              className="link-button"
+              style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#0056b3', textDecoration: 'underline', padding: 0 }}
+            >
+              Se connecter
+            </button>
+          </p>
+          <p className="privacy">
+            En créant un compte, vous acceptez nos <a href="#terms">Conditions</a>
+          </p>
+        </div>
+      )}
+
+      {mode === 'login' && (
+        <div className="auth-footer">
+          <p>
+            Pas encore de compte? {' '}
+            <button
+              type="button"
+              onClick={() => setMode('choose')}
+              className="link-button"
+              style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#0056b3', textDecoration: 'underline', padding: 0 }}
+            >
+              Créer un compte
+            </button>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
