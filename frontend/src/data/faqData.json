@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "faq-1",
+      "question": "Qu'est-ce qui se passe quand je bloque un numéro?",
+      "answer": "Quand vous bloquez un numéro:\n- L'appel n'apparaît pas sur votre écran\n- Le message n'est pas livré\n- Vous n'êtes pas notifié\n- Ils ne sauront généralement pas qu'ils sont bloqués (sur certains appareils, ils entendront une tonalité occupée)",
+      "category": "blocage",
+      "icon": "📞"
+    },
+    {
+      "id": "faq-2",
+      "question": "Puis-je débloquer un contact?",
+      "answer": "Oui! Vous pouvez débloquer n'importe quel contact à tout moment.\n\nPour Android:\n- Téléphone > Paramètres > Numéros bloqués\n- Appuyer longtemps sur le numéro > Débloquer\n\nPour iPhone:\n- Paramètres > Téléphone > Contacts bloqués\n- Appuyer sur Éditer > (-) rouge > Débloquer",
+      "category": "blocage",
+      "icon": "🔓"
+    },
+    {
+      "id": "faq-3",
+      "question": "Comment signaler à la police?",
+      "answer": "Vous pouvez signaler via les sites officiels:\n\n🇧🇪 Belgique: www.police.be/signalement\n🇫🇷 France: www.gendarmerie.gouv.fr\n🇪🇸 Espagne: www.policia.es\n🇨🇦 Canada: www.rcmp-grc.gc.ca\n\nConservez toutes les preuves (screenshots, SMS, emails) avant de signaler.",
+      "category": "signalement",
+      "icon": "🚨"
+    },
+    {
+      "id": "faq-4",
+      "question": "Que faire si j'ai déjà perdu de l'argent?",
+      "answer": "ACTIONS IMMÉDIATES:\n\n1. Dans les 24h: Contactez votre banque immédiatement\n   - Signalez la transaction\n   - Demandez un blocage de compte\n\n2. Dans les 48h: Allez à la police\n   - Déposez plainte officielle\n   - Conservez tous les documents\n\n3. Ressources:\n   - Votre avocat (si pertes significatives)\n   - Association des victimes d'arnaque\n   - Centre de récupération de fraude",
+      "category": "arnaque",
+      "icon": "💳",
+      "urgency": "high"
+    },
+    {
+      "id": "faq-5",
+      "question": "Ils m'ont appelé depuis le numéro de ma banque!",
+      "answer": "C'est du SPOOFING (faux numéro).\n\nLes arnaqueurs imitent le numéro de votre banque. C'est une technique commune.\n\nSolution:\n✓ Raccrochez immédiatement\n✓ Appelez directement votre banque (numéro au dos de votre carte)\n✓ Demandez si l'appel était légitime\n✓ Bloquez le numéro dans votre téléphone\n✓ Signalez à la police\n\nAstuce: Votre banque ne vous demandera JAMAIS vos données bancaires par téléphone.",
+      "category": "arnaques-communes",
+      "icon": "🏦"
+    },
+    {
+      "id": "faq-6",
+      "question": "Combien de numéros puis-je bloquer?",
+      "answer": "Vous pouvez bloquer un nombre illimité de numéros! \n\nBloquez autant que vous en avez besoin pour protéger votre téléphone.\n\nNote: Certains appareils très anciens (pré-2015) limitent à environ 250 numéros, mais les téléphones modernes n'ont pas cette limite.",
+      "category": "blocage",
+      "icon": "📵"
+    },
+    {
+      "id": "faq-7",
+      "question": "Mon enfant reçoit des messages suspects?",
+      "answer": "Blocage immédiat + Contrôle Parental:\n\nAndroid:\n1. Paramètres > Google Family Link\n2. Activer le filtrage des apps\n3. Gérer les contacts bloqués\n\niPhone:\n1. Paramètres > Temps d'écran\n2. Restrictions de contenu et d'intimité\n3. Gérer les contacts\n\nImportant: Parlez à votre enfant des dangers et établissez des règles claires sur l'utilisation du téléphone.",
+      "category": "famille",
+      "icon": "👨‍👩‍👧‍👦"
+    },
+    {
+      "id": "faq-8",
+      "question": "Comment éviter d'être victime d'arnaque?",
+      "answer": "Conseils essentiels:\n\n✅ Soyez vigilant avec les appels/messages inattendus\n✅ Ne cliquez jamais sur les liens dans les SMS suspects\n✅ Ne donnez JAMAIS vos données bancaires par téléphone\n✅ Vérifiez l'identité en appelant directement l'entreprise\n✅ Utilisez ScamGuard pour analyser les messages suspects\n✅ Apprenez à reconnaître les signes d'alerte\n✅ Bloquez les numéros suspects immédiatement\n✅ Signalez à la police pour protéger les autres\n\nRappelez-vous: 90% des victimes reçoivent plusieurs appels. Ne vous culpabilisez pas - ça arrive à tout le monde!",
+      "category": "prévention",
+      "icon": "🛡️"
+    },
+    {
+      "id": "faq-9",
+      "question": "ScamGuard peut-il bloquer automatiquement?",
+      "answer": "Non, ScamGuard ne bloque pas automatiquement les numéros sur votre téléphone.\n\nPourquoi? Parce que nous croyons en votre autonomie et votre vie privée.\n\nScamGuard vous aide à:\n✅ Analyser les messages suspects\n✅ Apprendre à reconnaître les arnaque\n✅ Accéder aux guides de blocage\n✅ Signaler les arnaques à la communauté\n\nVous gardez le contrôle total de votre téléphone et décidez quoi bloquer.",
+      "category": "scamguard",
+      "icon": "🤖"
+    },
+    {
+      "id": "faq-10",
+      "question": "Les informations que je partage sont-elles confidentielles?",
+      "answer": "Oui! ScamGuard respecte votre vie privée.\n\n✅ Vos données personnelles ne sont jamais vendues\n✅ Les signalements sont anonymisés\n✅ Vous contrôlez ce que vous partagez\n✅ Conformité RGPD et lois de confidentialité\n\nDans les paramètres, vous pouvez:\n- Choisir le niveau de partage\n- Configurer la rétention des données\n- Contrôler les permissions\n- Supprimer vos données à tout moment\n\nPour plus d'infos: Voir Paramètres > Confidentialité",
+      "category": "confidentialité",
+      "icon": "🔒"
+    }
+  ]
+}

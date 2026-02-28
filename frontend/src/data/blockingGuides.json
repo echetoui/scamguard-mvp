@@ -1,0 +1,497 @@
+{
+  "guides": [
+    {
+      "id": "android-calls",
+      "title": "Bloquer un Appel sur Android",
+      "platform": "android",
+      "icon": "🤖",
+      "type": "appel",
+      "description": "Bloquez facilement les appels suspects sur votre téléphone Android",
+      "methods": [
+        {
+          "id": "android-calls-method-1",
+          "title": "Directement depuis l'appel",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir l'app Téléphone",
+              "details": "L'app de téléphone native de votre appareil"
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer sur l'onglet 'Historique' (Récents)",
+              "details": "Vous verrez la liste de vos appels reçus"
+            },
+            {
+              "number": 3,
+              "instruction": "Trouver le numéro à bloquer",
+              "details": "Identifiez le numéro suspect"
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer longtemps dessus",
+              "details": "Un menu contextuel apparaîtra"
+            },
+            {
+              "number": 5,
+              "instruction": "Sélectionner 'Bloquer le numéro'",
+              "details": "Parfois appelé 'Ajouter à liste noire'"
+            },
+            {
+              "number": 6,
+              "instruction": "Confirmer 'Bloquer'",
+              "details": "C'est fait! Les futurs appels seront bloqués."
+            }
+          ]
+        },
+        {
+          "id": "android-calls-method-2",
+          "title": "Via les Paramètres",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir l'app Téléphone",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer sur ⋮ (3 points) > Paramètres",
+              "details": "Menu d'options"
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur 'Numéros bloqués'",
+              "details": "Section dédiée aux blocages"
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur (+) Ajouter",
+              "details": "Bouton pour ajouter un nouveau numéro"
+            },
+            {
+              "number": 5,
+              "instruction": "Entrer le numéro ou sélectionner un contact",
+              "details": "Vous pouvez saisir manuellement ou choisir dans vos contacts"
+            },
+            {
+              "number": 6,
+              "instruction": "Appuyer sur 'Bloquer'",
+              "details": "Complété!"
+            }
+          ]
+        },
+        {
+          "id": "android-calls-method-3",
+          "title": "Depuis un Contact",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir Contacts",
+              "details": "L'app Contacts native"
+            },
+            {
+              "number": 2,
+              "instruction": "Sélectionner le contact suspect",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur ⋮ (3 points)",
+              "details": "Menu options"
+            },
+            {
+              "number": 4,
+              "instruction": "Sélectionner 'Bloquer le numéro'",
+              "details": ""
+            },
+            {
+              "number": 5,
+              "instruction": "Confirmer",
+              "details": "Contact bloqué!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "android-sms",
+      "title": "Bloquer un SMS sur Android",
+      "platform": "android",
+      "icon": "🤖",
+      "type": "sms",
+      "description": "Empêchez les messages suspects d'atteindre votre boîte de réception",
+      "methods": [
+        {
+          "id": "android-sms-method-1",
+          "title": "Depuis l'app Messages",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir l'app Messages (SMS)",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Ouvrir la conversation à bloquer",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer longtemps sur le message",
+              "details": "Un menu contextuel apparaîtra"
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur 'Bloquer' ou 'Ajouter à la liste noire'",
+              "details": ""
+            },
+            {
+              "number": 5,
+              "instruction": "Confirmer",
+              "details": "SMS futurs de ce numéro seront bloqués."
+            }
+          ]
+        },
+        {
+          "id": "android-sms-method-2",
+          "title": "Bloquer + Signaler comme spam",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir le message suspect",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer sur ⋮ (3 points)",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Sélectionner 'Bloquer et signaler comme spam'",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur 'Bloquer'",
+              "details": "Cela aide Google à identifier les spammeurs."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ios-calls",
+      "title": "Bloquer un Appel sur iPhone",
+      "platform": "ios",
+      "icon": "🍎",
+      "type": "appel",
+      "description": "Utilisez CallKit pour bloquer les appels suspects sur iOS",
+      "methods": [
+        {
+          "id": "ios-calls-method-1",
+          "title": "Depuis les Appels Récents",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir l'app Téléphone",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Aller dans 'Récents'",
+              "details": "Onglet en bas de l'écran"
+            },
+            {
+              "number": 3,
+              "instruction": "Trouver le numéro suspect",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur l'icône ⓘ (info) à côté",
+              "details": "Apparaît à droite du numéro"
+            },
+            {
+              "number": 5,
+              "instruction": "Scroller vers le bas",
+              "details": ""
+            },
+            {
+              "number": 6,
+              "instruction": "Appuyer sur 'Bloquer ce contact'",
+              "details": ""
+            },
+            {
+              "number": 7,
+              "instruction": "Confirmer 'Bloquer le contact'",
+              "details": "Bloqué! Les futurs appels seront silencieux."
+            }
+          ]
+        },
+        {
+          "id": "ios-calls-method-2",
+          "title": "Depuis Contacts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir Contacts",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Trouver le contact suspect",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur 'Modifier'",
+              "details": "Bouton en haut à droite"
+            },
+            {
+              "number": 4,
+              "instruction": "Scroller vers le bas",
+              "details": ""
+            },
+            {
+              "number": 5,
+              "instruction": "Appuyer sur 'Bloquer ce contact'",
+              "details": ""
+            },
+            {
+              "number": 6,
+              "instruction": "Appuyer sur 'Bloquer le contact' pour confirmer",
+              "details": "Contact bloqué!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ios-sms",
+      "title": "Bloquer un SMS sur iPhone",
+      "platform": "ios",
+      "icon": "🍎",
+      "type": "sms",
+      "description": "Filtrez les messages suspects sur iOS",
+      "methods": [
+        {
+          "id": "ios-sms-method-1",
+          "title": "Bloquer depuis Messages",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir Messages",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Ouvrir la conversation à bloquer",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur le numéro en haut",
+              "details": "Le numéro du contact"
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur 'ⓘ' (Info)",
+              "details": ""
+            },
+            {
+              "number": 5,
+              "instruction": "Appuyer sur 'Bloquer ce contact'",
+              "details": ""
+            },
+            {
+              "number": 6,
+              "instruction": "Confirmer 'Bloquer le contact'",
+              "details": "SMS futurs seront filtrés."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "title": "Bloquer sur WhatsApp",
+      "platform": "both",
+      "icon": "💚",
+      "type": "app",
+      "description": "Empêchez quelqu'un de vous contacter sur WhatsApp",
+      "methods": [
+        {
+          "id": "whatsapp-android",
+          "title": "Android",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir WhatsApp",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer longtemps sur le chat à bloquer",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur ⋮ (3 points) > 'Plus'",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur 'Bloquer le contact'",
+              "details": ""
+            },
+            {
+              "number": 5,
+              "instruction": "Confirmer 'Bloquer'",
+              "details": "Il ne peut plus vous envoyer de messages."
+            }
+          ]
+        },
+        {
+          "id": "whatsapp-ios",
+          "title": "iOS",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir WhatsApp",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer longtemps sur le chat",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur 'Plus' > 'Bloquer le contact'",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Confirmer",
+              "details": "Bloqué!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "telegram",
+      "title": "Bloquer sur Telegram",
+      "platform": "both",
+      "icon": "✈️",
+      "type": "app",
+      "description": "Arrêtez les messages Telegram suspects",
+      "methods": [
+        {
+          "id": "telegram-both",
+          "title": "Android & iOS",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir Telegram",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer longtemps sur la conversation",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur ⋮ (3 points) > 'Bloquer l'utilisateur'",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Confirmer",
+              "details": "Bloqué sur Telegram."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "facebook-messenger",
+      "title": "Bloquer sur Facebook Messenger",
+      "platform": "both",
+      "icon": "👥",
+      "type": "app",
+      "description": "Empêchez quelqu'un de vous contacter sur Messenger",
+      "methods": [
+        {
+          "id": "messenger-both",
+          "title": "Android & iOS",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir Messenger",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Appuyer longtemps sur le chat",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur 'Bloquer'",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Confirmer 'Bloquer cette conversation'",
+              "details": "Ils ne peuvent plus vous contacter."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gmail",
+      "title": "Bloquer sur Gmail",
+      "platform": "both",
+      "icon": "📧",
+      "type": "app",
+      "description": "Bloquez les emails suspects directement dans Gmail",
+      "methods": [
+        {
+          "id": "gmail-both",
+          "title": "Android & iOS",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Ouvrir Gmail",
+              "details": ""
+            },
+            {
+              "number": 2,
+              "instruction": "Ouvrir l'email suspect",
+              "details": ""
+            },
+            {
+              "number": 3,
+              "instruction": "Appuyer sur ⋮ (3 points)",
+              "details": ""
+            },
+            {
+              "number": 4,
+              "instruction": "Appuyer sur 'Bloquer [expéditeur]'",
+              "details": ""
+            },
+            {
+              "number": 5,
+              "instruction": "Confirmer",
+              "details": "Les futurs emails vont au spam."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

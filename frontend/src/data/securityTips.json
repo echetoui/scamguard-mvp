@@ -1,0 +1,193 @@
+{
+  "checklists": [
+    {
+      "id": "before-block",
+      "title": "AVANT de Bloquer",
+      "icon": "⚠️",
+      "description": "Vérifiez ces points avant de bloquer un numéro",
+      "items": [
+        {
+          "id": "verify-caller",
+          "text": "Vérifiez qui appelle",
+          "details": "Est-ce un numéro inconnu? Demande-t-il de l'argent? Crée-t-il de l'urgence?"
+        },
+        {
+          "id": "question-call",
+          "text": "Demandez-vous",
+          "details": "Est-ce que ma banque appelle sans demande? Un ami m'aurait-il prévenu avant? Pourquoi ce SMS soudainement?"
+        },
+        {
+          "id": "dont-click",
+          "text": "Ne pas cliquer sur les liens",
+          "details": "Les liens peuvent contenir des malwares ou des phishing"
+        },
+        {
+          "id": "dont-share-info",
+          "text": "Ne pas donner vos infos",
+          "details": "Jamais de données bancaires, mots de passe ou numéros d'identité"
+        },
+        {
+          "id": "dont-hangup-fast",
+          "text": "Ne pas raccrocher trop vite",
+          "details": "Vous ne pouvez pas les rappeler après, documentez d'abord"
+        },
+        {
+          "id": "note-number",
+          "text": "Noter le numéro",
+          "details": "Sauvegardez pour la police et votre banque"
+        },
+        {
+          "id": "report-bank",
+          "text": "Signaler à votre banque/entreprise",
+          "details": "Avertissez immédiatement votre établissement"
+        },
+        {
+          "id": "save-message",
+          "text": "Enregistrer le message SMS",
+          "details": "Gardez comme preuve"
+        },
+        {
+          "id": "screenshot",
+          "text": "Prendre une capture d'écran",
+          "details": "Documentez visuellement l'arnaque"
+        }
+      ]
+    },
+    {
+      "id": "after-block",
+      "title": "APRÈS avoir Bloqué",
+      "icon": "✅",
+      "description": "Étapes à suivre après avoir bloqué un numéro",
+      "sections": [
+        {
+          "id": "report",
+          "title": "1. SIGNALER",
+          "items": [
+            "Signaler comme spam à votre opérateur",
+            "Signaler à la police (si arnaque)",
+            "Signaler à ScamGuard (dans l'app)"
+          ]
+        },
+        {
+          "id": "document",
+          "title": "2. DOCUMENTER",
+          "items": [
+            "Sauvegarder le numéro",
+            "Noter la date et l'heure",
+            "Décrire ce qui s'est passé"
+          ]
+        },
+        {
+          "id": "protect",
+          "title": "3. PROTÉGER",
+          "items": [
+            "Vérifier votre compte bancaire",
+            "Changer les mots de passe si nécessaire",
+            "Activer la double authentification"
+          ]
+        },
+        {
+          "id": "educate",
+          "title": "4. ÉDUQUER",
+          "items": [
+            "Parler à votre famille",
+            "Partager avec vos amis",
+            "Sensibiliser aux signes d'alerte"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fraud-recovery",
+      "title": "EN CAS D'ARNAQUE FINANCIÈRE",
+      "icon": "🆘",
+      "description": "Actions immédiates si vous avez perdu de l'argent",
+      "urgency": "high",
+      "timeline": [
+        {
+          "period": "24 HEURES",
+          "items": [
+            "✅ Contactez votre banque",
+            "✅ Demandez un blocage de compte",
+            "✅ Signalez la transaction"
+          ]
+        },
+        {
+          "period": "48 HEURES",
+          "items": [
+            "✅ Déposez plainte à la police",
+            "✅ Conservez tous les documents",
+            "✅ Photographiez les messages/emails"
+          ]
+        }
+      ]
+    }
+  ],
+  "signaling": [
+    {
+      "id": "operator",
+      "title": "À votre OPÉRATEUR téléphonique",
+      "icon": "📱",
+      "instructions": [
+        "Contactez votre fournisseur (Afni, Orange, Proximus, etc)",
+        "Donnez le numéro qui a appelé",
+        "Décrivez le scam",
+        "Demandez un blocage au niveau du réseau"
+      ],
+      "note": "Les opérateurs peuvent bloquer à la source."
+    },
+    {
+      "id": "police",
+      "title": "À la POLICE",
+      "icon": "🚨",
+      "instructions": [
+        "Allez sur le formulaire de signalement",
+        "Sélectionnez votre pays",
+        "Remplissez le formulaire",
+        "Joignez les preuves (captures d'écran, SMS, etc)"
+      ],
+      "links": [
+        {
+          "country": "🇧🇪 Belgique",
+          "url": "www.police.be/signalement"
+        },
+        {
+          "country": "🇫🇷 France",
+          "url": "www.gendarmerie.gouv.fr"
+        },
+        {
+          "country": "🇪🇸 Espagne",
+          "url": "www.policia.es"
+        },
+        {
+          "country": "🇨🇦 Canada",
+          "url": "www.rcmp-grc.gc.ca"
+        }
+      ]
+    },
+    {
+      "id": "bank",
+      "title": "À votre BANQUE (si arnaque financière)",
+      "icon": "🏦",
+      "instructions": [
+        "Appelez immédiatement votre banque (numéro au dos de votre carte)",
+        "Signalez la transaction suspecte",
+        "Demandez un blocage de compte si nécessaire",
+        "Signalez l'escroquerie"
+      ],
+      "urgency": "IMMÉDIAT"
+    },
+    {
+      "id": "scamguard",
+      "title": "À ScamGuard (dans l'app)",
+      "icon": "🛡️",
+      "instructions": [
+        "Aller dans ScamGuard",
+        "Onglet 'Ressources'",
+        "Appuyer sur 'Signaler un scam'",
+        "Remplir: Numéro/Email, Type de scam, Description, Date/heure",
+        "Envoyer"
+      ]
+    }
+  ]
+}

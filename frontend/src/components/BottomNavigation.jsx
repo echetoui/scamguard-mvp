@@ -52,6 +52,13 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange }) => {
       route: '/academy'
     },
     {
+      id: 'ressources',
+      label: 'Ressources',
+      icon: '📚',
+      description: 'Guides de blocage et conseils de sécurité',
+      route: '/resources'
+    },
+    {
       id: 'parametres',
       label: 'Paramètres',
       icon: '⚙️',
