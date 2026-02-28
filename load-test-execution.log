@@ -1,0 +1,127 @@
+=== Test 1: Simple Load Test ===
+  █ TOTAL RESULTS 
+
+    checks_total.......: 632     10.528415/s
+    checks_succeeded...: 100.00% 632 out of 632
+    checks_failed......: 0.00%   0 out of 632
+
+    ✓ status is 200 or 400
+    ✓ response time < 2s
+
+    HTTP
+    http_req_duration....: avg=87.85ms min=48.87ms  med=66.85ms  max=1.64s p(90)=125.89ms p(95)=144.75ms
+    http_req_failed......: 100.00% 316 out of 316
+    http_reqs............: 316     5.264208/s
+
+    EXECUTION
+    iteration_duration...: avg=189.9ms min=150.08ms med=168.26ms max=1.97s p(90)=227.22ms p(95)=246.34ms
+    iterations...........: 316     5.264208/s
+    vus..................: 1       min=1          max=1
+    vus_max..............: 1       min=1          max=1
+
+    NETWORK
+    data_received........: 177 kB  3.0 kB/s
+    data_sent............: 46 kB   757 B/s
+
+
+
+
+running (1m00.0s), 0/1 VUs, 316 complete and 0 interrupted iterations
+default ✓ [ 100% ] 1 VUs  1m0s
+time="2026-02-28T13:32:01-05:00" level=error msg="thresholds on metrics 'http_req_failed' have been crossed"
+
+=== Test 2: Signup Load Test ===
+  █ TOTAL RESULTS 
+
+    checks_total.......: 114    1.899145/s
+    checks_succeeded...: 50.00% 57 out of 114
+    checks_failed......: 50.00% 57 out of 114
+
+    ✗ signup status is 200
+      ↳  0% — ✓ 0 / ✗ 57
+    ✓ response time < 1500ms
+
+    HTTP
+    http_req_duration..............: avg=548.68ms min=382.1ms  med=537.59ms max=849.03ms p(90)=637.1ms p(95)=705.4ms
+      { expected_response:true }...: avg=548.68ms min=382.1ms  med=537.59ms max=849.03ms p(90)=637.1ms p(95)=705.4ms
+    http_req_failed................: 0.00% 0 out of 57
+    http_reqs......................: 57    0.949572/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.05s    min=883.47ms med=1.03s    max=1.5s     p(90)=1.13s   p(95)=1.2s   
+    iterations.....................: 57    0.949572/s
+    vus............................: 1     min=1       max=1
+    vus_max........................: 1     min=1       max=1
+
+    NETWORK
+    data_received..................: 38 kB 638 B/s
+    data_sent......................: 10 kB 170 B/s
+
+
+
+
+running (1m00.0s), 0/1 VUs, 57 complete and 0 interrupted iterations
+
+=== Test 3: Login Load Test ===
+  █ TOTAL RESULTS 
+
+    checks_total.......: 178     2.938996/s
+    checks_succeeded...: 100.00% 178 out of 178
+    checks_failed......: 0.00%   0 out of 178
+
+    ✓ login response received
+    ✓ response time < 2000ms
+
+    HTTP
+    http_req_duration....: avg=177.65ms min=102.53ms med=166.89ms max=401.04ms p(90)=230.67ms p(95)=253.82ms
+    http_req_failed......: 100.00% 89 out of 89
+    http_reqs............: 89      1.469498/s
+
+    EXECUTION
+    iteration_duration...: avg=680.43ms min=603.92ms med=669.28ms max=902.47ms p(90)=738.18ms p(95)=772.4ms 
+    iterations...........: 89      1.469498/s
+    vus..................: 1       min=1        max=1
+    vus_max..............: 1       min=1        max=1
+
+    NETWORK
+    data_received........: 48 kB   795 B/s
+    data_sent............: 13 kB   209 B/s
+
+
+
+
+running (1m00.6s), 0/1 VUs, 89 complete and 0 interrupted iterations
+default ✓ [ 100% ] 1 VUs  1m0s
+time="2026-02-28T13:34:12-05:00" level=error msg="thresholds on metrics 'http_req_failed' have been crossed"
+
+=== Test 4: Mixed Load Test ===
+  █ TOTAL RESULTS 
+
+    checks_total.......: 361    6.002313/s
+    checks_succeeded...: 33.24% 120 out of 361
+    checks_failed......: 66.75% 241 out of 361
+
+    ✗ signup status is 200
+      ↳  0% — ✓ 0 / ✗ 76
+    ✗ refresh handled
+      ↳  0% — ✓ 0 / ✗ 45
+    ✗ login status is 200
+      ↳  0% — ✓ 0 / ✗ 120
+    ✓ has tokens
+
+    HTTP
+    http_req_duration..............: avg=248.77ms min=35.4ms   med=169.69ms max=796.74ms p(90)=512.54ms p(95)=565.69ms
+      { expected_response:true }...: avg=493.32ms min=376.74ms med=475.64ms max=796.74ms p(90)=596.8ms  p(95)=665ms   
+    http_req_failed................: 68.46% 165 out of 241
+    http_reqs......................: 241    4.007084/s
+
+    EXECUTION
+    iteration_duration.............: avg=249.53ms min=35.69ms  med=169.97ms max=796.92ms p(90)=512.98ms p(95)=566.05ms
+    iterations.....................: 241    4.007084/s
+    vus............................: 1      min=1          max=1
+    vus_max........................: 1      min=1          max=1
+
+    NETWORK
+    data_received..................: 124 kB 2.1 kB/s
+    data_sent......................: 34 kB  557 B/s
+
