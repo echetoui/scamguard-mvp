@@ -1,0 +1,180 @@
+{
+  "categories": [
+    {
+      "id": "police-reporting",
+      "title": "Signaler à la Police",
+      "icon": "🚨",
+      "description": "Déposez plainte auprès des autorités pour les arnaques",
+      "links": [
+        {
+          "id": "belgium-police",
+          "country": "🇧🇪 Belgique",
+          "organization": "Police Fédérale",
+          "url": "https://www.police.be/signalement",
+          "description": "Formulaire de signalement en ligne pour les cybercriminalités et arnaques"
+        },
+        {
+          "id": "france-police",
+          "country": "🇫🇷 France",
+          "organization": "Gendarmerie Nationale",
+          "url": "https://www.gendarmerie.gouv.fr",
+          "description": "Signalement des délits et cybercriminalités en France"
+        },
+        {
+          "id": "france-phishing",
+          "country": "🇫🇷 France (Phishing)",
+          "organization": "Phishing Initiative",
+          "url": "https://www.phishing-initiative.fr",
+          "description": "Signalement spécialisé pour le phishing et les usurpations d'identité"
+        },
+        {
+          "id": "spain-police",
+          "country": "🇪🇸 Espagne",
+          "organization": "Policía Nacional",
+          "url": "https://www.policia.es",
+          "description": "Signalement des délits en ligne en Espagne"
+        },
+        {
+          "id": "canada-police",
+          "country": "🇨🇦 Canada",
+          "organization": "RCMP/GRC",
+          "url": "https://www.rcmp-grc.gc.ca",
+          "description": "Signalement des fraudes et cybercriminalités au Canada"
+        },
+        {
+          "id": "switzerland-police",
+          "country": "🇨🇭 Suisse",
+          "organization": "Police Cantonale",
+          "url": "https://www.polizei.admin.ch",
+          "description": "Dépôt de plainte électronique en Suisse"
+        }
+      ]
+    },
+    {
+      "id": "fraud-recovery",
+      "title": "Récupération de Fraude",
+      "icon": "💳",
+      "description": "Ressources pour se rétablir après une arnaque financière",
+      "links": [
+        {
+          "id": "belgium-credit",
+          "country": "🇧🇪 Belgique",
+          "organization": "CreditPlus",
+          "url": "https://www.creditplus.be",
+          "description": "Vérification de crédit et protection identité en Belgique"
+        },
+        {
+          "id": "france-cnil",
+          "country": "🇫🇷 France",
+          "organization": "CNIL",
+          "url": "https://www.cnil.fr",
+          "description": "Commission Nationale de l'Informatique et des Libertés - Protection des données"
+        },
+        {
+          "id": "france-victims",
+          "country": "🇫🇷 France",
+          "organization": "Association Française des Victimes",
+          "url": "https://www.afvf.fr",
+          "description": "Support et aide pour les victimes d'escroquerie en France"
+        },
+        {
+          "id": "canada-fraud",
+          "country": "🇨🇦 Canada",
+          "organization": "Centre Antifraude",
+          "url": "https://www.antifraudcentre.ca",
+          "description": "Signalement et assistance pour les victimes de fraude au Canada"
+        }
+      ]
+    },
+    {
+      "id": "legal-support",
+      "title": "Support Juridique",
+      "icon": "⚖️",
+      "description": "Aide juridique et consultation pour les arnaqueurs",
+      "links": [
+        {
+          "id": "belgium-legal",
+          "country": "🇧🇪 Belgique",
+          "organization": "Ordre des Avocats",
+          "url": "https://www.avocats.be",
+          "description": "Trouver un avocat pour les affaires de fraude"
+        },
+        {
+          "id": "france-legal",
+          "country": "🇫🇷 France",
+          "organization": "Conseil National des Barreaux",
+          "url": "https://cnb.avocat.fr",
+          "description": "Aide juridique et consultation d'avocat en France"
+        },
+        {
+          "id": "consumer-protection",
+          "country": "🌍 Général",
+          "organization": "Protection des Consommateurs",
+          "url": "https://www.consumerreports.org",
+          "description": "Ressources pour les droits des consommateurs"
+        }
+      ]
+    },
+    {
+      "id": "operator-fraud",
+      "title": "Signaler à Votre Opérateur",
+      "icon": "📱",
+      "description": "Bloquez à la source auprès de votre fournisseur téléphonique",
+      "links": [
+        {
+          "id": "orange-belgium",
+          "country": "🇧🇪 Belgique",
+          "organization": "Orange Belgium",
+          "url": "https://www.orange.be",
+          "description": "Signalement de spam et arnaque"
+        },
+        {
+          "id": "proximus",
+          "country": "🇧🇪 Belgique",
+          "organization": "Proximus",
+          "url": "https://www.proximus.be",
+          "description": "Protection contre le spam et les arnaques"
+        },
+        {
+          "id": "orange-france",
+          "country": "🇫🇷 France",
+          "organization": "Orange France",
+          "url": "https://www.orange.fr",
+          "description": "Signalement de fraude Orange"
+        }
+      ]
+    }
+  ],
+  "emergency": [
+    {
+      "country": "🇧🇪 Belgique",
+      "police": "101 (non-urgent) ou 112 (urgence)",
+      "bank": "Contactez votre banque immédiatement",
+      "website": "www.police.be/signalement"
+    },
+    {
+      "country": "🇫🇷 France",
+      "police": "17 (gendarmerie) ou 112 (urgence)",
+      "bank": "Contactez votre banque immédiatement",
+      "website": "www.gendarmerie.gouv.fr"
+    },
+    {
+      "country": "🇪🇸 Espagne",
+      "police": "091 (police nationale) ou 112 (urgence)",
+      "bank": "Contactez votre banque immédiatement",
+      "website": "www.policia.es"
+    },
+    {
+      "country": "🇨🇭 Suisse",
+      "police": "Police cantonale locale ou 112",
+      "bank": "Contactez votre banque immédiatement",
+      "website": "www.polizei.admin.ch"
+    },
+    {
+      "country": "🇨🇦 Canada",
+      "police": "911 (urgence) ou numéro local",
+      "bank": "Contactez votre banque immédiatement",
+      "website": "www.antifraudcentre.ca"
+    }
+  ]
+}

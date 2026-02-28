@@ -14,6 +14,7 @@ import useAccountProfile from './hooks/useAccountProfile';
 import AccountProfile from './components/AccountProfile';
 import useAuth from './hooks/useAuth';
 import SMSAuthScreen from './components/SMSAuthScreen';
+import ResourcesTab from './components/Resources/ResourcesTab';
 import { analysisAPI } from './services/api';
 
 export default function App() {
@@ -354,7 +355,12 @@ export default function App() {
           <QuizModule onComplete={handleQuizComplete} />
         </TabPanel>
 
-        {/* Tab 4: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
+        {/* Tab 4: Ressources - Blocking Guides & Security Tips (Phase 5E.1) */}
+        <TabPanel tabId="ressources" activeTab={activeTab}>
+          <ResourcesTab />
+        </TabPanel>
+
+        {/* Tab 5: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
         <TabPanel tabId="parametres" activeTab={activeTab}>
           {/* Phase 4.2: Account Profile Section */}
           <AccountProfile
