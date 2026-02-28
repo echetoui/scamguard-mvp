@@ -99,6 +99,8 @@ const FAQSection = () => {
                 ))}
               </div>
             )}
+          </div>
+        ))}
 
         {filteredFAQs.length === 0 && (
           <div className="no-results">
@@ -108,7 +110,7 @@ const FAQSection = () => {
         )}
       </div>
 
-      {/* Quick Links */}
+      {/* Quick Tips */}
       <div className="faq-tips">
         <h3>💡 Conseils Rapides</h3>
         <div className="tips-grid">
