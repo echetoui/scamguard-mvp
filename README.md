@@ -1,64 +1,43 @@
-# 🛡️ ScamGuard AI - MVP
+# 🛡️ ScamGuard MVP
 
-Protection des seniors contre les arnaques par IA.
+Application de protection contre les arnaques numériques, conçue pour être accessible aux seniors (Senior-First).
 
-**Statut:** ✅ Phase 4 - Système complet déployé en production
-**Date mise à jour:** 22 février 2026
-**Branche:** develop
+Ce projet est une application React (MVP) qui permet aux utilisateurs de :
+- S'entraîner à détecter des arnaques via des scénarios interactifs.
+- Analyser des messages suspects (texte ou image) grâce à l'IA.
+- Recevoir des conseils et du coaching personnalisé.
 
----
+## 📋 Prérequis
 
-## 🚀 État du Projet
+Avant de commencer, assurez-vous d'avoir installé :
+- [Node.js](https://nodejs.org/) (v16 ou supérieur recommandé)
+- [npm](https://www.npmjs.com/) (généralement inclus avec Node.js)
 
-- ✅ Infrastructure AWS complète (CDK)
-- ✅ Frontend React avec accessibilité
-- ✅ Backend Lambda avec LLM integration
-- ✅ Système d'authentification Cognito
-- ✅ Base de données DynamoDB
-- ✅ Support voix (FR) - speech recognition + TTS
-- 🔄 Tests d'authentification Phase 4.1 en cours
+## 🚀 Installation
 
----
+1.  **Cloner le dépôt :**
+    ```bash
+    git clone <votre-url-de-repo>
+    cd scamguard-mvp
+    ```
 
-## 📋 Documentation Principale
+2.  **Installer les dépendances :**
+    ```bash
+    npm install
+    ```
 
-| Document | Description |
-|----------|-------------|
-| [**ACTION_PLAN_2026_02_22.md**](ACTION_PLAN_2026_02_22.md) | 🎯 Plan d'action structuré - LIS CE FICHIER EN PREMIER |
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) | 📊 État détaillé du projet (dernière maj: 17/02) |
-| [PHASE_4.1_TEST_PLAN.md](PHASE_4.1_TEST_PLAN.md) | ✅ Plan de test complet de l'authentification |
-| [docs/AWS_ARCHITECTURE_READY.md](docs/AWS_ARCHITECTURE_READY.md) | 🏗️ Architecture AWS détaillée |
+## ⚙️ Configuration
 
----
+Créez un fichier `.env` à la racine du projet pour configurer les variables d'environnement. Vous pouvez vous baser sur l'exemple ci-dessous :
 
-## 🏗️ Architecture
+```env
+# URL de l'API Backend (AWS Lambda / API Gateway)
+REACT_APP_LAMBDA_URL=https://votre-api-gateway-url.amazonaws.com/dev/api/v1
 
-```
-┌──────────────────────────┐
-│   Frontend (React PWA)    │  https://dv04w7vjfnkg5.cloudfront.net
-│  - S3 + CloudFront       │  (Accessibilité, Voix FR)
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│   API Gateway (HTTP)      │  https://ymli0zyv6e.execute-api.us-east-1.amazonaws.com
-│  - Auth endpoints        │  /api/v1/auth/*
-│  - Analysis endpoints    │  /api/v1/analysis
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│  Lambda Functions (Py3.12)│
-│  - Auth handler          │
-│  - LLM handler           │
-│  - Analysis engine       │
-└────────────┬─────────────┘
-      ┌──────┴──────┐
-      ▼             ▼
-┌──────────┐  ┌─────────────────┐
-│DynamoDB  │  │Secrets Manager  │
-│(Data)    │  │(API Keys)       │
-└──────────┘  └─────────────────┘
+# Configuration Cognito (si applicable)
+REACT_APP_COGNITO_REGION=us-east-1
+REACT_APP_COGNITO_USER_POOL_ID=votre_user_pool_id
+REACT_APP_COGNITO_CLIENT_ID=votre_client_id
 ```
 
 ---

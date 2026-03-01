@@ -5,7 +5,7 @@ from aws_cdk import (
     aws_apigatewayv2_authorizers as authorizers,
     aws_dynamodb as ddb, aws_s3 as s3,
     aws_cloudfront as cloudfront, aws_cloudfront_origins as origins,
-    aws_cognito as cognito, aws_secretsmanager as secretsmanager,
+    aws_cognito as cognito, aws_ssm as ssm,
     aws_iam as iam, aws_logs as logs,
     aws_cloudwatch as cw, aws_cloudwatch_actions as cw_actions,
     aws_sns as sns,
@@ -16,12 +16,20 @@ class ScamGuardStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
-        gemini_secret = secretsmanager.Secret.from_secret_name_v2(
-            self, "GeminiSecret", "scamguard/gemini-key"
+        gemini_param = ssm.StringParameter(
+            self, "GeminiParam",
+            parameter_name="/scamguard/gemini-key",
+            string_value="PLACEHOLDER",
+            description="Gemini API Key",
+            type=ssm.ParameterType.SECURE_STRING
         )
         
-        openai_secret = secretsmanager.Secret.from_secret_name_v2(
-            self, "OpenAISecret", "scamguard/openai-key"
+        openai_param = ssm.StringParameter(
+            self, "OpenAIParam",
+            parameter_name="/scamguard/openai-key",
+            string_value="PLACEHOLDER",
+            description="OpenAI API Key",
+            type=ssm.ParameterType.SECURE_STRING
         )
 
         table = ddb.Table(
@@ -106,8 +114,8 @@ class ScamGuardStack(Stack):
             environment={
                 "TABLE_NAME": table.table_name,
                 "UPLOADS_BUCKET": uploads_bucket.bucket_name,
-                "GEMINI_SECRET_ARN": gemini_secret.secret_arn,
-                "OPENAI_SECRET_ARN": openai_secret.secret_arn,
+                "GEMINI_PARAM_NAME": gemini_param.parameter_name,
+                "OPENAI_PARAM_NAME": openai_param.parameter_name,
                 "POWERTOOLS_SERVICE_NAME": "scamguard-api",
                 "LOG_LEVEL": "INFO"
             },
@@ -117,8 +125,8 @@ class ScamGuardStack(Stack):
 
         table.grant_read_write_data(api_lambda)
         uploads_bucket.grant_read_write(api_lambda)
-        gemini_secret.grant_read(api_lambda)
-        openai_secret.grant_read(api_lambda)
+        gemini_param.grant_read(api_lambda)
+        openai_param.grant_read(api_lambda)
 
         api = apigwv2.HttpApi(
             self, "API",

@@ -11,7 +11,7 @@ from datetime import datetime
 import uuid
 
 # Initialize AWS SDK
-secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
+ssm_client = boto3.client('ssm', region_name='us-east-1')
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 
 # Import anonymization utilities
@@ -25,13 +25,13 @@ except ImportError:
     def get_quebec_expert_prompt():
         return "Tu es un expert en cybersécurité spécialisé dans la détection d'arnaque au Québec."
 
-# Get API keys from Secrets Manager
-def get_secret(secret_id):
+# Get API keys from SSM Parameter Store
+def get_parameter(param_name):
     try:
-        response = secrets_client.get_secret_value(SecretId=secret_id)
-        return response.get('SecretString', '')
+        response = ssm_client.get_parameter(Name=param_name, WithDecryption=True)
+        return response['Parameter']['Value']
     except Exception as e:
-        print(f"Error getting secret {secret_id}: {e}")
+        print(f"Error getting parameter {param_name}: {e}")
         return None
 
 # Scam keywords for fallback detection
@@ -56,7 +56,7 @@ def detect_scam_keywords(text):
 def analyze_with_openai(text):
     """Analyze text using OpenAI API"""
     try:
-        api_key = get_secret('scamguard/openai-key')
+        api_key = get_parameter(os.environ.get('OPENAI_PARAM_NAME', '/scamguard/openai-key'))
         if not api_key:
             return None
 
@@ -100,7 +100,7 @@ def analyze_with_openai(text):
 def analyze_with_gemini(text):
     """Analyze text using Google Gemini API"""
     try:
-        api_key = get_secret('scamguard/gemini-key')
+        api_key = get_parameter(os.environ.get('GEMINI_PARAM_NAME', '/scamguard/gemini-key'))
         if not api_key:
             return None
 
@@ -145,7 +145,7 @@ def analyze_with_quebec_expert(text):
     """
     try:
         quebec_prompt = get_quebec_expert_prompt()
-        api_key = get_secret('scamguard/openai-key')
+        api_key = get_parameter(os.environ.get('OPENAI_PARAM_NAME', '/scamguard/openai-key'))
         if not api_key:
             return None
 
