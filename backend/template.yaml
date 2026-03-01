@@ -45,15 +45,15 @@ Parameters:
     MaxValue: 1000
     Description: Reserved concurrent executions for Lambda
 
-  OpenAIApiKeySecret:
+  OpenAIApiKeyParam:
     Type: String
-    Default: scamguard/openai-key
-    Description: Secrets Manager secret name for OpenAI key
+    Default: /scamguard/openai-key
+    Description: SSM Parameter Store path for OpenAI key
 
-  GeminiApiKeySecret:
+  GeminiApiKeyParam:
     Type: String
-    Default: scamguard/gemini-key
-    Description: Secrets Manager secret name for Gemini key
+    Default: /scamguard/gemini-key
+    Description: SSM Parameter Store path for Gemini key
 
 Globals:
   Function:
@@ -69,8 +69,8 @@ Globals:
         DYNAMODB_AUDIT_TABLE: !Ref AuditTable
         OTP_TABLE: !Ref OTPTable
         ENVIRONMENT: !Ref Environment
-        OPENAI_SECRET: !Ref OpenAIApiKeySecret
-        GEMINI_SECRET: !Ref GeminiApiKeySecret
+        OPENAI_PARAM: !Ref OpenAIApiKeyParam
+        GEMINI_PARAM: !Ref GeminiApiKeyParam
         XRAY_ENABLED: 'true'
 
 Resources:
@@ -170,6 +170,28 @@ Resources:
           Value: SMS OTP Tracking
 
   # ============================================================================
+  # CloudWatch Log Groups with 3-day retention
+  # ============================================================================
+
+  ScamGuardFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-handler-${Environment}'
+      RetentionInDays: 3
+
+  AuthHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-auth-${Environment}'
+      RetentionInDays: 3
+
+  SMSOTPHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-sms-otp-${Environment}'
+      RetentionInDays: 3
+
+  # ============================================================================
   # Lambda Layer - Python Dependencies
   # ============================================================================
 
@@ -266,6 +288,7 @@ Resources:
 
   ScamGuardFunction:
     Type: AWS::Serverless::Function
+    DependsOn: ScamGuardFunctionLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-handler-${Environment}'
       CodeUri: lambda/
@@ -279,6 +302,7 @@ Resources:
           DYNAMODB_TABLE: !Ref DataTable
           DYNAMODB_AUDIT_TABLE: !Ref AuditTable
           ENVIRONMENT: !Ref Environment
+          CACHE_TTL_DAYS: '30'
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DataTable
@@ -288,10 +312,11 @@ Resources:
           Statement:
             - Effect: Allow
               Action:
-                - secretsmanager:GetSecretValue
+                - ssm:GetParameter
+                - ssm:GetParameters
               Resource:
-                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${OpenAIApiKeySecret}-*'
-                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${GeminiApiKeySecret}-*'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAIApiKeyParam}'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${GeminiApiKeyParam}'
             - Effect: Allow
               Action:
                 - xray:PutTraceSegments
@@ -333,6 +358,7 @@ Resources:
 
   AuthHandler:
     Type: AWS::Serverless::Function
+    DependsOn: AuthHandlerLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-auth-${Environment}'
       CodeUri: lambda/
@@ -402,6 +428,7 @@ Resources:
 
   SMSOTPHandler:
     Type: AWS::Serverless::Function
+    DependsOn: SMSOTPHandlerLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-sms-otp-${Environment}'
       CodeUri: lambda/
@@ -529,6 +556,15 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldObjects
+            Status: Enabled
+            ExpirationInDays: 7
+          - Id: DeleteIncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
       Tags:
         - Key: Application
           Value: ScamGuard

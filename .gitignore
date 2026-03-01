@@ -7,6 +7,7 @@ __pycache__/
 env/
 venv/
 .venv/
+.pytest_cache/
 
 # CDK
 cdk.out/
@@ -16,6 +17,7 @@ cdk.out/
 node_modules/
 dist/
 build/
+coverage/
 
 # IDE
 .vscode/
@@ -29,6 +31,9 @@ build/
 .env
 *.pem
 *.key
+
+# Logs
+*.log
 
 # OS
 .DS_Store
