@@ -51,7 +51,12 @@ def error_response(status_code, error_code, message):
                 "message": message,
             }
         }),
-        "headers": {"Content-Type": "application/json"},
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
     }
 
 
@@ -62,7 +67,12 @@ def success_response(status_code, data):
         "body": json.dumps({
             "data": data
         }),
-        "headers": {"Content-Type": "application/json"},
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
     }
 
 
@@ -226,16 +236,7 @@ def post_resend_code(event, context):
             })
 
         except cognito_client.exceptions.TooManyRequestsException:
-            return {
-                "statusCode": 429,
-                "body": json.dumps({
-                    "error": {
-                        "code": "RATE_LIMITED",
-                        "message": "Too many requests. Please try again later."
-                    }
-                }),
-                "headers": {"Content-Type": "application/json"},
-            }
+            return error_response(429, "RATE_LIMITED", "Too many requests. Please try again later.")
         except cognito_client.exceptions.UserNotFoundException:
             return error_response(400, "USER_NOT_FOUND", "User with this email not found.")
         except ClientError as e:

@@ -152,7 +152,12 @@ def error_response(status_code, error_code, message):
                 "message": message
             }
         }),
-        "headers": {"Content-Type": "application/json"}
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        }
     }
 
 
@@ -161,7 +166,12 @@ def success_response(status_code, data):
     return {
         "statusCode": status_code,
         "body": json.dumps({"data": data}),
-        "headers": {"Content-Type": "application/json"}
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        }
     }
 
 
