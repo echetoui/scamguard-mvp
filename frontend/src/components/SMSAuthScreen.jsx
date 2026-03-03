@@ -30,6 +30,40 @@ export default function SMSAuthScreen() {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
 
+  // Generate secure password
+  const generatePassword = () => {
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const digits = '0123456789';
+    const symbols = '!@#$%^&*';
+    const allChars = upper + lower + digits + symbols;
+
+    let password = '';
+    // Ensure at least one of each type
+    password += upper[Math.floor(Math.random() * upper.length)];
+    password += lower[Math.floor(Math.random() * lower.length)];
+    password += digits[Math.floor(Math.random() * digits.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+
+    // Fill the rest randomly (16 chars total)
+    for (let i = password.length; i < 16; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+
+    // Shuffle password
+    return password.split('').sort(() => Math.random() - 0.5).join('');
+  };
+
+  const handleGeneratePassword = () => {
+    const newPassword = generatePassword();
+    setPassword(newPassword);
+  };
+
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(password);
+    alert('✅ Mot de passe copié dans le presse-papiers!');
+  };
+
   // Format phone number to E.164
   const formatPhone = (value) => {
     // Remove non-digits
@@ -331,17 +365,105 @@ export default function SMSAuthScreen() {
 
             <div className="form-group">
               <label htmlFor="password">Mot de passe</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === 'login' ? 'Votre mot de passe' : 'Au moins 12 caractères'}
-                aria-label="Mot de passe"
-                disabled={loading}
-              />
-              {mode === 'signup' && (
-                <small>Min. 12 caractères avec majuscules, minuscules, chiffres et symboles</small>
+              {mode === 'signup' ? (
+                <>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginBottom: '8px' }}>
+                    <input
+                      id="password"
+                      type="text"
+                      value={password}
+                      readOnly
+                      placeholder="Générer un mot de passe sécurisé"
+                      aria-label="Mot de passe généré"
+                      disabled={loading}
+                      style={{
+                        flex: 1,
+                        fontFamily: 'monospace',
+                        fontSize: '14px',
+                        backgroundColor: '#f0f8ff',
+                        borderRadius: '4px',
+                        padding: '10px',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCopyPassword}
+                      disabled={!password || loading}
+                      aria-label="Copier le mot de passe"
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        minWidth: '70px',
+                      }}
+                      title="Copier"
+                    >
+                      📋 Copier
+                    </button>
+                  </div>
+                  {!password && (
+                    <button
+                      type="button"
+                      onClick={handleGeneratePassword}
+                      disabled={loading}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        backgroundColor: '#2196F3',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        marginBottom: '8px',
+                      }}
+                      title="Générer un mot de passe sécurisé"
+                    >
+                      🔐 Générer un mot de passe sécurisé
+                    </button>
+                  )}
+                  {password && (
+                    <button
+                      type="button"
+                      onClick={handleGeneratePassword}
+                      disabled={loading}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        backgroundColor: '#FF9800',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        marginBottom: '8px',
+                      }}
+                      title="Générer un nouveau mot de passe"
+                    >
+                      🔄 Générer un autre mot de passe
+                    </button>
+                  )}
+                  <small style={{ display: 'block', marginTop: '8px', color: '#666' }}>
+                    ✅ Min. 16 caractères avec majuscules, minuscules, chiffres et symboles
+                  </small>
+                </>
+              ) : (
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Votre mot de passe"
+                  aria-label="Mot de passe"
+                  disabled={loading}
+                />
               )}
             </div>
 
