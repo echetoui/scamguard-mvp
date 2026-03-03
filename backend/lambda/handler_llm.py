@@ -198,6 +198,18 @@ def fallback_scam_detection(text):
         'llm_used': 'Keyword Detection (Fallback)'
     }
 
+def add_cors_headers(response):
+    """Add CORS headers to Lambda response"""
+    if 'headers' not in response:
+        response['headers'] = {}
+    response['headers'].update({
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    })
+    return response
+
 def lambda_handler(event, context):
     """Main Lambda handler"""
     try:
@@ -252,7 +264,7 @@ def lambda_handler(event, context):
             except Exception as e:
                 print(f"DynamoDB error: {e}")
 
-            return {
+            return add_cors_headers({
                 'statusCode': 200,
                 'body': json.dumps({
                     'success': True,
@@ -265,7 +277,7 @@ def lambda_handler(event, context):
                         'explanation': result.get('explanation', '')
                     }
                 })
-            }
+            })
 
         # Generate scenario action
         elif action == 'generate_scenario':
@@ -286,13 +298,13 @@ def lambda_handler(event, context):
             import random
             scenario = random.choice(scenarios)
 
-            return {
+            return add_cors_headers({
                 'statusCode': 200,
                 'body': json.dumps({
                     'success': True,
                     'data': scenario
                 })
-            }
+            })
 
         # Get user profile
         elif action == 'get_profile':
@@ -308,19 +320,19 @@ def lambda_handler(event, context):
                 )
 
                 profile = response.get('Item', {})
-                return {
+                return add_cors_headers({
                     'statusCode': 200,
                     'body': json.dumps({
                         'success': True,
                         'data': profile
                     })
-                }
+                })
             except Exception as e:
                 print(f"Error getting profile: {e}")
-                return {
+                return add_cors_headers({
                     'statusCode': 500,
                     'body': json.dumps({'error': str(e)})
-                }
+                })
 
         # Save/update user profile
         elif action == 'save_profile':
@@ -335,19 +347,19 @@ def lambda_handler(event, context):
 
                 table.put_item(Item=profile_data)
 
-                return {
+                return add_cors_headers({
                     'statusCode': 200,
                     'body': json.dumps({
                         'success': True,
                         'data': {'message': 'Profile saved successfully'}
                     })
-                }
+                })
             except Exception as e:
                 print(f"Error saving profile: {e}")
-                return {
+                return add_cors_headers({
                     'statusCode': 500,
                     'body': json.dumps({'error': str(e)})
-                }
+                })
 
         # Get analytics summary
         elif action == 'get_analytics':
@@ -363,32 +375,32 @@ def lambda_handler(event, context):
                 )
 
                 analytics = response.get('Item', {})
-                return {
+                return add_cors_headers({
                     'statusCode': 200,
                     'body': json.dumps({
                         'success': True,
                         'data': analytics
                     })
-                }
+                })
             except Exception as e:
                 print(f"Error getting analytics: {e}")
-                return {
+                return add_cors_headers({
                     'statusCode': 500,
                     'body': json.dumps({'error': str(e)})
-                }
+                })
 
         else:
-            return {
+            return add_cors_headers({
                 'statusCode': 400,
                 'body': json.dumps({'error': 'Invalid action'})
-            }
+            })
 
     except Exception as e:
         print(f"Error: {e}")
-        return {
+        return add_cors_headers({
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})
-        }
+        })
 
 def get_coaching_feedback(result):
     """Generate coaching feedback based on analysis"""
