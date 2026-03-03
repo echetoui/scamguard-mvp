@@ -23,12 +23,12 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A1: Should display mode selection screen with both buttons', async ({ page }) => {
     // Verify on auth screen - look for both mode options
-    const createBtn = page.locator('button:has-text("Create Account")').first();
-    const loginBtn = page.locator('button:has-text("Login")').first();
+    const createBtn = page.locator('button:has-text("Créer un compte")').first();
+    const loginBtn = page.locator('button:has-text("Se connecter")').first();
 
     await expect(createBtn).toBeVisible();
     await expect(loginBtn).toBeVisible();
-    
+
     // Both should be enabled
     await expect(createBtn).toBeEnabled();
     await expect(loginBtn).toBeEnabled();
@@ -36,11 +36,11 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A2: Should navigate to signup form on Create Account click', async ({ page }) => {
     // Click Create Account
-    await page.click('button:has-text("Create Account")');
-    
+    await page.locator('button:has-text("Créer un compte")').first().click();
+
     // Should see signup form heading
     await expect(page.locator('text=Créer votre compte')).toBeVisible({ timeout: 5000 });
-    
+
     // Should have email and password fields
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
@@ -48,11 +48,11 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A3: Should navigate to login form on Login click', async ({ page }) => {
     // Click Login
-    await page.click('button:has-text("Login")').first();
-    
+    await page.locator('button:has-text("Se connecter")').first().click();
+
     // Should see login form heading
     await expect(page.locator('text=Connectez-vous')).toBeVisible({ timeout: 5000 });
-    
+
     // Should have email and password fields
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
@@ -60,17 +60,17 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A4: Should allow mode switching (signup -> login)', async ({ page }) => {
     // Start on signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     await expect(page.locator('text=Créer votre compte')).toBeVisible();
-    
+
     // Click back button
-    await page.click('button:has-text("Retour")').first();
-    
+    await page.locator('button:has-text("Retour")').first().click();
+
     // Should be back on mode selection
-    await expect(page.locator('button:has-text("Create Account")')).toBeVisible();
-    
+    await expect(page.locator('button:has-text("Créer un compte")')).toBeVisible();
+
     // Switch to login
-    await page.click('button:has-text("Login")').first();
+    await page.locator('button:has-text("Se connecter")').first().click();
     await expect(page.locator('text=Connectez-vous')).toBeVisible();
   });
 
@@ -80,7 +80,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B1: Signup form should show validation error for empty fields', async ({ page }) => {
     // Navigate to signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     
     // Try to continue without entering anything
     const continueBtn = page.locator('button:has-text("Continuer")').first();
@@ -94,7 +94,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B2: Should accept valid email format in signup', async ({ page }) => {
     // Navigate to signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     
     const emailInput = page.locator('input[type="email"]');
     
@@ -108,7 +108,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B3: Should format phone number automatically', async ({ page }) => {
     // Navigate to signup -> phone step
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     await page.locator('input[type="email"]').fill(`test-${Date.now()}@example.com`);
     await page.locator('input[type="password"]').fill('TestPass123!');
     await page.locator('button:has-text("Continuer")').click();
@@ -127,7 +127,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B4: Should navigate from phone to OTP step on SMS send', async ({ page }) => {
     // Go through signup to phone step
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     await page.locator('input[type="email"]').fill(`test-${Date.now()}@example.com`);
     await page.locator('input[type="password"]').fill('TestPass123!');
     await page.locator('button:has-text("Continuer")').click();
@@ -156,7 +156,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C1: Login form should show empty state validation', async ({ page }) => {
     // Navigate to login
-    await page.click('button:has-text("Login")').first();
+    await page.locator('button:has-text("Se connecter")').first().click();
     
     // Try to sign in without entering anything
     const signInBtn = page.locator('button:has-text("Se connecter")').first();
@@ -170,7 +170,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C2: Should accept email in login form', async ({ page }) => {
     // Navigate to login
-    await page.click('button:has-text("Login")').first();
+    await page.locator('button:has-text("Se connecter")').first().click();
     
     const emailInput = page.locator('input[type="email"]');
     
@@ -184,7 +184,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C3: Should accept password in login form', async ({ page }) => {
     // Navigate to login
-    await page.click('button:has-text("Login")').first();
+    await page.locator('button:has-text("Se connecter")').first().click();
     
     const passwordInput = page.locator('input[type="password"]');
     
@@ -202,7 +202,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('D1: Signup buttons should meet touch target size requirement', async ({ page }) => {
     // Navigate to signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     
     const button = page.locator('button:has-text("Continuer")').first();
     const box = await button.boundingBox();
@@ -215,7 +215,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('D2: Inputs should have associated labels', async ({ page }) => {
     // Navigate to signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     
     const emailInput = page.locator('input[type="email"]');
     
@@ -232,7 +232,7 @@ test.describe('Authentication E2E Tests', () => {
     await page.emulateMedia({ colorScheme: 'dark' });
     
     // Page should still be visible and functional
-    const createBtn = page.locator('button:has-text("Create Account")').first();
+    const createBtn = page.locator('button:has-text("Créer un compte")').first();
     await expect(createBtn).toBeVisible();
   });
 
@@ -244,7 +244,7 @@ test.describe('Authentication E2E Tests', () => {
     await page.goto(BASE_URL);
     
     // Mode buttons should be visible
-    const createBtn = page.locator('button:has-text("Create Account")').first();
+    const createBtn = page.locator('button:has-text("Créer un compte")').first();
     await expect(createBtn).toBeVisible();
     
     // Should be scrollable/readable without horizontal scroll
@@ -260,7 +260,7 @@ test.describe('Authentication E2E Tests', () => {
     await page.goto(BASE_URL);
     
     // Form should be visible and centered
-    const createBtn = page.locator('button:has-text("Create Account")').first();
+    const createBtn = page.locator('button:has-text("Créer un compte")').first();
     await expect(createBtn).toBeVisible();
   });
 
@@ -270,7 +270,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('E1: Should display error message for network issues gracefully', async ({ page }) => {
     // Navigate to signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     
     // Fill form with valid data
     await page.locator('input[type="email"]').fill(`test-${Date.now()}@example.com`);
@@ -283,10 +283,10 @@ test.describe('Authentication E2E Tests', () => {
 
   test('E2: Error messages should be clearly visible', async ({ page }) => {
     // Navigate to signup
-    await page.click('button:has-text("Create Account")');
+    await page.locator('button:has-text("Créer un compte")').first().click();
     
     // Try to continue without data
-    await page.click('button:has-text("Continuer")').first();
+    await page.locator('button:has-text("Continuer")').first().click();
     
     // Look for error message or alert
     const errorMsg = page.locator('.error-message, [role="alert"]');
