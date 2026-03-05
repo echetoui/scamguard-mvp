@@ -196,10 +196,11 @@ def post_signup(event, context):
 
             return success_response(201, response_data)
 
-        except cognito_client.exceptions.UsernameExistsException:
-            return error_response(400, "EMAIL_EXISTS", "Email address already registered.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
+            # Handle specific Cognito errors
+            if error_code == "UsernameExistsException":
+                return error_response(400, "EMAIL_EXISTS", "Email address already registered.")
             return error_response(400, error_code, str(e))
 
     except Exception as e:
