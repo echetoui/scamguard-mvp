@@ -13,7 +13,7 @@ import CreditSystem from './components/CreditSystem';
 import useAccountProfile from './hooks/useAccountProfile';
 import AccountProfile from './components/AccountProfile';
 import useAuth from './hooks/useAuth';
-import SMSAuthScreen from './components/SMSAuthScreen';
+import ModernAuthPage from './components/ModernAuthPage';
 import ResourcesTab from './components/Resources/ResourcesTab';
 import { analysisAPI } from './services/api';
 
@@ -73,10 +73,10 @@ export default function App() {
   }, [profile, analyses, balance, transactions]);
 
   // ============================================================================
-  // Auth guard: Show SMS OTP auth if not authenticated (APRÈS tous les Hooks)
+  // Auth guard: Show modern auth page if not authenticated (APRÈS tous les Hooks)
   // ============================================================================
   if (!auth.isAuthenticated) {
-    return <SMSAuthScreen />;
+    return <ModernAuthPage />;
   }
 
   // Synthèse vocale (Le téléphone lit le texte)
