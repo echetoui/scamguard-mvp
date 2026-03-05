@@ -177,6 +177,77 @@
   cursor: not-allowed;
 }
 
+/* Role Selection Cards - Phase 5A */
+.role-card {
+  width: 100%;
+  padding: 20px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  font-family: inherit;
+  min-height: 100px;
+}
+
+.role-card:hover:not(:disabled) {
+  border-color: #0056b3;
+  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15);
+  transform: translateY(-2px);
+}
+
+.role-card.selected {
+  border-color: #0056b3;
+  background: rgba(0, 86, 179, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+}
+
+.role-card-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+  text-align: center;
+  min-width: 50px;
+}
+
+.role-card-content {
+  flex: 1;
+}
+
+.role-card-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.role-card-content p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.role-card-content small {
+  display: block;
+  font-size: 12px;
+  color: #999;
+}
+
+.role-card-arrow {
+  font-size: 24px;
+  color: #0056b3;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.role-card:hover:not(:disabled) .role-card-arrow {
+  opacity: 1;
+}
+
 /* OTP Input Group */
 .otp-input-group {
   display: flex;
@@ -325,6 +396,23 @@
   .otp-input-group {
     gap: 8px;
   }
+
+  .role-card {
+    min-height: 90px;
+    padding: 16px;
+  }
+
+  .role-card-icon {
+    font-size: 32px;
+  }
+
+  .role-card-content h3 {
+    font-size: 16px;
+  }
+
+  .role-card-content p {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 360px) {
@@ -400,6 +488,28 @@
     background-color: #332701;
     color: #ffd700;
     border-color: #664d00;
+  }
+
+  .role-card {
+    background: #2d2d2d;
+    border-color: #444;
+  }
+
+  .role-card-content h3 {
+    color: #e0e0e0;
+  }
+
+  .role-card-content p {
+    color: #b0b0b0;
+  }
+
+  .role-card-content small {
+    color: #808080;
+  }
+
+  .role-card.selected {
+    background: rgba(109, 179, 242, 0.1);
+    border-color: #6db3f2;
   }
 }
 
