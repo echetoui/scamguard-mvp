@@ -49,15 +49,23 @@ export default function useAccountProfile() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-        // Fire-and-forget cloud sync to DynamoDB
+        // Fire-and-forget cloud sync to DynamoDB (only if authenticated)
         try {
-          const userId = localStorage.getItem('userId') || 'anonymous';
-          // Async call without awaiting
-          analysisAPI.saveProfile(userId, data).catch((err) => {
-            console.warn('Cloud sync failed for profile:', err);
-          });
+          const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
+          const token = auth.id_token || auth.idToken;
+
+          // Only sync if user is authenticated
+          if (token) {
+            const userId = localStorage.getItem('userId') || 'anonymous';
+            // Async call without awaiting
+            analysisAPI.saveProfile(userId, data).catch((err) => {
+              // Silently fail - user can still use app without cloud sync
+              console.debug('Cloud sync skipped for profile:', err.message);
+            });
+          }
         } catch (err) {
-          console.warn('Profile cloud sync error:', err);
+          // Silently fail - not critical
+          console.debug('Profile cloud sync error:', err.message);
         }
       } catch (error) {
         console.error('Error saving profile:', error);
