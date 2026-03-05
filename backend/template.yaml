@@ -395,6 +395,14 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+        OptionsSignup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/signup
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
         PostLogin:
           Type: Api
           Properties:
@@ -403,12 +411,28 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+        OptionsLogin:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/login
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
         PostLogout:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /api/v1/auth/logout
             Method: POST
+        OptionsLogout:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/logout
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
         PostVerifyEmail:
           Type: Api
           Properties:
@@ -417,12 +441,28 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+        OptionsVerifyEmail:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-email
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
         PostResendCode:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /api/v1/auth/resend-code
             Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsResendCode:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/resend-code
+            Method: OPTIONS
             Auth:
               Authorizer: NONE
 
@@ -467,23 +507,7 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
               Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-      Events:
-        RequestOTP:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /api/v1/auth/request-sms-otp
-            Method: POST
-            Auth:
-              Authorizer: NONE
-        VerifyOTP:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /api/v1/auth/verify-sms-otp
-            Method: POST
-            Auth:
-              Authorizer: NONE
+      Events: {}
       Layers:
         - !Ref PythonDependenciesLayer
 
