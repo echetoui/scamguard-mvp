@@ -144,8 +144,51 @@ export default function SMSAuthScreen() {
         setLoading(false);
       }
     } else {
-      // Signup mode: go to phone step
-      setStep('phone');
+      // Signup mode: create account directly (OTP disabled for now)
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email.toLowerCase(),
+            password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error?.message || 'Erreur lors de l\'inscription');
+          setLoading(false);
+          return;
+        }
+
+        // Signup successful
+        setSuccessMessage('✅ Compte créé! Vous êtes connecté');
+
+        // Store tokens if provided
+        if (data.data?.id_token) {
+          localStorage.setItem('scamguard_auth', JSON.stringify({
+            id_token: data.data.id_token,
+            access_token: data.data.access_token,
+            refresh_token: data.data.refresh_token,
+            expires_in: data.data.expires_in,
+            timestamp: Date.now()
+          }));
+          localStorage.setItem('userId', data.data.user?.sub || 'anonymous');
+        }
+
+        setStep('success');
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } catch (err) {
+        setError('Erreur réseau. Veuillez réessayer.');
+        setLoading(false);
+      }
     }
   };
 
@@ -325,7 +368,7 @@ export default function SMSAuthScreen() {
                 }}
                 aria-label="Créer un nouveau compte"
               >
-                ➕ Créer un compte
+                ➕ S'inscrire
               </button>
 
               <button
@@ -338,7 +381,7 @@ export default function SMSAuthScreen() {
                 }}
                 aria-label="Se connecter"
               >
-                🔑 Se connecter
+                🔐 Se connecter
               </button>
             </div>
           </div>
@@ -347,7 +390,7 @@ export default function SMSAuthScreen() {
         {/* Step 1: Email & Password */}
         {step === 'email' && (
           <form onSubmit={handleEmailSubmit} className="auth-form">
-            <h2>{mode === 'login' ? 'Connectez-vous' : 'Créer votre compte'}</h2>
+            <h2>{mode === 'login' ? 'Connectez-vous' : 'S\'inscrire'}</h2>
 
             <div className="form-group">
               <label htmlFor="email">Adresse email</label>
@@ -490,109 +533,19 @@ export default function SMSAuthScreen() {
         )}
 
         {/* Step 2: Phone Number (Signup only) */}
-        {step === 'phone' && mode === 'signup' && (
+        {/* OTP VERIFICATION DISABLED - Will be re-enabled later */}
+        {/* {step === 'phone' && mode === 'signup' && (
           <form onSubmit={handlePhoneSubmit} className="auth-form">
-            <h2>Vérifiez votre téléphone</h2>
-            <p className="step-description">
-              Nous enverrons un code de vérification par SMS
-            </p>
-
-            <div className="form-group">
-              <label htmlFor="phone">Numéro de téléphone</label>
-              <input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(formatPhone(e.target.value))}
-                placeholder="+1 (514) 555-1234"
-                aria-label="Numéro de téléphone"
-                disabled={loading}
-              />
-              <small>Format: +1 (XXX) XXX-XXXX</small>
-            </div>
-
-            {error && <div className="error-message" role="alert">{error}</div>}
-
-            <button
-              type="submit"
-              className="auth-button"
-              disabled={loading}
-              aria-label="Envoyer le code"
-            >
-              {loading ? '⏳ Envoi du code...' : 'Envoyer un code par SMS'}
-            </button>
-
-            <button
-              type="button"
-              className="auth-link-button"
-              onClick={() => setStep('email')}
-              disabled={loading}
-            >
-              ← Retour
-            </button>
+            ...
           </form>
-        )}
+        )} */}
 
-        {/* Step 3: OTP Verification */}
-        {step === 'otp' && (
+        {/* Step 3: OTP Verification - DISABLED FOR NOW */}
+        {/* {step === 'otp' && (
           <form onSubmit={handleOtpSubmit} className="auth-form">
-            <h2>Entrez votre code</h2>
-            <p className="step-description">
-              Code envoyé à {phone.split('(')[1]?.slice(0, 3) || ''}...
-            </p>
-
-            <div className="otp-input-group">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (otpRefs.current[index] = el)}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  className="otp-input"
-                  disabled={loading}
-                  aria-label={`Chiffre ${index + 1}`}
-                />
-              ))}
-            </div>
-
-            {/* Timer */}
-            <div className="otp-timer">
-              {resendTimer > 0 ? (
-                <p>Expire dans <strong>{resendTimer}s</strong></p>
-              ) : (
-                <button
-                  type="button"
-                  className="auth-link-button"
-                  onClick={() => handlePhoneSubmit({ preventDefault: () => {} })}
-                >
-                  Renvoyez le code
-                </button>
-              )}
-            </div>
-
-            {error && <div className="error-message" role="alert">{error}</div>}
-
-            <button
-              type="submit"
-              className="auth-button"
-              disabled={loading || otp.join('').length !== 6}
-              aria-label="Vérifier le code"
-            >
-              {loading ? '⏳ Vérification...' : 'Vérifier'}
-            </button>
-
-            <button
-              type="button"
-              className="auth-link-button"
-              onClick={() => setStep('phone')}
-              disabled={loading}
-            >
-              ← Utiliser un autre numéro
-            </button>
+            ... OTP Form removed ...
           </form>
-        )}
+        )} */}
 
         {/* Step 4: Success */}
         {step === 'success' && (
@@ -640,9 +593,9 @@ export default function SMSAuthScreen() {
               type="button"
               onClick={() => setMode('choose')}
               className="link-button"
-              style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#0056b3', textDecoration: 'underline', padding: 0 }}
+              style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#0056b3', textDecoration: 'underline', padding: 0, fontWeight: 'bold' }}
             >
-              Créer un compte
+              S'inscrire
             </button>
           </p>
         </footer>

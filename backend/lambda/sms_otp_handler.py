@@ -447,6 +447,18 @@ def lambda_handler(event, context):
     path = event.get("rawPath", "")
     method = event.get("requestContext", {}).get("http", {}).get("method", "")
 
+    # Handle CORS preflight requests
+    if method == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "body": "",
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            },
+        }
+
     if path.endswith("/auth/request-sms-otp") and method == "POST":
         return request_otp(event, context)
     elif path.endswith("/auth/verify-sms-otp") and method == "POST":

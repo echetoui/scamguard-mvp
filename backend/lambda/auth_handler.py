@@ -404,6 +404,18 @@ def lambda_handler(event, context):
     path = event.get("path", "")
     method = event.get("httpMethod", "")
 
+    # Handle CORS preflight requests
+    if method == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "body": "",
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            },
+        }
+
     # Route based on path
     if path == "/api/v1/auth/signup" and method == "POST":
         return post_signup(event, context)

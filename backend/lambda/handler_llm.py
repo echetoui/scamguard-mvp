@@ -212,6 +212,18 @@ def add_cors_headers(response):
 
 def lambda_handler(event, context):
     """Main Lambda handler"""
+    # Handle CORS preflight requests
+    if event.get('httpMethod') == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'body': '',
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+        }
+
     try:
         # Parse request body
         if isinstance(event.get('body'), str):
