@@ -17,7 +17,8 @@ import './SMSAuthScreen.css';
 export default function SMSAuthScreen() {
   // State
   const [mode, setMode] = useState('choose'); // choose | signup | login
-  const [step, setStep] = useState('email'); // email | phone | otp | success
+  const [step, setStep] = useState('email'); // role | email | phone | otp | success
+  const [userRole, setUserRole] = useState(''); // senior | family | individual
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -147,13 +148,20 @@ export default function SMSAuthScreen() {
       // Signup mode: create account directly (OTP disabled for now)
       setLoading(true);
       try {
+        const signupPayload = {
+          email: email.toLowerCase(),
+          password
+        };
+
+        // Add role if selected (Phase 5A - Family Protection)
+        if (userRole && userRole !== 'individual') {
+          signupPayload.role = userRole;
+        }
+
         const response = await fetch(`${API_URL}/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email.toLowerCase(),
-            password
-          })
+          body: JSON.stringify(signupPayload)
         });
 
         const data = await response.json();
@@ -363,7 +371,8 @@ export default function SMSAuthScreen() {
                 className="auth-button"
                 onClick={() => {
                   setMode('signup');
-                  setStep('email');
+                  setStep('role');
+                  setUserRole('');
                   setError('');
                 }}
                 aria-label="Créer un nouveau compte"
@@ -387,7 +396,85 @@ export default function SMSAuthScreen() {
           </div>
         )}
 
-        {/* Step 1: Email & Password */}
+        {/* Step 1: Role Selection (Signup only) - Phase 5A */}
+        {step === 'role' && mode === 'signup' && (
+          <div className="auth-form">
+            <h2>Qui êtes-vous?</h2>
+            <p className="step-description">
+              Choisissez votre profil pour une protection adaptée
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
+              {/* Senior Card */}
+              <button
+                type="button"
+                className={`role-card ${userRole === 'senior' ? 'selected' : ''}`}
+                onClick={() => {
+                  setUserRole('senior');
+                  setStep('email');
+                }}
+                aria-label="Je suis un aîné"
+              >
+                <div className="role-card-icon">🧓</div>
+                <div className="role-card-content">
+                  <h3>Je suis un Aîné</h3>
+                  <p>Protection personnalisée pour les seniors</p>
+                  <small>Rejoignez la famille avec un code invitation (optionnel)</small>
+                </div>
+                <div className="role-card-arrow">→</div>
+              </button>
+
+              {/* Family/Guardian Card */}
+              <button
+                type="button"
+                className={`role-card ${userRole === 'family' ? 'selected' : ''}`}
+                onClick={() => {
+                  setUserRole('family');
+                  setStep('email');
+                }}
+                aria-label="Je protège ma famille"
+              >
+                <div className="role-card-icon">👨‍👩‍👦</div>
+                <div className="role-card-content">
+                  <h3>Je protège ma famille</h3>
+                  <p>Créez un groupe familial et surveillez vos proches</p>
+                  <small>Gérez les alertes et le tableau de bord familial</small>
+                </div>
+                <div className="role-card-arrow">→</div>
+              </button>
+
+              {/* Individual Card (No family) */}
+              <button
+                type="button"
+                className={`role-card ${userRole === 'individual' ? 'selected' : ''}`}
+                onClick={() => {
+                  setUserRole('individual');
+                  setStep('email');
+                }}
+                aria-label="Protection personnelle seule"
+              >
+                <div className="role-card-icon">👤</div>
+                <div className="role-card-content">
+                  <h3>Je souhaite une protection personnelle</h3>
+                  <p>Scannez et signalez les arnaques en toute autonomie</p>
+                  <small>Sans gestion familiale</small>
+                </div>
+                <div className="role-card-arrow">→</div>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="auth-link-button"
+              onClick={() => setMode('choose')}
+              style={{ marginTop: '20px' }}
+            >
+              ← Retour
+            </button>
+          </div>
+        )}
+
+        {/* Step 2: Email & Password */}
         {step === 'email' && (
           <form onSubmit={handleEmailSubmit} className="auth-form">
             <h2>{mode === 'login' ? 'Connectez-vous' : 'S\'inscrire'}</h2>

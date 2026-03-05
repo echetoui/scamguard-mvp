@@ -3,6 +3,9 @@
 import json
 import os
 import re
+import string
+import random
+import uuid
 from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
@@ -39,6 +42,15 @@ def validate_password(password):
     if not re.search(r"[!@#$%^&*()_+=\[\]{};:'\",.<>?/\\|-]", password):
         return False
     return True
+
+
+def generate_invite_code():
+    """
+    Generate a 6-character alphanumeric invite code for family joining.
+    Phase 5A - Family Protection.
+    """
+    chars = string.ascii_uppercase + string.digits
+    return ''.join(random.choice(chars) for _ in range(6))
 
 
 def error_response(status_code, error_code, message):
@@ -81,6 +93,7 @@ def post_signup(event, context):
     Handle user signup.
 
     Validates email and password, then creates user in Cognito.
+    Accepts optional role ('senior', 'family', 'individual') for family protection feature (Phase 5A).
     Returns user_id and PENDING_VERIFICATION status.
     """
     try:
@@ -92,6 +105,7 @@ def post_signup(event, context):
             body = body_raw
         email = body.get("email", "").strip().lower()
         password = body.get("password", "")
+        role = body.get("role", "individual").strip().lower()  # Phase 5A - Family Protection
 
         # Validate email
         if not email or not validate_email(email):
@@ -105,6 +119,11 @@ def post_signup(event, context):
                 "Password must be at least 12 characters with uppercase, lowercase, number, and symbol."
             )
 
+        # Validate role (Phase 5A - Family Protection)
+        valid_roles = ['senior', 'family', 'individual']
+        if role not in valid_roles:
+            role = 'individual'  # Default to individual if invalid
+
         # Attempt to create user in Cognito
         try:
             response = cognito_client.sign_up(
@@ -117,22 +136,65 @@ def post_signup(event, context):
             )
             user_id = response["UserSub"]
 
-            # Store user profile in DynamoDB
-            table.put_item(
-                Item={
-                    "PK": f"USER#{user_id}",
-                    "SK": "PROFILE",
-                    "email": email,
-                    "status": "PENDING_VERIFICATION",
-                    "created_at": datetime.utcnow().isoformat(),
-                }
-            )
+            # Build user profile item
+            profile_item = {
+                "PK": f"USER#{user_id}",
+                "SK": "PROFILE",
+                "email": email,
+                "role": role,  # Phase 5A - Family Protection
+                "status": "PENDING_VERIFICATION",
+                "created_at": datetime.utcnow().isoformat(),
+            }
 
-            return success_response(201, {
+            # If user is creating a family, generate family record
+            if role == 'family':
+                family_id = str(uuid.uuid4())
+                invite_code = generate_invite_code()  # Generate 6-char invite code
+
+                # Create family record
+                table.put_item(
+                    Item={
+                        "PK": f"FAMILY#{family_id}",
+                        "SK": "METADATA",
+                        "family_name": f"Family of {email.split('@')[0]}",
+                        "created_by": user_id,
+                        "created_at": datetime.utcnow().isoformat(),
+                        "invite_code": invite_code,
+                    }
+                )
+
+                # Add creator as family member
+                table.put_item(
+                    Item={
+                        "PK": f"FAMILY#{family_id}",
+                        "SK": f"MEMBER#{user_id}",
+                        "email": email,
+                        "role": "family",
+                        "joined_at": datetime.utcnow().isoformat(),
+                        "last_active": datetime.utcnow().isoformat(),
+                    }
+                )
+
+                # Store family info in user profile
+                profile_item["family_id"] = family_id
+                profile_item["family_invite_code"] = invite_code
+
+            # Store user profile in DynamoDB
+            table.put_item(Item=profile_item)
+
+            response_data = {
                 "user_id": user_id,
                 "status": "PENDING_VERIFICATION",
-                "message": "Signup successful. Please verify your email."
-            })
+                "message": "Signup successful. Please verify your email.",
+                "role": role,
+            }
+
+            # Include family info if applicable
+            if role == 'family':
+                response_data["family_id"] = family_id
+                response_data["invite_code"] = invite_code
+
+            return success_response(201, response_data)
 
         except cognito_client.exceptions.UsernameExistsException:
             return error_response(400, "EMAIL_EXISTS", "Email address already registered.")

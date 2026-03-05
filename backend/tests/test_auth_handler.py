@@ -113,6 +113,107 @@ class TestSignup:
             body = json.loads(response["body"])
             assert body["error"]["code"] == "EMAIL_EXISTS"
 
+    def test_signup_with_role_senior(self, lambda_context):
+        """Test signup with senior role (Phase 5A - Family Protection)."""
+        event = {
+            "headers": {"X-Request-ID": "req-123"},
+            "body": json.dumps({
+                "email": "senior@example.com",
+                "password": "SecurePass123!",
+                "role": "senior",
+            }),
+        }
+
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
+                mock_cognito.sign_up.return_value = {"UserSub": "senior-user-123"}
+
+                response = post_signup(event, lambda_context)
+
+                assert response["statusCode"] == 201
+                body = json.loads(response["body"])
+                assert body["data"]["user_id"] == "senior-user-123"
+                assert body["data"]["role"] == "senior"
+                assert "family_id" not in body["data"]  # No family created for senior
+
+                # Verify profile was created with role
+                mock_table.put_item.assert_called()
+                call_args = mock_table.put_item.call_args
+                profile_item = call_args[1]["Item"]
+                assert profile_item["role"] == "senior"
+
+    def test_signup_with_role_family(self, lambda_context):
+        """Test signup with family role (creates FAMILY record with invite code)."""
+        event = {
+            "headers": {"X-Request-ID": "req-123"},
+            "body": json.dumps({
+                "email": "parent@example.com",
+                "password": "SecurePass123!",
+                "role": "family",
+            }),
+        }
+
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
+                with patch("lambda_.auth_handler.uuid.uuid4") as mock_uuid:
+                    with patch("lambda_.auth_handler.generate_invite_code") as mock_invite:
+                        mock_cognito.sign_up.return_value = {"UserSub": "family-user-123"}
+                        mock_uuid.return_value = "test-family-uuid-1234"
+                        mock_invite.return_value = "ABC123"
+
+                        response = post_signup(event, lambda_context)
+
+                        assert response["statusCode"] == 201
+                        body = json.loads(response["body"])
+                        assert body["data"]["user_id"] == "family-user-123"
+                        assert body["data"]["role"] == "family"
+                        assert body["data"]["invite_code"] == "ABC123"
+                        assert "test-family-uuid-1234" in body["data"]["family_id"]
+
+                        # Verify 3 put_item calls: FAMILY METADATA, FAMILY MEMBER, USER PROFILE
+                        assert mock_table.put_item.call_count == 3
+
+    def test_signup_with_invalid_role_defaults_to_individual(self, lambda_context):
+        """Test that invalid role defaults to 'individual'."""
+        event = {
+            "headers": {"X-Request-ID": "req-123"},
+            "body": json.dumps({
+                "email": "user@example.com",
+                "password": "SecurePass123!",
+                "role": "invalid_role",
+            }),
+        }
+
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
+                mock_cognito.sign_up.return_value = {"UserSub": "user-123"}
+
+                response = post_signup(event, lambda_context)
+
+                assert response["statusCode"] == 201
+                body = json.loads(response["body"])
+                assert body["data"]["role"] == "individual"
+
+    def test_signup_without_role_defaults_to_individual(self, lambda_context):
+        """Test that missing role defaults to 'individual'."""
+        event = {
+            "headers": {"X-Request-ID": "req-123"},
+            "body": json.dumps({
+                "email": "user@example.com",
+                "password": "SecurePass123!",
+            }),
+        }
+
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
+                mock_cognito.sign_up.return_value = {"UserSub": "user-123"}
+
+                response = post_signup(event, lambda_context)
+
+                assert response["statusCode"] == 201
+                body = json.loads(response["body"])
+                assert body["data"]["role"] == "individual"
+
 
 class TestVerifyEmail:
     """Test email verification handler."""
