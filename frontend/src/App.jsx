@@ -75,7 +75,9 @@ export default function App() {
   // ============================================================================
   // Auth guard: Show modern auth page if not authenticated (APRÈS tous les Hooks)
   // ============================================================================
-  if (!auth.isAuthenticated) {
+  // DEV MODE: Bypass auth if REACT_APP_BYPASS_AUTH is set
+  const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
+  if (!auth.isAuthenticated && !bypassAuth) {
     return <ModernAuthPage />;
   }
 
@@ -132,11 +134,34 @@ export default function App() {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (!file) return;
+
+    // Validation: Type de fichier (doit être une image)
+    if (!file.type.startsWith('image/')) {
+      alert('❌ Veuillez sélectionner une image valide (JPG, PNG, etc.)');
+      return;
+    }
+
+    // Validation: Taille maximale (5 MB)
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB en bytes
+    if (file.size > MAX_SIZE) {
+      alert(`❌ L'image est trop volumineuse (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum: 5 MB`);
+      return;
+    }
+
+    // Validation: Dimensions minimales (au moins 100x100)
+    const img = new Image();
+    img.onload = () => {
+      if (img.width < 100 || img.height < 100) {
+        alert('❌ L\'image est trop petite. Minimum: 100x100 pixels');
+        return;
+      }
+      // Image valide - convertir en base64
       const reader = new FileReader();
       reader.onloadend = () => setImage(reader.result.split(',')[1]);
       reader.readAsDataURL(file);
-    }
+    };
+    img.src = URL.createObjectURL(file);
   };
 
   const submitAnalysis = async () => {
