@@ -25,7 +25,7 @@ import './BottomNavigation.css';
  * @param {function} onTabChange - Callback when tab changes
  * @returns {JSX.Element} Bottom navigation bar
  */
-const BottomNavigation = ({ activeTab = 'securite', onTabChange }) => {
+const BottomNavigation = ({ activeTab = 'securite', onTabChange, hasFamily = false }) => {
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
 
@@ -58,6 +58,13 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange }) => {
       description: 'Guides de blocage et conseils de sécurité',
       route: '/resources'
     },
+    ...(hasFamily ? [{
+      id: 'famille',
+      label: 'Famille',
+      icon: '👨‍👩‍👧‍👦',
+      description: 'Votre groupe familial',
+      route: '/family'
+    }] : []),
     {
       id: 'parametres',
       label: 'Paramètres',
