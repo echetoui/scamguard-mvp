@@ -15,6 +15,8 @@ import AccountProfile from './components/AccountProfile';
 import useAuth from './hooks/useAuth';
 import ModernAuthPage from './components/ModernAuthPage';
 import ResourcesTab from './components/Resources/ResourcesTab';
+import FamilyDashboard from './components/FamilyDashboard';
+import useFamilyDashboard from './hooks/useFamilyDashboard';
 import { analysisAPI } from './services/api';
 
 export default function App() {
@@ -45,6 +47,9 @@ export default function App() {
 
   // Phase 4.2: Account profile management
   const { profile, updateName, updateAvatar, togglePreference, resetProfile, getJoinDateFormatted } = useAccountProfile();
+
+  // Phase 5A: Family protection dashboard
+  const { familyData, loading: familyLoading, error: familyError, hasFamily } = useFamilyDashboard();
 
   // Phase 4.0.5: Handle quiz completion and award credits
   const handleQuizComplete = useCallback((score, passed) => {
@@ -385,7 +390,14 @@ export default function App() {
           <ResourcesTab />
         </TabPanel>
 
-        {/* Tab 5: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
+        {/* Tab 5: Famille - Family Protection Dashboard (Phase 5A) */}
+        {hasFamily && (
+          <TabPanel tabId="famille" activeTab={activeTab}>
+            <FamilyDashboard />
+          </TabPanel>
+        )}
+
+        {/* Tab 6: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
         <TabPanel tabId="parametres" activeTab={activeTab}>
           {/* Phase 4.2: Account Profile Section */}
           <AccountProfile
@@ -413,6 +425,7 @@ export default function App() {
       <BottomNavigation
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        hasFamily={hasFamily}
       />
     </div>
   );

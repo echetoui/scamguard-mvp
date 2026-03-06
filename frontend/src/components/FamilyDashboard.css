@@ -1,0 +1,682 @@
+/**
+ * FamilyDashboard Styles
+ * Phase 5A - Family Protection Dashboard
+ *
+ * Design: "Automne Québécois" - Warm, accessible design for Quebec seniors
+ *
+ * Color Palette:
+ *  🟠 Terracotta (#C85A2A) - Primary, family protection
+ *  🟡 Gold (#D4A574) - Wisdom, member status
+ *  🟢 Sage (#7A9B7F) - Balance, active status
+ *  🟤 Cream (#FFF9F3) - Background
+ */
+
+/* ============================================================================ */
+/* COLOR & TYPOGRAPHY VARIABLES                                              */
+/* ============================================================================ */
+
+:root {
+  --warm-primary: #C85A2A;
+  --warm-secondary: #D4A574;
+  --warm-accent: #E67E3C;
+  --warm-depth: #8B4513;
+
+  --accent-red: #C1440D;
+  --accent-green: #7A9B7F;
+  --accent-gold: #F0D9A8;
+
+  --bg-light: #FFF9F3;
+  --bg-card: #FFFFFF;
+
+  --text-dark: #2C1810;
+  --text-secondary: #6B5344;
+  --text-light: #9B8B7E;
+
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Lora', serif;
+}
+
+/* ============================================================================ */
+/* MAIN CONTAINER                                                             */
+/* ============================================================================ */
+
+.family-dashboard {
+  background: linear-gradient(135deg, #F5EDE5 0%, #FFF9F3 100%);
+  min-height: 100vh;
+  padding: 20px;
+  font-family: var(--font-body);
+  color: var(--text-dark);
+}
+
+.family-dashboard .container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Loading State */
+.family-dashboard.loading,
+.family-dashboard.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.family-dashboard .spinner {
+  font-size: 48px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.family-dashboard p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ============================================================================ */
+/* HEADER                                                                     */
+/* ============================================================================ */
+
+.family-header {
+  background: linear-gradient(135deg, var(--warm-primary) 0%, var(--warm-depth) 100%);
+  color: white;
+  padding: 32px 20px;
+  border-radius: 16px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 24px rgba(200, 90, 42, 0.2);
+}
+
+.family-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.family-header .family-description {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.95;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ============================================================================ */
+/* INVITE CODE SECTION                                                        */
+/* ============================================================================ */
+
+.invite-section {
+  background: white;
+  padding: 24px;
+  border-radius: 14px;
+  border: 2px solid var(--warm-secondary);
+  margin-bottom: 28px;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.1);
+}
+
+.invite-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-family: var(--font-display);
+}
+
+.invite-description {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.invite-code-box {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(135deg, #F0D9A8 0%, #E8C88C 100%);
+  padding: 16px;
+  border-radius: 10px;
+  border: 2px solid var(--warm-secondary);
+}
+
+.invite-code {
+  flex: 1;
+  background: white;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--warm-primary);
+  border: 1px solid #e0e0e0;
+  letter-spacing: 2px;
+}
+
+.btn-copy {
+  padding: 12px 16px;
+  background: white;
+  color: var(--warm-primary);
+  border: 2px solid var(--warm-primary);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-copy:hover:not(:disabled) {
+  background: var(--warm-primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-copy:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ============================================================================ */
+/* MEMBERS SECTION                                                            */
+/* ============================================================================ */
+
+.members-section {
+  margin-bottom: 28px;
+}
+
+.members-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+/* Member Card */
+.member-card {
+  background: white;
+  border: 2px solid var(--warm-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: default;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.1);
+}
+
+.member-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(200, 90, 42, 0.15);
+  border-color: var(--warm-primary);
+}
+
+.member-header {
+  position: relative;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.member-icon {
+  font-size: 40px;
+}
+
+.member-status {
+  position: absolute;
+  bottom: -4px;
+  right: 4px;
+  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+}
+
+.member-content {
+  text-align: center;
+}
+
+.member-name {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-family: var(--font-display);
+  word-break: break-word;
+}
+
+.member-role {
+  margin: 0 0 8px 0;
+}
+
+.role-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #F0D9A8 0%, #E8C88C 100%);
+  color: var(--warm-primary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.member-activity {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.member-activity small {
+  display: block;
+}
+
+.empty-members {
+  background: white;
+  padding: 32px 20px;
+  border-radius: 12px;
+  border: 2px dashed #ddd;
+  text-align: center;
+}
+
+.empty-members p {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.empty-members .hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* ============================================================================ */
+/* THREATS SECTION                                                            */
+/* ============================================================================ */
+
+.threats-section {
+  margin-bottom: 28px;
+}
+
+.threats-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.threats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Threat Item */
+.threat-item {
+  display: flex;
+  gap: 14px;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  border-left: 4px solid var(--warm-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.threat-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(200, 90, 42, 0.1);
+}
+
+.threat-level-indicator {
+  font-size: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+}
+
+.threat-content {
+  flex: 1;
+}
+
+.threat-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.threat-type {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-family: var(--font-display);
+}
+
+.threat-level {
+  display: inline-block;
+  background: #ffe0e0;
+  color: var(--accent-red);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.threat-reported {
+  margin: 0 0 8px 0;
+}
+
+.threat-reported small {
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.threat-description {
+  margin: 8px 0 0 0;
+}
+
+.threat-description p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  background: #fafafa;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.threats-empty {
+  background: white;
+  padding: 40px 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid var(--accent-green);
+  box-shadow: 0 4px 12px rgba(122, 155, 127, 0.1);
+}
+
+.threats-empty .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.threats-empty p {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: var(--text-dark);
+}
+
+.threats-empty .hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ============================================================================ */
+/* ERROR MESSAGE                                                              */
+/* ============================================================================ */
+
+.error-message {
+  background: #fff3cd;
+  color: #856404;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border-left: 4px solid var(--accent-red);
+}
+
+/* ============================================================================ */
+/* EMPTY STATE                                                                */
+/* ============================================================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-state h2 {
+  margin: 0 0 12px 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-family: var(--font-display);
+}
+
+.empty-state p {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.empty-state .hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* ============================================================================ */
+/* RESPONSIVE DESIGN                                                          */
+/* ============================================================================ */
+
+@media (max-width: 480px) {
+  .family-dashboard {
+    padding: 12px;
+  }
+
+  .family-header {
+    padding: 24px 16px;
+    margin-bottom: 20px;
+  }
+
+  .family-header h2 {
+    font-size: 28px;
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .member-card {
+    padding: 14px;
+  }
+
+  .member-icon {
+    font-size: 36px;
+  }
+
+  .member-name {
+    font-size: 14px;
+  }
+
+  .role-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .invite-section,
+  .threats-empty {
+    padding: 18px;
+  }
+
+  .invite-code-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .invite-code {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .btn-copy {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .invite-code {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+}
+
+/* ============================================================================ */
+/* DARK MODE SUPPORT                                                          */
+/* ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .family-dashboard {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  }
+
+  .family-dashboard,
+  .member-card,
+  .empty-members,
+  .invite-section,
+  .threat-item {
+    color: #e8d4c0;
+  }
+
+  .family-header h2,
+  .members-section h3,
+  .threats-section h3,
+  .member-name,
+  .threat-type,
+  .empty-state h2 {
+    color: #f5ede5;
+  }
+
+  .family-header .family-description,
+  .member-activity small,
+  .threat-reported small,
+  .empty-members .hint,
+  .empty-state p,
+  .empty-state .hint,
+  .threats-empty .hint {
+    color: #b0a090;
+  }
+
+  .member-card,
+  .invite-section {
+    background: #2d2d2d;
+    border-color: #5a4a3a;
+  }
+
+  .invite-code-box {
+    background: linear-gradient(135deg, #5a4a3a 0%, #4a3a2a 100%);
+    border-color: #6a5a4a;
+  }
+
+  .invite-code {
+    background: #1e1e1e;
+    color: var(--warm-secondary);
+    border-color: #5a4a3a;
+  }
+
+  .btn-copy {
+    background: #1e1e1e;
+    color: var(--warm-secondary);
+    border-color: var(--warm-secondary);
+  }
+
+  .btn-copy:hover:not(:disabled) {
+    background: var(--warm-secondary);
+    color: #1e1e1e;
+  }
+
+  .threat-item {
+    background: #2d2d2d;
+    border-left-color: var(--warm-secondary);
+  }
+
+  .threat-description p {
+    background: #1e1e1e;
+    color: #b0a090;
+  }
+
+  .error-message {
+    background: #3a2a1a;
+    color: #f0d9a8;
+    border-left-color: var(--accent-red);
+  }
+
+  .role-badge {
+    background: linear-gradient(135deg, #5a4a3a 0%, #4a3a2a 100%);
+    color: var(--warm-secondary);
+  }
+
+  .threats-empty {
+    background: #2d2d2d;
+    border-color: #6a7a6a;
+    box-shadow: 0 4px 12px rgba(122, 155, 127, 0.2);
+  }
+}
+
+/* ============================================================================ */
+/* FOCUS STATES & ACCESSIBILITY                                              */
+/* ============================================================================ */
+
+.btn-copy:focus-visible {
+  outline: 3px solid var(--warm-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-card,
+  .threat-item,
+  .btn-copy {
+    transition: none;
+  }
+
+  .family-dashboard .spinner {
+    animation: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .member-card,
+  .invite-section {
+    border-width: 3px;
+  }
+
+  .btn-copy:focus-visible {
+    outline-width: 4px;
+  }
+}
