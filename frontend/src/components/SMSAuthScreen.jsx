@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import Toast from './Toast';
 import './SMSAuthScreen.css';
 
 export default function SMSAuthScreen() {
@@ -27,6 +28,8 @@ export default function SMSAuthScreen() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const otpRefs = useRef([]);
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://mzkwpdt7m3.execute-api.us-east-1.amazonaws.com/staging/api/v1';
@@ -62,7 +65,8 @@ export default function SMSAuthScreen() {
 
   const handleCopyPassword = () => {
     navigator.clipboard.writeText(password);
-    alert('✅ Mot de passe copié dans le presse-papiers!');
+    setToastMessage('Mot de passe copié dans le presse-papiers!');
+    setShowToast(true);
   };
 
   // Format phone number to E.164
@@ -488,6 +492,8 @@ export default function SMSAuthScreen() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 aria-label="Adresse email"
+                aria-invalid={error ? 'true' : 'false'}
+                aria-describedby={error ? 'email-error' : undefined}
                 disabled={loading}
                 autoFocus
               />
@@ -592,12 +598,18 @@ export default function SMSAuthScreen() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Votre mot de passe"
                   aria-label="Mot de passe"
+                  aria-invalid={error ? 'true' : 'false'}
+                  aria-describedby={error ? 'password-error' : undefined}
                   disabled={loading}
                 />
               )}
             </div>
 
-            {error && <div className="error-message" role="alert">{error}</div>}
+            {error && (
+              <div id="email-error" className="error-message" role="alert">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
@@ -686,6 +698,14 @@ export default function SMSAuthScreen() {
             </button>
           </p>
         </footer>
+      )}
+
+      {showToast && (
+        <Toast
+          message={toastMessage}
+          type="success"
+          onClose={() => setShowToast(false)}
+        />
       )}
     </main>
   );

@@ -27,6 +27,7 @@ export default function ModernAuthPage() {
             <button
               className="navbar-btn navbar-btn-secondary"
               onClick={() => setShowAuth(true)}
+              aria-label="Accéder à la page de connexion ou créer un compte"
             >
               Se connecter
             </button>
@@ -52,12 +53,16 @@ export default function ModernAuthPage() {
               <button
                 className="cta-primary"
                 onClick={() => setShowAuth(true)}
+                aria-label="Commencer maintenant avec ScamGuard - créer un compte ou se connecter"
               >
                 Commencer maintenant
-                <span className="cta-arrow">→</span>
+                <span className="cta-arrow" aria-hidden="true">→</span>
               </button>
-              <button className="cta-secondary">
-                ℹ️ En savoir plus
+              <button
+                className="cta-secondary"
+                aria-label="En savoir plus sur ScamGuard et ses fonctionnalités de protection"
+              >
+                <span aria-hidden="true">ℹ️</span> En savoir plus
               </button>
             </div>
 

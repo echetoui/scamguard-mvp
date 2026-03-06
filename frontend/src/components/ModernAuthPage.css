@@ -548,3 +548,46 @@ body {
 .feature-card:nth-child(4) { animation-delay: 0.4s; }
 .feature-card:nth-child(5) { animation-delay: 0.5s; }
 .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Focus States - Keyboard Navigation */
+.navbar-btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.cta-primary:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.cta-secondary:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  .navbar-btn:focus-visible,
+  .cta-primary:focus-visible,
+  .cta-secondary:focus-visible {
+    outline-width: 4px;
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .navbar-btn,
+  .cta-primary,
+  .cta-secondary,
+  .navbar-btn-secondary:hover {
+    transition: none;
+  }
+
+  .hero-section,
+  .feature-card {
+    animation: none;
+  }
+}

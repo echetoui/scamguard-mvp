@@ -257,6 +257,46 @@ body {
   box-shadow: var(--shadow-lg), 0 0 0 2px var(--primary-light);
 }
 
+/* Focus States - Keyboard Navigation */
+.form-input:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.form-link:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Input error state (aria-invalid) */
+.form-input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.form-input[aria-invalid="true"]:focus-visible {
+  outline-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  .form-input:focus-visible,
+  .btn:focus-visible {
+    outline-width: 4px;
+  }
+
+  .form-input[aria-invalid="true"] {
+    border-width: 3px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
