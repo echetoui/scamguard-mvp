@@ -16,6 +16,9 @@ class ScamGuardStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
+        # Store table reference for dependent stacks
+        self.table = None
+
         gemini_param = ssm.StringParameter(
             self, "GeminiParam",
             parameter_name="/scamguard/gemini-key",
@@ -32,7 +35,7 @@ class ScamGuardStack(Stack):
             type=ssm.ParameterType.SECURE_STRING
         )
 
-        table = ddb.Table(
+        self.table = ddb.Table(
             self, "DataTable",
             partition_key=ddb.Attribute(name="PK", type=ddb.AttributeType.STRING),
             sort_key=ddb.Attribute(name="SK", type=ddb.AttributeType.STRING),
@@ -98,10 +101,55 @@ class ScamGuardStack(Stack):
             removal_policy=RemovalPolicy.RETAIN
         )
 
+        # SSO Identity Providers
+        google_provider = cognito.UserPoolIdentityProviderGoogle(
+            self, "GoogleProvider",
+            user_pool=user_pool,
+            client_id="GOOGLE_CLIENT_ID_PLACEHOLDER",
+            client_secret="GOOGLE_CLIENT_SECRET_PLACEHOLDER",
+            scopes=["email", "profile"],
+            attribute_mapping=cognito.AttributeMapping(
+                email=cognito.ProviderAttribute.GOOGLE_EMAIL,
+                given_name=cognito.ProviderAttribute.GOOGLE_GIVEN_NAME,
+                family_name=cognito.ProviderAttribute.GOOGLE_FAMILY_NAME
+            )
+        )
+
+        facebook_provider = cognito.UserPoolIdentityProviderFacebook(
+            self, "FacebookProvider",
+            user_pool=user_pool,
+            client_id="FACEBOOK_APP_ID_PLACEHOLDER",
+            client_secret="FACEBOOK_APP_SECRET_PLACEHOLDER",
+            scopes=["email", "public_profile"],
+            attribute_mapping=cognito.AttributeMapping(
+                email=cognito.ProviderAttribute.FACEBOOK_EMAIL,
+                given_name=cognito.ProviderAttribute.FACEBOOK_FIRST_NAME,
+                family_name=cognito.ProviderAttribute.FACEBOOK_LAST_NAME
+            )
+        )
+
         user_pool_client = user_pool.add_client(
             "WebClient",
             auth_flows=cognito.AuthFlow(user_password=True, user_srp=True),
-            generate_secret=False
+            generate_secret=False,
+            supported_identity_providers=[
+                cognito.UserPoolClientIdentityProvider.COGNITO,
+                cognito.UserPoolClientIdentityProvider.GOOGLE,
+                cognito.UserPoolClientIdentityProvider.FACEBOOK
+            ],
+            o_auth=cognito.OAuthSettings(
+                flows=cognito.OAuthFlows(authorization_code_grant=True),
+                scopes=[cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE, cognito.OAuthScope.OPENID],
+                callback_urls=["http://localhost:3000/auth/callback", "https://your-domain.com/auth/callback"]
+            )
+        )
+
+        # User Pool Domain for hosted UI
+        user_pool_domain = user_pool.add_domain(
+            "UserPoolDomain",
+            cognito_domain=cognito.CognitoDomainOptions(
+                domain_prefix="scamguard-sso"
+            )
         )
 
         api_lambda = lambda_.Function(
@@ -112,7 +160,7 @@ class ScamGuardStack(Stack):
             timeout=Duration.seconds(60),
             memory_size=512,
             environment={
-                "TABLE_NAME": table.table_name,
+                "TABLE_NAME": self.table.table_name,
                 "UPLOADS_BUCKET": uploads_bucket.bucket_name,
                 "GEMINI_PARAM_NAME": gemini_param.parameter_name,
                 "OPENAI_PARAM_NAME": openai_param.parameter_name,
@@ -123,7 +171,7 @@ class ScamGuardStack(Stack):
             log_retention=logs.RetentionDays.ONE_WEEK
         )
 
-        table.grant_read_write_data(api_lambda)
+        self.table.grant_read_write_data(api_lambda)
         uploads_bucket.grant_read_write(api_lambda)
         gemini_param.grant_read(api_lambda)
         openai_param.grant_read(api_lambda)
@@ -218,7 +266,7 @@ class ScamGuardStack(Stack):
 
         table_throttle = cw.Alarm(
             self, "DynamoDBThrottleAlarm",
-            metric=table.metric_user_errors(statistic="Sum", period=Duration.minutes(5)),
+            metric=self.table.metric_user_errors(statistic="Sum", period=Duration.minutes(5)),
             threshold=10, evaluation_periods=1,
             alarm_description="DynamoDB throttling detected"
         )
@@ -227,7 +275,9 @@ class ScamGuardStack(Stack):
         CfnOutput(self, "APIEndpoint", value=api.url)
         CfnOutput(self, "UserPoolId", value=user_pool.user_pool_id)
         CfnOutput(self, "UserPoolClientId", value=user_pool_client.user_pool_client_id)
+        CfnOutput(self, "UserPoolDomain", value=user_pool_domain.domain_name)
+        CfnOutput(self, "CognitoHostedUIURL", value=f"https://{user_pool_domain.domain_name}.auth.{self.region}.amazoncognito.com")
         CfnOutput(self, "CloudFrontURL", value=f"https://{distribution.distribution_domain_name}")
         CfnOutput(self, "FrontendBucketName", value=frontend_bucket.bucket_name)
-        CfnOutput(self, "TableName", value=table.table_name)
+        CfnOutput(self, "TableName", value=self.table.table_name)
         CfnOutput(self, "AlarmTopicArn", value=alarm_topic.topic_arn)

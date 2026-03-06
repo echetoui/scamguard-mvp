@@ -1,0 +1,114 @@
+{
+  "Comment": "Project Unit Workflow - Transform features into production code (PO → Architect → Developer → QA)",
+  "StartAt": "ProjectOwnerValidation",
+  "States": {
+    "ProjectOwnerValidation": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${ProjectOwnerLambda.Arn}",
+        "Payload": {
+          "feature_spec.$": "$.feature_spec",
+          "market_context": "Quebec senior protection (65+)",
+          "compliance": ["Loi 25", "WCAG 2.1 AA", "PIPEDA"]
+        }
+      },
+      "ResultPath": "$.po_result",
+      "Next": "ValidateApproval",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "FeatureRejected"
+        }
+      ]
+    },
+    "ValidateApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.po_result.Payload.approved",
+          "BooleanEquals": true,
+          "Next": "ArchitectureDesign"
+        }
+      ],
+      "Default": "FeatureRejected"
+    },
+    "ArchitectureDesign": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${ArchitectLambda.Arn}",
+        "Payload": {
+          "feature_spec.$": "$.feature_spec",
+          "requirements.$": "$.po_result.Payload.requirements",
+          "schema_template": "DynamoDB_PK_SK"
+        }
+      },
+      "ResultPath": "$.architect_result",
+      "Next": "DeveloperImplementation",
+      "TimeoutSeconds": 300
+    },
+    "DeveloperImplementation": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${DeveloperLambda.Arn}",
+        "Payload": {
+          "feature_spec.$": "$.feature_spec",
+          "architecture.$": "$.architect_result.Payload.design",
+          "target_language": "python"
+        }
+      },
+      "ResultPath": "$.developer_result",
+      "Next": "QAValidation",
+      "TimeoutSeconds": 600
+    },
+    "QAValidation": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${QAEngineerLambda.Arn}",
+        "Payload": {
+          "feature_spec.$": "$.feature_spec",
+          "code.$": "$.developer_result.Payload.code",
+          "test_framework": "pytest",
+          "security_checks": true
+        }
+      },
+      "ResultPath": "$.qa_result",
+      "Next": "FinalApproval"
+    },
+    "FinalApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.qa_result.Payload.passed",
+          "BooleanEquals": true,
+          "Next": "WorkflowSuccess"
+        }
+      ],
+      "Default": "WorkflowFailed"
+    },
+    "WorkflowSuccess": {
+      "Type": "Succeed"
+    },
+    "FeatureRejected": {
+      "Type": "Fail",
+      "Error": "FEATURE_REJECTED",
+      "Cause": "Feature failed validation or approval"
+    },
+    "WorkflowFailed": {
+      "Type": "Fail",
+      "Error": "QA_VALIDATION_FAILED",
+      "Cause": "Code did not pass QA validation"
+    }
+  }
+}
