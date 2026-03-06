@@ -1,0 +1,116 @@
+{
+  "Comment": "Product Unit Workflow - Detect fraud and protect families (Triage → Analyst → Critic → Notifier)",
+  "StartAt": "DataTriage",
+  "States": {
+    "DataTriage": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${TriageAgentLambda.Arn}",
+        "Payload": {
+          "scam_report.$": "$.scam_report",
+          "user_id.$": "$.user_id",
+          "anonymization_level": "Loi-25-compliant"
+        }
+      },
+      "ResultPath": "$.triage_result",
+      "Next": "ThreatAnalysis",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 1,
+          "BackoffRate": 2
+        }
+      ]
+    },
+    "ThreatAnalysis": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${ThreatAnalystLambda.Arn}",
+        "Payload": {
+          "cleaned_data.$": "$.triage_result.Payload.cleaned_data",
+          "threat_intelligence": ["SQ_database", "AMF_alerts"],
+          "scoring_model": "v2.1"
+        }
+      },
+      "ResultPath": "$.analyst_result",
+      "Next": "CriticReview",
+      "TimeoutSeconds": 60
+    },
+    "CriticReview": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${CriticAgentLambda.Arn}",
+        "Payload": {
+          "threat_score.$": "$.analyst_result.Payload.threat_score",
+          "risk_factors.$": "$.analyst_result.Payload.risk_factors",
+          "false_positive_threshold": 0.15
+        }
+      },
+      "ResultPath": "$.critic_result",
+      "Next": "ValidateThreat"
+    },
+    "ValidateThreat": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.critic_result.Payload.is_valid_threat",
+          "BooleanEquals": true,
+          "Next": "NotifyFamily"
+        }
+      ],
+      "Default": "FalsePositiveHandled"
+    },
+    "NotifyFamily": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${FamilyNotifierLambda.Arn}",
+        "Payload": {
+          "user_id.$": "$.user_id",
+          "threat_summary.$": "$.critic_result.Payload.threat_summary",
+          "family_members.$": "$.family_members",
+          "notification_channels": ["SMS", "EMAIL", "APP"]
+        }
+      },
+      "ResultPath": "$.notifier_result",
+      "Next": "AuditLogging"
+    },
+    "AuditLogging": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "${AuditTableName}",
+        "Item": {
+          "PK": {
+            "S.$": "$.user_id"
+          },
+          "SK": {
+            "S.$": "$.timestamp"
+          },
+          "workflow_id.$": "$.workflow_id",
+          "threat_score.$": "$.analyst_result.Payload.threat_score",
+          "notified_count.$": "$.notifier_result.Payload.notification_count",
+          "status": {
+            "S": "COMPLETED"
+          }
+        }
+      },
+      "Next": "WorkflowSuccess"
+    },
+    "FalsePositiveHandled": {
+      "Type": "Pass",
+      "Parameters": {
+        "status": "FALSE_POSITIVE_FILTERED",
+        "reason.$": "$.critic_result.Payload.reason"
+      },
+      "Next": "WorkflowSuccess"
+    },
+    "WorkflowSuccess": {
+      "Type": "Succeed"
+    }
+  }
+}
