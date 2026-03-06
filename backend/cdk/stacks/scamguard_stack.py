@@ -178,6 +178,19 @@ class ScamGuardStack(Stack):
             authorizer=authorizer
         )
 
+        # Phase 5A: Family Protection endpoints
+        api.add_routes(
+            path="/api/v1/family/dashboard",
+            methods=[apigwv2.HttpMethod.GET, apigwv2.HttpMethod.OPTIONS],
+            integration=lambda_integration
+        )
+
+        api.add_routes(
+            path="/api/v1/family/join",
+            methods=[apigwv2.HttpMethod.POST, apigwv2.HttpMethod.OPTIONS],
+            integration=lambda_integration
+        )
+
         # Throttling at API level
         cfn_stage = api.default_stage.node.default_child
         cfn_stage.default_route_settings = apigwv2.CfnStage.RouteSettingsProperty(
