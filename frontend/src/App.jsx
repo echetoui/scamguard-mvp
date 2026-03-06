@@ -255,16 +255,26 @@ export default function App() {
         {view === 'home' && (
           <div className="menu-grid">
             <p className="welcome-text">Bonjour ! Que voulez-vous faire aujourd'hui ?</p>
-            
-            <button onClick={getScenario} className="btn-primary large-touch">
-              <span className="icon">🎯</span>
-              <span className="text">M'entraîner avec un faux scénario</span>
-            </button>
-            
-            <button onClick={() => setView('detection')} className="btn-secondary large-touch">
-              <span className="icon">📸</span>
-              <span className="text">Analyser un message suspect reçu</span>
-            </button>
+
+            <div className="option-card">
+              <button onClick={() => setView('detection')} className="btn-primary large-touch">
+                <span className="icon">✏️</span>
+                <span className="text">Saisissez votre texte</span>
+              </button>
+              <p className="option-description">
+                Collez le texte d'un courriel ou d'un SMS, et nous vous aiderons à déterminer s'il s'agit d'une arnaque.
+              </p>
+            </div>
+
+            <div className="option-card">
+              <button onClick={getScenario} className="btn-secondary large-touch">
+                <span className="icon">🎓</span>
+                <span className="text">M'entraîner avec un scénario</span>
+              </button>
+              <p className="option-description">
+                Apprenez à identifier les arnaques en répondant à des scénarios réalistes et reçevez des conseils personnalisés.
+              </p>
+            </div>
           </div>
         )}
         
@@ -312,29 +322,45 @@ export default function App() {
         
         {view === 'detection' && (
           <div className="detection-card">
-            <h2>📸 Analyse de message</h2>
-            <p>Prenez une photo de l'écran ou du message qui vous inquiète.</p>
-            
-            <label className="file-upload large-touch">
-              <input 
-                type="file" 
-                accept="image/*" 
-                capture="environment"
-                onChange={handleImageUpload}
-              />
-              <span>📷 Prendre une photo</span>
+            <h2>✏️ Analysez votre message</h2>
+            <p className="instruction-text">
+              Collez le texte d'un courriel ou d'un SMS ci-dessous. Notre intelligence artificielle vous aidera à déterminer s'il s'agit d'une arnaque.
+            </p>
+
+            <label htmlFor="message-input" className="input-label">
+              📝 Texte du message :
             </label>
-            
-            {image && <p className="success-msg">✅ Photo ajoutée !</p>}
-            
-            <textarea 
+            <textarea
+              id="message-input"
               value={response}
               onChange={e => setResponse(e.target.value)}
-              placeholder="Ou décrivez ce qui vous semble bizarre..."
+              placeholder="Ex: Bonjour, cliquez ici pour vérifier votre compte... ou collez votre message"
+              className="message-textarea"
+              aria-label="Entrez le texte du message à analyser"
             />
-            
-            <button onClick={submitAnalysis} className="btn-action large-touch">
-              🔍 Lancer l'analyse
+
+            <div className="divider">ou</div>
+
+            <label className="file-upload large-touch">
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleImageUpload}
+                aria-label="Télécharger une photo du message"
+              />
+              <span>📷 Ajouter une photo</span>
+            </label>
+
+            {image && <p className="success-msg">✅ Photo ajoutée !</p>}
+
+            <button
+              onClick={submitAnalysis}
+              className="btn-action large-touch"
+              disabled={!response && !image}
+              aria-label="Lancer l'analyse du message"
+            >
+              🔍 Analyser le message
             </button>
             <button onClick={() => setView('home')} className="btn-text">Retour</button>
           </div>

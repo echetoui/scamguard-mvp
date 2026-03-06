@@ -196,3 +196,111 @@ textarea {
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+/* Menu Grid & Options */
+.menu-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.welcome-text {
+  font-size: 20px;
+  color: var(--text-color);
+  font-weight: 500;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.option-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.option-card:hover {
+  transform: translateY(-4px);
+}
+
+.option-description {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0 8px;
+  text-align: center;
+  font-weight: normal;
+}
+
+/* Detection Card Improvements */
+.instruction-text {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+  margin: 12px 0 24px 0;
+  text-align: center;
+}
+
+.input-label {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  margin-top: 20px;
+}
+
+.message-textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 16px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.message-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+}
+
+.message-textarea::placeholder {
+  color: #aaa;
+}
+
+.divider {
+  text-align: center;
+  color: #ccc;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 20px 0;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background-color: #e0e0e0;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
