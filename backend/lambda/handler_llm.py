@@ -210,6 +210,69 @@ def add_cors_headers(response):
     })
     return response
 
+def share_threat_with_family(user_id, family_id, result, user_response):
+    """
+    Phase 5A - Threat Sharing: Create a threat record in the family group
+    Only share HIGH and CRITICAL threats (don't spam family with low-risk detections)
+    """
+    try:
+        # Determine severity based on risk_score
+        risk_score = result.get('risk_score', 50)
+
+        if risk_score >= 75:
+            severity = 'CRITICAL'
+        elif risk_score >= 60:
+            severity = 'HIGH'
+        else:
+            # Don't share LOW/MEDIUM threats
+            return None
+
+        # Create threat record
+        table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+        timestamp = datetime.utcnow().isoformat()
+
+        threat_item = {
+            'PK': f'FAMILY#{family_id}',
+            'SK': f'THREAT#{timestamp}',
+            'reportedBy': user_id,
+            'reportedAt': timestamp,
+            'scamType': 'SMS/Email Scam',  # Can be enhanced with LLM categorization
+            'severity': severity,
+            'content': user_response[:500],  # Store first 500 chars of message
+            'riskScore': risk_score,
+            'explanation': result.get('explanation', ''),
+            'ttl': int(datetime.utcnow().timestamp()) + (30 * 24 * 60 * 60)  # 30 days
+        }
+
+        table.put_item(Item=threat_item)
+        print(f"Threat shared with family: PK=FAMILY#{family_id}, severity={severity}")
+        return threat_item
+
+    except Exception as e:
+        print(f"Error sharing threat with family: {e}")
+        return None
+
+
+def get_user_family_id(user_id):
+    """
+    Retrieve user's familyId from their profile
+    Returns None if user has no family
+    """
+    try:
+        table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+        response = table.get_item(
+            Key={
+                'PK': f'USER#{user_id}',
+                'SK': 'PROFILE'
+            }
+        )
+        user_profile = response.get('Item', {})
+        return user_profile.get('familyId')
+    except Exception as e:
+        print(f"Error getting user family ID: {e}")
+        return None
+
+
 def lambda_handler(event, context):
     """Main Lambda handler"""
     # Handle CORS preflight requests
@@ -273,6 +336,11 @@ def lambda_handler(event, context):
                 table.put_item(Item=item)
 
                 print(f"Item stored: PK=USER#{user_id}, SK=ANALYSIS#{timestamp}#{analysis_id}")
+
+                # Phase 5A - Share threat with family if user has a family
+                family_id = get_user_family_id(user_id)
+                if family_id:
+                    share_threat_with_family(user_id, family_id, result, user_response)
             except Exception as e:
                 print(f"DynamoDB error: {e}")
 
