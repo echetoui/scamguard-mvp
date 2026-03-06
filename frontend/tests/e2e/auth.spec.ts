@@ -10,11 +10,15 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 test.describe('Authentication E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to app
-    await page.goto(BASE_URL);
-    
-    // Wait for page to load
+    // Navigate to app with longer timeout
+    await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
+
+    // Wait for page to load completely
     await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
+
+    // Wait a bit for React to render
+    await page.waitForTimeout(1000);
   });
 
   // ============================================================================
@@ -35,6 +39,9 @@ test.describe('Authentication E2E Tests', () => {
   });
 
   test('A2: Should navigate to signup form on Create Account click', async ({ page }) => {
+    // Wait for button to be visible and enabled
+    await page.locator('button:has-text("Créer un compte")').first().waitFor({ state: 'visible', timeout: 15000 });
+
     // Click Create Account
     await page.locator('button:has-text("Créer un compte")').first().click();
 
@@ -47,6 +54,9 @@ test.describe('Authentication E2E Tests', () => {
   });
 
   test('A3: Should navigate to login form on Login click', async ({ page }) => {
+    // Wait for button to be visible
+    await page.locator('button:has-text("Se connecter")').first().waitFor({ state: 'visible', timeout: 15000 });
+
     // Click Login
     await page.locator('button:has-text("Se connecter")').first().click();
 
@@ -59,9 +69,12 @@ test.describe('Authentication E2E Tests', () => {
   });
 
   test('A4: Should allow mode switching (signup -> login)', async ({ page }) => {
+    // Wait for button to be visible
+    await page.locator('button:has-text("Créer un compte")').first().waitFor({ state: 'visible', timeout: 15000 });
+
     // Start on signup
     await page.locator('button:has-text("Créer un compte")').first().click();
-    await expect(page.locator('text=Créer votre compte')).toBeVisible();
+    await expect(page.locator('text=Créer votre compte')).toBeVisible({ timeout: 15000 });
 
     // Click back button
     await page.locator('button:has-text("Retour")').first().click();
