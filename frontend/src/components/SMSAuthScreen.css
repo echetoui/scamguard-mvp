@@ -513,6 +513,61 @@
   }
 }
 
+/* Focus States - Keyboard Navigation */
+.form-group input:focus-visible {
+  outline: 3px solid #0056b3;
+  outline-offset: 2px;
+}
+
+.auth-button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+.auth-link-button:focus-visible,
+.link-button:focus-visible {
+  outline: 3px solid #0056b3;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.role-card:focus-visible {
+  outline: 3px solid #0056b3;
+  outline-offset: 2px;
+}
+
+/* Input error state (aria-invalid) */
+.form-group input[aria-invalid="true"] {
+  border-color: #c62828;
+}
+
+.form-group input[aria-invalid="true"]:focus-visible {
+  outline-color: #c62828;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  .form-group input:focus-visible,
+  .auth-button:focus-visible,
+  .role-card:focus-visible {
+    outline-width: 4px;
+  }
+
+  .form-group input[aria-invalid="true"] {
+    border-width: 3px;
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .form-group input,
+  .auth-button,
+  .role-card {
+    transition: none;
+  }
+}
+
 /* Print Styles */
 @media print {
   .sms-auth-screen {
