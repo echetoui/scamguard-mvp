@@ -1,283 +1,43 @@
-from aws_cdk import (
-    Stack, Duration, RemovalPolicy, CfnOutput, BundlingOptions,
-    aws_lambda as lambda_, aws_apigatewayv2 as apigwv2,
-    aws_apigatewayv2_integrations as integrations,
-    aws_apigatewayv2_authorizers as authorizers,
-    aws_dynamodb as ddb, aws_s3 as s3,
-    aws_cloudfront as cloudfront, aws_cloudfront_origins as origins,
-    aws_cognito as cognito, aws_ssm as ssm,
-    aws_iam as iam, aws_logs as logs,
-    aws_cloudwatch as cw, aws_cloudwatch_actions as cw_actions,
-    aws_sns as sns,
-)
+from aws_cdk import Stack, aws_dynamodb as ddb, aws_s3 as s3, aws_lambda as lambda_, aws_apigateway as apigw, Duration, RemovalPolicy, CfnOutput
 from constructs import Construct
 
 class ScamGuardStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
-
-        # Store table reference for dependent stacks
-        self.table = None
-
-        gemini_param = ssm.StringParameter(
-            self, "GeminiParam",
-            parameter_name="/scamguard/gemini-key",
-            string_value="PLACEHOLDER",
-            description="Gemini API Key",
-            type=ssm.ParameterType.SECURE_STRING
+        
+        # DynamoDB Table
+        self.data_table = ddb.Table(
+            self, "DataTable",
+            partition_key=ddb.Attribute(name="pk", type=ddb.AttributeType.STRING),
+            sort_key=ddb.Attribute(name="sk", type=ddb.AttributeType.STRING),
+            billing_mode=ddb.BillingMode.PAY_PER_REQUEST
         )
         
-        openai_param = ssm.StringParameter(
-            self, "OpenAIParam",
-            parameter_name="/scamguard/openai-key",
-            string_value="PLACEHOLDER",
-            description="OpenAI API Key",
-            type=ssm.ParameterType.SECURE_STRING
-        )
-
-        self.table = ddb.Table(
-            self, "DataTable",
-            partition_key=ddb.Attribute(name="PK", type=ddb.AttributeType.STRING),
-            sort_key=ddb.Attribute(name="SK", type=ddb.AttributeType.STRING),
-            billing_mode=ddb.BillingMode.PROVISIONED,
-            read_capacity=5,
-            write_capacity=5,
-            point_in_time_recovery=True,
-            removal_policy=RemovalPolicy.RETAIN,
-            time_to_live_attribute="TTL"
-        )
-
-        uploads_bucket = s3.Bucket(
-            self, "UploadsBucket",
-            encryption=s3.BucketEncryption.S3_MANAGED,
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            removal_policy=RemovalPolicy.RETAIN,
-            lifecycle_rules=[
-                s3.LifecycleRule(
-                    expiration=Duration.days(30),
-                    abort_incomplete_multipart_upload_after=Duration.days(7)
-                )
-            ]
-        )
-
-        frontend_bucket = s3.Bucket(
-            self, "FrontendBucket",
-            website_index_document="index.html",
-            website_error_document="index.html",
-            public_read_access=True,
-            block_public_access=s3.BlockPublicAccess(
-                block_public_acls=False, block_public_policy=False,
-                ignore_public_acls=False, restrict_public_buckets=False
-            ),
-            removal_policy=RemovalPolicy.RETAIN
-        )
-
-        distribution = cloudfront.Distribution(
-            self, "CDN",
-            default_behavior=cloudfront.BehaviorOptions(
-                origin=origins.S3Origin(frontend_bucket),
-                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-                cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED
-            ),
-            default_root_object="index.html",
-            error_responses=[
-                cloudfront.ErrorResponse(
-                    http_status=404, response_http_status=200,
-                    response_page_path="/index.html"
-                )
-            ]
-        )
-
-        user_pool = cognito.UserPool(
-            self, "UserPool",
-            self_sign_up_enabled=True,
-            sign_in_aliases=cognito.SignInAliases(email=True),
-            auto_verify=cognito.AutoVerifiedAttrs(email=True),
-            password_policy=cognito.PasswordPolicy(
-                min_length=8, require_lowercase=True,
-                require_uppercase=True, require_digits=True
-            ),
-            account_recovery=cognito.AccountRecovery.EMAIL_ONLY,
-            removal_policy=RemovalPolicy.RETAIN
-        )
-
-        # SSO Identity Providers
-        google_provider = cognito.UserPoolIdentityProviderGoogle(
-            self, "GoogleProvider",
-            user_pool=user_pool,
-            client_id="GOOGLE_CLIENT_ID_PLACEHOLDER",
-            client_secret="GOOGLE_CLIENT_SECRET_PLACEHOLDER",
-            scopes=["email", "profile"],
-            attribute_mapping=cognito.AttributeMapping(
-                email=cognito.ProviderAttribute.GOOGLE_EMAIL,
-                given_name=cognito.ProviderAttribute.GOOGLE_GIVEN_NAME,
-                family_name=cognito.ProviderAttribute.GOOGLE_FAMILY_NAME
-            )
-        )
-
-        facebook_provider = cognito.UserPoolIdentityProviderFacebook(
-            self, "FacebookProvider",
-            user_pool=user_pool,
-            client_id="FACEBOOK_APP_ID_PLACEHOLDER",
-            client_secret="FACEBOOK_APP_SECRET_PLACEHOLDER",
-            scopes=["email", "public_profile"],
-            attribute_mapping=cognito.AttributeMapping(
-                email=cognito.ProviderAttribute.FACEBOOK_EMAIL,
-                given_name=cognito.ProviderAttribute.FACEBOOK_FIRST_NAME,
-                family_name=cognito.ProviderAttribute.FACEBOOK_LAST_NAME
-            )
-        )
-
-        user_pool_client = user_pool.add_client(
-            "WebClient",
-            auth_flows=cognito.AuthFlow(user_password=True, user_srp=True),
-            generate_secret=False,
-            supported_identity_providers=[
-                cognito.UserPoolClientIdentityProvider.COGNITO,
-                cognito.UserPoolClientIdentityProvider.GOOGLE,
-                cognito.UserPoolClientIdentityProvider.FACEBOOK
-            ],
-            o_auth=cognito.OAuthSettings(
-                flows=cognito.OAuthFlows(authorization_code_grant=True),
-                scopes=[cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE, cognito.OAuthScope.OPENID],
-                callback_urls=["http://localhost:3000/auth/callback", "https://your-domain.com/auth/callback"]
-            )
-        )
-
-        # User Pool Domain for hosted UI
-        user_pool_domain = user_pool.add_domain(
-            "UserPoolDomain",
-            cognito_domain=cognito.CognitoDomainOptions(
-                domain_prefix="scamguard-sso"
-            )
-        )
-
-        api_lambda = lambda_.Function(
-            self, "APILambda",
+        # S3 Buckets
+        uploads_bucket = s3.Bucket(self, "UploadsBucket")
+        frontend_bucket = s3.Bucket(self, "FrontendBucket")
+        
+        # Lambda Handler
+        handler_lambda = lambda_.Function(
+            self, "Handler",
             runtime=lambda_.Runtime.PYTHON_3_12,
             handler="index.handler",
             code=lambda_.Code.from_asset("../lambda"),
             timeout=Duration.seconds(60),
             memory_size=256,
             environment={
-                "TABLE_NAME": self.table.table_name,
-                "UPLOADS_BUCKET": uploads_bucket.bucket_name,
-                "GEMINI_PARAM_NAME": gemini_param.parameter_name,
-                "OPENAI_PARAM_NAME": openai_param.parameter_name,
-                "POWERTOOLS_SERVICE_NAME": "scamguard-api",
-                "LOG_LEVEL": "INFO"
-            },
-            tracing=lambda_.Tracing.ACTIVE,
-            log_retention=logs.RetentionDays.ONE_WEEK
+                "TABLE_NAME": self.data_table.table_name,
+                "UPLOADS_BUCKET": uploads_bucket.bucket_name
+            }
         )
-
-        self.table.grant_read_write_data(api_lambda)
-        uploads_bucket.grant_read_write(api_lambda)
-        gemini_param.grant_read(api_lambda)
-        openai_param.grant_read(api_lambda)
-
-        api = apigwv2.HttpApi(
-            self, "API",
-            api_name="ScamGuard API",
-            description="ScamGuard AI v5.0 HTTP API",
-            cors_preflight=apigwv2.CorsPreflightOptions(
-                allow_origins=["*"],
-                allow_methods=[apigwv2.CorsHttpMethod.ANY],
-                allow_headers=["Content-Type", "Authorization"]
-            )
-        )
-
-        authorizer = authorizers.HttpUserPoolAuthorizer(
-            "CognitoAuthorizer",
-            user_pool,
-            user_pool_clients=[user_pool_client]
-        )
-
-        lambda_integration = integrations.HttpLambdaIntegration(
-            "LambdaIntegration",
-            api_lambda
-        )
-
-        api.add_routes(
-            path="/scenario",
-            methods=[apigwv2.HttpMethod.POST],
-            integration=lambda_integration,
-            authorizer=authorizer
-        )
-
-        api.add_routes(
-            path="/analyze",
-            methods=[apigwv2.HttpMethod.POST],
-            integration=lambda_integration,
-            authorizer=authorizer
-        )
-
-        api.add_routes(
-            path="/profile",
-            methods=[apigwv2.HttpMethod.GET, apigwv2.HttpMethod.PUT, apigwv2.HttpMethod.DELETE],
-            integration=lambda_integration,
-            authorizer=authorizer
-        )
-
-        api.add_routes(
-            path="/analytics",
-            methods=[apigwv2.HttpMethod.GET],
-            integration=lambda_integration,
-            authorizer=authorizer
-        )
-
-        # Phase 5A: Family Protection endpoints
-        api.add_routes(
-            path="/api/v1/family/dashboard",
-            methods=[apigwv2.HttpMethod.GET, apigwv2.HttpMethod.OPTIONS],
-            integration=lambda_integration
-        )
-
-        api.add_routes(
-            path="/api/v1/family/join",
-            methods=[apigwv2.HttpMethod.POST, apigwv2.HttpMethod.OPTIONS],
-            integration=lambda_integration
-        )
-
-        # Throttling at API level
-        cfn_stage = api.default_stage.node.default_child
-        cfn_stage.default_route_settings = apigwv2.CfnStage.RouteSettingsProperty(
-            throttling_burst_limit=20,
-            throttling_rate_limit=10
-        )
-
-        alarm_topic = sns.Topic(self, "AlarmTopic", display_name="ScamGuard Alarms")
-
-        lambda_errors = cw.Alarm(
-            self, "LambdaErrorsAlarm",
-            metric=api_lambda.metric_errors(statistic="Sum", period=Duration.minutes(5)),
-            threshold=5, evaluation_periods=1,
-            alarm_description="Lambda errors > 5 in 5 minutes"
-        )
-        lambda_errors.add_alarm_action(cw_actions.SnsAction(alarm_topic))
-
-        lambda_duration = cw.Alarm(
-            self, "LambdaDurationAlarm",
-            metric=api_lambda.metric_duration(statistic="Average", period=Duration.minutes(5)),
-            threshold=10000, evaluation_periods=2,
-            alarm_description="Lambda duration > 10s average"
-        )
-        lambda_duration.add_alarm_action(cw_actions.SnsAction(alarm_topic))
-
-        table_throttle = cw.Alarm(
-            self, "DynamoDBThrottleAlarm",
-            metric=self.table.metric_user_errors(statistic="Sum", period=Duration.minutes(5)),
-            threshold=10, evaluation_periods=1,
-            alarm_description="DynamoDB throttling detected"
-        )
-        table_throttle.add_alarm_action(cw_actions.SnsAction(alarm_topic))
-
+        
+        self.data_table.grant_read_write_data(handler_lambda)
+        uploads_bucket.grant_read_write(handler_lambda)
+        
+        # API Gateway
+        api = apigw.RestApi(self, "API", rest_api_name="scamguard-api")
+        api.root.add_method("ANY", apigw.LambdaIntegration(handler_lambda))
+        api.root.add_resource("{proxy+}").add_method("ANY", apigw.LambdaIntegration(handler_lambda))
+        
+        CfnOutput(self, "TableName", value=self.data_table.table_name)
         CfnOutput(self, "APIEndpoint", value=api.url)
-        CfnOutput(self, "UserPoolId", value=user_pool.user_pool_id)
-        CfnOutput(self, "UserPoolClientId", value=user_pool_client.user_pool_client_id)
-        CfnOutput(self, "UserPoolDomain", value=user_pool_domain.domain_name)
-        CfnOutput(self, "CognitoHostedUIURL", value=f"https://{user_pool_domain.domain_name}.auth.{self.region}.amazoncognito.com")
-        CfnOutput(self, "CloudFrontURL", value=f"https://{distribution.distribution_domain_name}")
-        CfnOutput(self, "FrontendBucketName", value=frontend_bucket.bucket_name)
-        CfnOutput(self, "TableName", value=self.table.table_name)
-        CfnOutput(self, "AlarmTopicArn", value=alarm_topic.topic_arn)
