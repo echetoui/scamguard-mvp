@@ -58,7 +58,7 @@ Parameters:
 Globals:
   Function:
     Timeout: 60
-    MemorySize: 1536
+    MemorySize: 512
     Runtime: python3.12
     Architectures:
       - x86_64
@@ -294,7 +294,7 @@ Resources:
       CodeUri: lambda/
       Handler: handler.lambda_handler
       Runtime: python3.12
-      MemorySize: 1536
+      MemorySize: 512
       Timeout: 60
       ReservedConcurrentExecutions: !Ref ReservedConcurrentExecutions
       Environment:
@@ -474,7 +474,7 @@ Resources:
       CodeUri: lambda/
       Handler: sms_otp_handler.lambda_handler
       Runtime: python3.12
-      MemorySize: 1024
+      MemorySize: 512
       Timeout: 60
       Environment:
         Variables:

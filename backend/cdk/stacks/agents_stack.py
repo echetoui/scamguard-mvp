@@ -53,7 +53,7 @@ class AgentsStack(Stack):
                 self, f"{agent_name}Lambda",
                 runtime=lambda_.Runtime.PYTHON_3_12,
                 handler=handler_func,
-                code=lambda_.Code.from_asset(".."),
+                code=lambda_.Code.from_asset("../agents"),  # Only agents folder
                 timeout=Duration.seconds(60),
                 memory_size=256,
                 environment={
@@ -158,7 +158,7 @@ class AgentsStack(Stack):
             self, "OrchestratorLambda",
             runtime=lambda_.Runtime.PYTHON_3_12,
             handler="orchestrator.orchestrator_handler",
-            code=lambda_.Code.from_asset(".."),
+            code=lambda_.Code.from_asset(".."),  # orchestrator.py is in backend root
             timeout=Duration.seconds(30),
             memory_size=256,
             environment={
