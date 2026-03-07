@@ -1,7 +1,3 @@
 {
-  "app": "python3 app.py",
-  "context": {
-    "@aws-cdk/core:enablePartitionLiterals": true,
-    "@aws-cdk/aws-apigateway:disableCloudWatchRole": false
-  }
+  "app": "python3 app.py"
 }

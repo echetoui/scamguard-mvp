@@ -1,30 +1,44 @@
-#!/usr/bin/env python3
-import aws_cdk as cdk
+"""
+ScamGuard MVP - CDK Application
+Instantiates and configures all infrastructure stacks
+"""
+import os
+from aws_cdk import App
 from stacks.scamguard_stack import ScamGuardStack
 from stacks.agents_stack import AgentsStack
 
-app = cdk.App()
 
-env = cdk.Environment(
-    account=app.node.try_get_context("account"),
-    region=app.node.try_get_context("region") or "us-east-1"
-)
+def main():
+    app = App()
 
-# Main infrastructure stack
-main_stack = ScamGuardStack(
-    app,
-    "ScamGuardStack",
-    env=env,
-    description="ScamGuard AI v5.0 - MVP Production-Ready"
-)
+    # Environment config
+    env_config = {
+        'region': 'us-east-1',
+        'account': os.environ.get('CDK_DEFAULT_ACCOUNT')
+    }
 
-# Agent orchestration stack (depends on main stack)
-AgentsStack(
-    app,
-    "ScamGuardAgentsStack",
-    data_table=main_stack.table if hasattr(main_stack, 'table') else None,
-    env=env,
-    description="ScamGuard Agent Orchestration - Step Functions + Lambda Agents"
-)
+    # Main infrastructure stack
+    scamguard_stack = ScamGuardStack(
+        app,
+        "ScamGuardStack",
+        env=env_config,
+        description="ScamGuard MVP - Main Infrastructure Stack"
+    )
 
-app.synth()
+    # Agent orchestration stack
+    agents_stack = AgentsStack(
+        app,
+        "AgentsStack",
+        data_table=scamguard_stack.data_table,
+        env=env_config,
+        description="ScamGuard Agent Orchestration - Step Functions + Lambda Agents"
+    )
+
+    # Add dependency
+    agents_stack.add_dependency(scamguard_stack)
+
+    app.synth()
+
+
+if __name__ == "__main__":
+    main()
