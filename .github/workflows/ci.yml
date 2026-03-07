@@ -56,5 +56,5 @@ jobs:
           AWS_REGION: us-east-1
           AWS_DEFAULT_REGION: us-east-1
         run: |
-          export PYTHONPATH="${GITHUB_WORKSPACE}/backend:${GITHUB_WORKSPACE}/backend/lambda:$PYTHONPATH"
-          pytest lambda/tests/
+          export PYTHONPATH="$(pwd):$(pwd)/lambda:$PYTHONPATH"
+          pytest tests/
