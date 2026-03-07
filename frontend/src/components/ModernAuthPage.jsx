@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import './ModernAuthPage.css';
 import SMSAuthScreen from './SMSAuthScreen';
+import SSOLogin from './SSOLogin';
 
 export default function ModernAuthPage() {
   const [showAuth, setShowAuth] = useState(false);
@@ -65,6 +66,9 @@ export default function ModernAuthPage() {
                 <span aria-hidden="true">ℹ️</span> En savoir plus
               </button>
             </div>
+
+            {/* SSO Login Options */}
+            <SSOLogin isLoading={false} />
 
             {/* Trust badges */}
             <div className="trust-badges">
