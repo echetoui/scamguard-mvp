@@ -42,20 +42,59 @@ export default function SMSAuthScreen() {
     const symbols = '!@#$%^&*';
     const allChars = upper + lower + digits + symbols;
 
+    const cryptoObj = (typeof window !== 'undefined' && window.crypto) || (typeof self !== 'undefined' && self.crypto);
+    if (!cryptoObj || !cryptoObj.getRandomValues) {
+      // Fallback: if crypto is unavailable, keep existing behavior (less secure but avoids breaking UX)
+      const insecurePassword = () => {
+        let pwd = '';
+        pwd += upper[Math.floor(Math.random() * upper.length)];
+        pwd += lower[Math.floor(Math.random() * lower.length)];
+        pwd += digits[Math.floor(Math.random() * digits.length)];
+        pwd += symbols[Math.floor(Math.random() * symbols.length)];
+        for (let i = pwd.length; i < 16; i++) {
+          pwd += allChars[Math.floor(Math.random() * allChars.length)];
+        }
+        return pwd.split('').sort(() => Math.random() - 0.5).join('');
+      };
+      return insecurePassword();
+    }
+
+    // Helper to get an unbiased random integer in [0, maxExclusive)
+    const getSecureRandomInt = (maxExclusive) => {
+      if (maxExclusive <= 0) return 0;
+      const maxUint32 = 0xffffffff;
+      const limit = maxUint32 - (maxUint32 % maxExclusive);
+      const uint32 = new Uint32Array(1);
+      let value;
+      do {
+        cryptoObj.getRandomValues(uint32);
+        value = uint32[0];
+      } while (value >= limit);
+      return value % maxExclusive;
+    };
+
     let password = '';
     // Ensure at least one of each type
-    password += upper[Math.floor(Math.random() * upper.length)];
-    password += lower[Math.floor(Math.random() * lower.length)];
-    password += digits[Math.floor(Math.random() * digits.length)];
-    password += symbols[Math.floor(Math.random() * symbols.length)];
+    password += upper[getSecureRandomInt(upper.length)];
+    password += lower[getSecureRandomInt(lower.length)];
+    password += digits[getSecureRandomInt(digits.length)];
+    password += symbols[getSecureRandomInt(symbols.length)];
 
     // Fill the rest randomly (16 chars total)
     for (let i = password.length; i < 16; i++) {
-      password += allChars[Math.floor(Math.random() * allChars.length)];
+      password += allChars[getSecureRandomInt(allChars.length)];
     }
 
-    // Shuffle password
-    return password.split('').sort(() => Math.random() - 0.5).join('');
+    // Shuffle password using Fisher–Yates algorithm with secure randomness
+    const chars = password.split('');
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = getSecureRandomInt(i + 1);
+      const tmp = chars[i];
+      chars[i] = chars[j];
+      chars[j] = tmp;
+    }
+
+    return chars.join('');
   };
 
   const handleGeneratePassword = () => {
