@@ -158,7 +158,7 @@ class ScamGuardStack(Stack):
             handler="index.handler",
             code=lambda_.Code.from_asset("../lambda"),
             timeout=Duration.seconds(60),
-            memory_size=512,
+            memory_size=256,
             environment={
                 "TABLE_NAME": self.table.table_name,
                 "UPLOADS_BUCKET": uploads_bucket.bucket_name,

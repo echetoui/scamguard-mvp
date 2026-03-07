@@ -12,13 +12,13 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 # Initialize AWS SDK
-secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
+ssm_client = boto3.client('ssm', region_name='us-east-1')
 
 
 class AnonymizationManager:
     """Manages user ID anonymization and hashing for privacy compliance"""
 
-    SALT_SECRET_ID = 'scamguard/anonymization-salt'
+    SALT_PARAMETER_NAME = '/scamguard/anonymization-salt'
     HASH_ALGORITHM = 'sha256'
     TTL_DAYS = 30
 
@@ -28,7 +28,7 @@ class AnonymizationManager:
 
     def _get_salt(self) -> str:
         """
-        Retrieve salt from AWS Secrets Manager
+        Retrieve salt from AWS Systems Manager Parameter Store
         Creates a new salt if one doesn't exist
 
         Returns:
@@ -38,20 +38,20 @@ class AnonymizationManager:
             return self._salt
 
         try:
-            response = secrets_client.get_secret_value(SecretId=self.SALT_SECRET_ID)
-            self._salt = response.get('SecretString', '')
+            response = ssm_client.get_parameter(Name=self.SALT_PARAMETER_NAME, WithDecryption=True)
+            self._salt = response['Parameter']['Value']
             return self._salt
-        except secrets_client.exceptions.ResourceNotFoundException:
+        except ssm_client.exceptions.ParameterNotFound:
             # Create new salt if it doesn't exist
             self._salt = self._generate_new_salt()
             return self._salt
         except Exception as e:
-            print(f"Error retrieving salt from Secrets Manager: {e}")
+            print(f"Error retrieving salt from SSM Parameter Store: {e}")
             raise
 
     def _generate_new_salt(self) -> str:
         """
-        Generate a new cryptographic salt and store in Secrets Manager
+        Generate a new cryptographic salt and store in SSM Parameter Store
 
         Returns:
             str: The newly generated salt
@@ -60,18 +60,19 @@ class AnonymizationManager:
         salt = secrets.token_hex(32)  # 64 character hex string
 
         try:
-            secrets_client.create_secret(
-                Name=self.SALT_SECRET_ID,
-                SecretString=salt,
+            ssm_client.put_parameter(
+                Name=self.SALT_PARAMETER_NAME,
+                Value=salt,
+                Type='SecureString',
                 Description='Anonymization salt for ScamGuard user IDs'
             )
-            print(f"Created new anonymization salt in Secrets Manager")
-        except secrets_client.exceptions.ResourceExistsException:
+            print(f"Created new anonymization salt in SSM Parameter Store")
+        except ssm_client.exceptions.ParameterAlreadyExists:
             # Salt was created concurrently, retrieve it
-            response = secrets_client.get_secret_value(SecretId=self.SALT_SECRET_ID)
-            salt = response.get('SecretString', '')
+            response = ssm_client.get_parameter(Name=self.SALT_PARAMETER_NAME, WithDecryption=True)
+            salt = response['Parameter']['Value']
         except Exception as e:
-            print(f"Error creating salt in Secrets Manager: {e}")
+            print(f"Error creating salt in SSM Parameter Store: {e}")
             raise
 
         return salt

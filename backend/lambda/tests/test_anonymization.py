@@ -25,21 +25,21 @@ class TestAnonymizationManager(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        # Mock the secrets client to avoid AWS calls
-        self.secrets_patcher = patch('utils.anonymization.secrets_client')
-        self.mock_secrets = self.secrets_patcher.start()
+        # Mock the SSM client to avoid AWS calls
+        self.ssm_patcher = patch('utils.anonymization.ssm_client')
+        self.mock_ssm = self.ssm_patcher.start()
 
         # Mock salt retrieval
         self.test_salt = 'test_salt_value_12345'
-        self.mock_secrets.get_secret_value.return_value = {
-            'SecretString': self.test_salt
+        self.mock_ssm.get_parameter.return_value = {
+            'Parameter': {'Value': self.test_salt}
         }
 
         self.manager = AnonymizationManager()
 
     def tearDown(self):
         """Clean up patches"""
-        self.secrets_patcher.stop()
+        self.ssm_patcher.stop()
 
     def test_hash_is_deterministic(self):
         """Hash should be the same for the same input"""
@@ -133,15 +133,15 @@ class TestAnonymizationManager(unittest.TestCase):
     def test_salt_is_retrieved_only_once(self):
         """Salt should be cached and retrieved only once"""
         self.manager._salt = None
-        self.mock_secrets.reset_mock()
+        self.mock_ssm.reset_mock()
 
         # First call should retrieve salt
         self.manager.hash_user_id("user1")
-        self.assertEqual(self.mock_secrets.get_secret_value.call_count, 1)
+        self.assertEqual(self.mock_ssm.get_parameter.call_count, 1)
 
         # Second call should use cached salt
         self.manager.hash_user_id("user2")
-        self.assertEqual(self.mock_secrets.get_secret_value.call_count, 1)
+        self.assertEqual(self.mock_ssm.get_parameter.call_count, 1)
 
 
 class TestAnonymizeItem(unittest.TestCase):
@@ -149,17 +149,17 @@ class TestAnonymizeItem(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        self.secrets_patcher = patch('utils.anonymization.secrets_client')
-        self.mock_secrets = self.secrets_patcher.start()
+        self.ssm_patcher = patch('utils.anonymization.ssm_client')
+        self.mock_ssm = self.ssm_patcher.start()
 
         self.test_salt = 'test_salt_value_12345'
-        self.mock_secrets.get_secret_value.return_value = {
-            'SecretString': self.test_salt
+        self.mock_ssm.get_parameter.return_value = {
+            'Parameter': {'Value': self.test_salt}
         }
 
     def tearDown(self):
         """Clean up patches"""
-        self.secrets_patcher.stop()
+        self.ssm_patcher.stop()
 
     def test_anonymize_item_removes_userid(self):
         """anonymize_item should remove userId field"""
@@ -243,17 +243,17 @@ class TestGetAnonymizationManager(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        self.secrets_patcher = patch('utils.anonymization.secrets_client')
-        self.mock_secrets = self.secrets_patcher.start()
+        self.ssm_patcher = patch('utils.anonymization.ssm_client')
+        self.mock_ssm = self.ssm_patcher.start()
 
         self.test_salt = 'test_salt_value_12345'
-        self.mock_secrets.get_secret_value.return_value = {
-            'SecretString': self.test_salt
+        self.mock_ssm.get_parameter.return_value = {
+            'Parameter': {'Value': self.test_salt}
         }
 
     def tearDown(self):
         """Clean up patches"""
-        self.secrets_patcher.stop()
+        self.ssm_patcher.stop()
 
     def test_factory_returns_manager(self):
         """Factory should return AnonymizationManager instance"""
@@ -275,17 +275,17 @@ class TestPrivacyCompliance(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        self.secrets_patcher = patch('utils.anonymization.secrets_client')
-        self.mock_secrets = self.secrets_patcher.start()
+        self.ssm_patcher = patch('utils.anonymization.ssm_client')
+        self.mock_ssm = self.ssm_patcher.start()
 
         self.test_salt = 'test_salt_value_12345'
-        self.mock_secrets.get_secret_value.return_value = {
-            'SecretString': self.test_salt
+        self.mock_ssm.get_parameter.return_value = {
+            'Parameter': {'Value': self.test_salt}
         }
 
     def tearDown(self):
         """Clean up patches"""
-        self.secrets_patcher.stop()
+        self.ssm_patcher.stop()
 
     def test_no_plaintext_userid_in_output(self):
         """Anonymized items should never contain plaintext userId"""
