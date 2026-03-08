@@ -1,5 +1,7 @@
 """API response builders and utilities."""
 
+import json
+from datetime import datetime
 from enum import IntEnum
 from typing import Dict, Any, Optional
 
@@ -43,48 +45,217 @@ class RateLimitHeaders:
 class ResponseBuilder:
     """Builder for API responses."""
 
-    def __init__(self, status: int = HTTPStatus.OK):
-        """Initialize response builder."""
-        self.status = status
-        self.data: Optional[Any] = None
-        self.error: Optional[str] = None
-        self.headers: Dict[str, str] = {}
-
-    def with_data(self, data: Any) -> "ResponseBuilder":
-        """Add data to response."""
-        self.data = data
-        return self
-
-    def with_error(self, error: str) -> "ResponseBuilder":
-        """Add error to response."""
-        self.error = error
-        return self
-
-    def with_status(self, status: int) -> "ResponseBuilder":
-        """Set response status."""
-        self.status = status
-        return self
-
-    def with_headers(self, headers: Dict[str, str]) -> "ResponseBuilder":
-        """Add custom headers."""
-        self.headers.update(headers)
-        return self
-
-    def with_rate_limit(self, rate_limit: RateLimitHeaders) -> "ResponseBuilder":
-        """Add rate limit headers."""
-        self.headers.update(rate_limit.to_dict())
-        return self
-
-    def build(self) -> Dict[str, Any]:
-        """Build the response."""
-        body = {}
-        if self.data is not None:
-            body["data"] = self.data
-        if self.error is not None:
-            body["error"] = self.error
+    @staticmethod
+    def success(
+        data: Any,
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a success response (200)."""
+        body = {
+            "data": data,
+            "meta": {
+                "request_id": request_id or "unknown",
+                "trace_id": trace_id or "unknown",
+                "processed_at": datetime.utcnow().isoformat() + "Z",
+            },
+        }
 
         return {
-            "statusCode": self.status,
-            "body": body,
-            "headers": self.headers or {},
+            "statusCode": 200,
+            "body": json.dumps(body),
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Request-ID": request_id or "unknown",
+                "X-Trace-ID": trace_id or "unknown",
+            },
         }
+
+    @staticmethod
+    def error(
+        code: str,
+        message: str,
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        status_code: int = 500,
+        details: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build an error response."""
+        body = {
+            "error": {
+                "code": code,
+                "message": message,
+                "trace_id": trace_id or "unknown",
+            }
+        }
+        if details:
+            body["error"]["details"] = details
+
+        return {
+            "statusCode": status_code,
+            "body": json.dumps(body),
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Request-ID": request_id or "unknown",
+                "X-Trace-ID": trace_id or "unknown",
+            },
+        }
+
+    @staticmethod
+    def created(
+        data: Any,
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a created response (201)."""
+        body = {
+            "data": data,
+            "meta": {
+                "request_id": request_id or "unknown",
+                "trace_id": trace_id or "unknown",
+            },
+        }
+
+        return {
+            "statusCode": 201,
+            "body": json.dumps(body),
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Request-ID": request_id or "unknown",
+                "X-Trace-ID": trace_id or "unknown",
+            },
+        }
+
+    @staticmethod
+    def accepted(
+        data: Any,
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build an accepted response (202)."""
+        body = {
+            "data": data,
+            "meta": {
+                "request_id": request_id or "unknown",
+                "trace_id": trace_id or "unknown",
+            },
+        }
+
+        return {
+            "statusCode": 202,
+            "body": json.dumps(body),
+            "headers": {
+                "Content-Type": "application/json",
+                "X-Request-ID": request_id or "unknown",
+                "X-Trace-ID": trace_id or "unknown",
+            },
+        }
+
+    @staticmethod
+    def bad_request(
+        code: str,
+        message: str,
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        details: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a bad request response (400)."""
+        return ResponseBuilder.error(
+            code=code,
+            message=message,
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=400,
+            details=details,
+        )
+
+    @staticmethod
+    def unauthorized(
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build an unauthorized response (401)."""
+        return ResponseBuilder.error(
+            code="UNAUTHORIZED",
+            message="Unauthorized",
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=401,
+        )
+
+    @staticmethod
+    def forbidden(
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a forbidden response (403)."""
+        return ResponseBuilder.error(
+            code="FORBIDDEN",
+            message="Forbidden",
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=403,
+        )
+
+    @staticmethod
+    def not_found(
+        resource: str = "Resource",
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a not found response (404)."""
+        return ResponseBuilder.error(
+            code="NOT_FOUND",
+            message=f"{resource} not found",
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=404,
+        )
+
+    @staticmethod
+    def conflict(
+        code: str = "CONFLICT",
+        message: str = "Conflict",
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a conflict response (409)."""
+        return ResponseBuilder.error(
+            code=code,
+            message=message,
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=409,
+        )
+
+    @staticmethod
+    def rate_limit(
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a rate limit response (429)."""
+        return ResponseBuilder.error(
+            code="RATE_LIMIT_EXCEEDED",
+            message="Too many requests",
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=429,
+        )
+
+    @staticmethod
+    def server_error(
+        code: str = "INTERNAL_SERVER_ERROR",
+        message: str = "Internal server error",
+        request_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        details: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a server error response (500)."""
+        return ResponseBuilder.error(
+            code=code,
+            message=message,
+            request_id=request_id,
+            trace_id=trace_id,
+            status_code=500,
+            details=details,
+        )
