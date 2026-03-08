@@ -65,3 +65,27 @@ class InternalServerError(ScamGuardError):
     def __init__(self, message: str = "Internal server error"):
         """Initialize internal server error."""
         super().__init__(message, 500)
+
+
+class VisionAPITimeout(ScamGuardError):
+    """Vision API timeout error."""
+
+    def __init__(self, message: str = "Vision API timeout"):
+        """Initialize timeout error."""
+        super().__init__(message, 504)
+
+
+class RateLimitExceeded(ScamGuardError):
+    """Rate limit exceeded error."""
+
+    def __init__(self, message: str = "Rate limit exceeded"):
+        """Initialize rate limit error."""
+        super().__init__(message, 429)
+
+
+class GeminiAPIError(ScamGuardError):
+    """Gemini API error."""
+
+    def __init__(self, message: str = "Gemini API error"):
+        """Initialize Gemini API error."""
+        super().__init__(message, 500)
