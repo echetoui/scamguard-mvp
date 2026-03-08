@@ -48,7 +48,7 @@ class AgentsStack(Stack):
             self, "OrchestratorFunction",
             runtime=lambda_.Runtime.PYTHON_3_12,
             handler="orchestrator.orchestrator_handler",
-            code=lambda_.Code.from_asset("../lambda/orchestrator"),
+            code=lambda_.Code.from_asset("../lambda_/orchestrator"),
             timeout=Duration.seconds(30),
             memory_size=256,
             environment={
