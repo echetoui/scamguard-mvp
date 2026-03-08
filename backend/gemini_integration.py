@@ -96,7 +96,8 @@ class GeminiIntegration:
                 return result
             else:
                 self.error_count += 1
-                logger.error(f"Gemini API error: {response['error']}")
+                # Log a generic error message to avoid exposing potentially sensitive upstream details
+                logger.error("Gemini API error during analysis")
                 return self._error_response(response['error'])
 
         except Exception as e:
@@ -201,29 +202,37 @@ class GeminiIntegration:
                                 'data': result
                             }
                         except json.JSONDecodeError as e:
-                            logger.error(f"Failed to parse Gemini response: {content}")
+                            # Avoid logging full model output, which may contain user input or sensitive data
+                            logger.error(f"Failed to parse Gemini response JSON: {str(e)}")
                             return {
                                 'success': False,
-                                'error': f"Invalid JSON response: {str(e)}"
+                                'error': f"Invalid JSON response from Gemini"
                             }
 
-                logger.error(f"Unexpected Gemini response structure: {data}")
+                logger.error("Unexpected Gemini response structure")
                 return {
                     'success': False,
-                    'error': "Unexpected response structure"
+                    'error': "Unexpected response structure from Gemini"
                 }
             else:
-                error_msg = response.text
+                # Do not log full error body as it may contain sensitive information
                 try:
                     error_data = response.json()
-                    error_msg = error_data.get('error', {}).get('message', error_msg)
-                except:
-                    pass
+                    # Optionally extract a non-sensitive error code if available, but do not expose full message
+                    error_code = error_data.get('error', {}).get('code')
+                except Exception:
+                    error_code = None
 
-                logger.error(f"Gemini API error {response.status_code}: {error_msg}")
+                if error_code is not None:
+                    logger.error(f"Gemini API returned HTTP {response.status_code} with error code {error_code}")
+                    error_summary = f"API error {response.status_code} (code {error_code}) from Gemini"
+                else:
+                    logger.error(f"Gemini API returned HTTP {response.status_code}")
+                    error_summary = f"API error {response.status_code} from Gemini"
+
                 return {
                     'success': False,
-                    'error': f"API error {response.status_code}: {error_msg}"
+                    'error': error_summary
                 }
 
         except requests.Timeout:
