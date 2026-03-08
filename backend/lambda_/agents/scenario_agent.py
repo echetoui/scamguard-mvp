@@ -3,6 +3,11 @@
 import json
 from typing import Dict, Any, Optional
 
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None  # type: ignore
+
 
 class ScenarioAgent:
     """Agent for generating training scenarios."""
