@@ -41,6 +41,21 @@ class RateLimitHeaders:
             "X-RateLimit-Reset": str(self.reset_at),
         }
 
+    @staticmethod
+    def add_to_headers(
+        headers: Dict[str, str],
+        limit: int = 100,
+        remaining: int = 99,
+        reset_timestamp: int = 0,
+    ) -> Dict[str, str]:
+        """Add rate limit headers to existing headers dict."""
+        headers.update({
+            "X-RateLimit-Limit": str(limit),
+            "X-RateLimit-Remaining": str(remaining),
+            "X-RateLimit-Reset": str(reset_timestamp),
+        })
+        return headers
+
 
 class ResponseBuilder:
     """Builder for API responses."""
@@ -232,15 +247,32 @@ class ResponseBuilder:
     def rate_limit(
         request_id: Optional[str] = None,
         trace_id: Optional[str] = None,
+        retry_after: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Build a rate limit response (429)."""
-        return ResponseBuilder.error(
-            code="RATE_LIMIT_EXCEEDED",
-            message="Too many requests",
-            request_id=request_id,
-            trace_id=trace_id,
-            status_code=429,
-        )
+        body = {
+            "error": {
+                "code": "RATE_LIMIT_EXCEEDED",
+                "message": "Too many requests",
+                "trace_id": trace_id or "unknown",
+            }
+        }
+        if retry_after is not None:
+            body["error"]["retry_after"] = retry_after
+
+        headers = {
+            "Content-Type": "application/json",
+            "X-Request-ID": request_id or "unknown",
+            "X-Trace-ID": trace_id or "unknown",
+        }
+        if retry_after is not None:
+            headers["Retry-After"] = str(retry_after)
+
+        return {
+            "statusCode": 429,
+            "body": json.dumps(body),
+            "headers": headers,
+        }
 
     @staticmethod
     def server_error(
