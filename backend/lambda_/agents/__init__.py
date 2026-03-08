@@ -1,6 +1,7 @@
 """ScamGuard Agents Module"""
 
-# Detection agent for scam analysis
-# Scenario agent for training content generation
-# Coaching agent for personalized feedback
-# Analytics agent for user insights
+from .scenario_agent import ScenarioAgent
+from .detection_agent import DetectionAgent
+from .coaching_agent import CoachingAgent
+
+__all__ = ["ScenarioAgent", "DetectionAgent", "CoachingAgent"]
