@@ -2,8 +2,15 @@
 
 import json
 import logging
+import os
 from datetime import datetime
 from typing import Dict, Any, Optional
+
+try:
+    import boto3
+    dynamodb = boto3.resource("dynamodb")
+except ImportError:
+    dynamodb = None  # type: ignore
 
 
 class AuditLogger:

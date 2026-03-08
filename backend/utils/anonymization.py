@@ -36,3 +36,25 @@ class AnonymizationUtil:
 
         data_str = str(data).lower()
         return not any(indicator.lower() in data_str for indicator in pii_indicators)
+
+
+def anonymize_item(item: Dict[str, Any]) -> Dict[str, Any]:
+    """Anonymize an item by removing/hashing PII fields."""
+    result = item.copy()
+
+    # Remove userId and add hashed version
+    if "userId" in result:
+        user_id = result.pop("userId")
+        # Simple hash for stub
+        result["hashedUserId"] = "anonymized_" + user_id[:8]
+
+    # Add TTL/expiration
+    from datetime import datetime, timedelta
+    expiration = datetime.utcnow() + timedelta(days=30)
+    result["expirationTime"] = int(expiration.timestamp())
+
+    # Add timestamp if missing
+    if "timestamp" not in result:
+        result["timestamp"] = datetime.utcnow().isoformat() + "Z"
+
+    return result
