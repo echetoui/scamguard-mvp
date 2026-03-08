@@ -61,9 +61,9 @@ jobs:
       - name: Validate SARIF file
         run: |
           if [ ! -f snyk-code.sarif ]; then
-            echo "{\"version\": \"2.1.0\", \"runs\": []}" > snyk-code.sarif
+            echo "{\"version\": \"2.1.0\", \"\$schema\": \"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Snyk\", \"version\": \"1.0.0\"}}, \"results\": []}]}" > snyk-code.sarif
           else
-            python3 -m json.tool snyk-code.sarif > /dev/null || echo "{\"version\": \"2.1.0\", \"runs\": []}" > snyk-code.sarif
+            python3 -m json.tool snyk-code.sarif > /dev/null || echo "{\"version\": \"2.1.0\", \"\$schema\": \"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Snyk\", \"version\": \"1.0.0\"}}, \"results\": []}]}" > snyk-code.sarif
           fi
         continue-on-error: true
 
