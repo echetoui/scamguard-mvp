@@ -11,8 +11,14 @@ on:
     paths:
       - 'backend/**'
 
+permissions:
+  contents: read
+
 jobs:
   test:
+    permissions:
+      contents: read
+      pull-requests: write
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,16 +39,16 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 backend/lambda backend/tests --count --statistics --max-line-length=100
+          flake8 backend/lambda_ backend/tests --count --statistics --max-line-length=100
 
       - name: Format check with black
         run: |
-          black --check backend/lambda backend/tests
+          black --check backend/lambda_ backend/tests
 
       - name: Type checking with mypy
         continue-on-error: true
         run: |
-          mypy backend/lambda --ignore-missing-imports
+          mypy backend/lambda_ --ignore-missing-imports
 
       - name: Run pytest
         run: |
