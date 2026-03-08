@@ -22,7 +22,7 @@ class ScamGuardStack(Stack):
             self, "Handler",
             runtime=lambda_.Runtime.PYTHON_3_12,
             handler="index.handler",
-            code=lambda_.Code.from_asset("../lambda"),
+            code=lambda_.Code.from_asset("../lambda_"),
             timeout=Duration.seconds(60),
             memory_size=256,
             environment={

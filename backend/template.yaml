@@ -291,7 +291,7 @@ Resources:
     DependsOn: ScamGuardFunctionLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-handler-${Environment}'
-      CodeUri: lambda/
+      CodeUri: lambda_/
       Handler: handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
@@ -361,7 +361,7 @@ Resources:
     DependsOn: AuthHandlerLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-auth-${Environment}'
-      CodeUri: lambda/
+      CodeUri: lambda_/
       Handler: auth_handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
@@ -471,7 +471,7 @@ Resources:
     DependsOn: SMSOTPHandlerLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-sms-otp-${Environment}'
-      CodeUri: lambda/
+      CodeUri: lambda_/
       Handler: sms_otp_handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
