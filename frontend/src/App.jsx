@@ -16,6 +16,7 @@ import useAuth from './hooks/useAuth';
 import ModernAuthPage from './components/ModernAuthPage';
 import ResourcesTab from './components/Resources/ResourcesTab';
 import FamilyDashboard from './components/FamilyDashboard';
+import ToolsTab from './components/ToolsTab';
 import useFamilyDashboard from './hooks/useFamilyDashboard';
 import { analysisAPI } from './services/api';
 
@@ -416,14 +417,19 @@ export default function App() {
           <ResourcesTab />
         </TabPanel>
 
-        {/* Tab 5: Famille - Family Protection Dashboard (Phase 5A) */}
+        {/* Tab 5: Outils - Verification Tools (Phase 5C) */}
+        <TabPanel tabId="outils" activeTab={activeTab}>
+          <ToolsTab />
+        </TabPanel>
+
+        {/* Tab 6: Famille - Family Protection Dashboard (Phase 5A) */}
         {hasFamily && (
           <TabPanel tabId="famille" activeTab={activeTab}>
             <FamilyDashboard />
           </TabPanel>
         )}
 
-        {/* Tab 6: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
+        {/* Tab 7: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
         <TabPanel tabId="parametres" activeTab={activeTab}>
           {/* Phase 4.2: Account Profile Section */}
           <AccountProfile
