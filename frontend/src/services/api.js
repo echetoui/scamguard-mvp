@@ -279,9 +279,31 @@ export const analysisAPI = {
   },
 };
 
+/**
+ * Tools endpoints - Phase 5C
+ */
+export const toolsAPI = {
+  checkEmailBreach: async (email) => {
+    const response = await apiCall('/tools/check-email', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    return response.data;
+  },
+
+  checkFinancialAdvisor: async (advisorName, firmName = '') => {
+    const response = await apiCall('/tools/check-advisor', {
+      method: 'POST',
+      body: JSON.stringify({ advisorName, firmName }),
+    });
+    return response.data;
+  },
+};
+
 const api = {
   authAPI,
   analysisAPI,
+  toolsAPI,
   apiCall,
 };
 
