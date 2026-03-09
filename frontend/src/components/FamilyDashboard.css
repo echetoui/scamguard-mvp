@@ -160,6 +160,10 @@
 
 .btn-copy {
   padding: 12px 16px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: white;
   color: var(--warm-primary);
   border: 2px solid var(--warm-primary);
@@ -220,6 +224,13 @@
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(200, 90, 42, 0.15);
   border-color: var(--warm-primary);
+}
+
+.member-card:focus-visible {
+  outline: 3px solid var(--warm-primary);
+  outline-offset: 2px;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(200, 90, 42, 0.15);
 }
 
 .member-header {
