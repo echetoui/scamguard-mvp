@@ -1,0 +1,139 @@
+/* SSOLogin.css - Styles pour les boutons SSO */
+
+.sso-container {
+  margin: 1.5rem 0;
+}
+
+.sso-divider {
+  position: relative;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.sso-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4A574, transparent);
+}
+
+.sso-divider span {
+  background: #FFF9F3;
+  padding: 0 1rem;
+  color: #7A9B7F;
+  font-size: 0.9rem;
+  font-family: 'Lora', serif;
+}
+
+.sso-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sso-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border: 2px solid #E5E5E5;
+  border-radius: 12px;
+  background: white;
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 52px;
+}
+
+.sso-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sso-button:active {
+  transform: translateY(0);
+}
+
+.sso-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.google-button {
+  border-color: #E8F0FE;
+  color: #3C4043;
+}
+
+.google-button:hover {
+  background: #F8FBFF;
+  border-color: #4285F4;
+}
+
+.facebook-button {
+  border-color: #E7F3FF;
+  color: #1877F2;
+}
+
+.facebook-button:hover {
+  background: #F0F8FF;
+  border-color: #1877F2;
+}
+
+.sso-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sso-divider span {
+    background: #2A2A2A;
+    color: #A8C5AA;
+  }
+  
+  .sso-button {
+    background: #3A3A3A;
+    border-color: #555;
+    color: white;
+  }
+  
+  .google-button:hover {
+    background: #4A4A4A;
+  }
+  
+  .facebook-button:hover {
+    background: #4A4A4A;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .sso-button {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .sso-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .sso-button {
+    transition: none;
+  }
+  
+  .sso-button:hover {
+    transform: none;
+  }
+}
