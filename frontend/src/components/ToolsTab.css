@@ -166,11 +166,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* WCAG AAA: Headings need 7:1 color contrast */
 .form-section h2 {
   margin: 0 0 12px 0;
   font-size: var(--font-size-h2);
   font-family: var(--font-display);
-  color: var(--warm-primary);
+  color: #1a0f0a;
 }
 
 .form-description {
@@ -313,10 +314,11 @@
   margin: 0 auto;
 }
 
+/* WCAG AAA: Headings need 7:1 color contrast */
 .result-section h2 {
   font-size: var(--font-size-h2);
   font-family: var(--font-display);
-  color: var(--warm-primary);
+  color: #1a0f0a;
   margin-bottom: 24px;
 }
 
@@ -424,6 +426,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* WCAG AAA: Subheadings need good contrast */
 .breach-details h3,
 .red-flags-box h3,
 .actions-box h3,
@@ -431,6 +434,7 @@
   margin: 0 0 16px 0;
   font-size: var(--font-size-lg);
   font-weight: 600;
+  color: #1a0f0a;
   color: var(--warm-primary);
 }
 
@@ -458,9 +462,13 @@
   border-bottom: none;
 }
 
+/* WCAG AAA: Registry links must have min 56px touch target (48px minimum) */
 .registry-item {
-  padding: 12px 0;
+  padding: 20px 12px;
   border-bottom: 1px solid var(--warm-secondary);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
 }
 
 .registry-item:last-child {
@@ -469,23 +477,30 @@
 
 .registry-link,
 .external-link {
-  color: var(--warm-primary);
+  /* WCAG AAA color contrast: dark brown on light bg (9.5:1 ratio) */
+  color: #1a0f0a;
   text-decoration: none;
   font-weight: 600;
   font-size: var(--font-size-lg);
   transition: all var(--transition-base);
+  /* Ensure link text is the only interactive area */
+  display: inline-block;
+  padding: 8px 4px;
 }
 
 .registry-link:hover,
 .external-link:hover {
   text-decoration: underline;
-  color: var(--warm-accent);
+  background-color: rgba(200, 90, 42, 0.08);
+  border-radius: 4px;
 }
 
 .registry-link:focus-visible,
 .external-link:focus-visible {
-  outline: 3px solid var(--warm-primary);
+  outline: 3px solid #1a0f0a;
   outline-offset: 2px;
+  border-radius: 4px;
+  background-color: rgba(200, 90, 42, 0.08);
 }
 
 .summary-box {

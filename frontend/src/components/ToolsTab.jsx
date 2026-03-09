@@ -16,6 +16,42 @@ import './ToolsTab.css';
 export default function ToolsTab() {
   const [activeSubTab, setActiveSubTab] = useState('email');
 
+  // Handle keyboard navigation for tabs (arrow keys)
+  const handleTabKeyDown = (e) => {
+    const tabs = ['email', 'advisor'];
+    const currentIndex = tabs.indexOf(activeSubTab);
+
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      let newIndex;
+      if (e.key === 'ArrowLeft') {
+        newIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+      } else {
+        newIndex = currentIndex === tabs.length - 1 ? 0 : currentIndex + 1;
+      }
+      setActiveSubTab(tabs[newIndex]);
+      // Focus the newly activated tab button
+      setTimeout(() => {
+        const buttons = document.querySelectorAll('[role="tab"]');
+        if (buttons[newIndex]) buttons[newIndex].focus();
+      }, 0);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      setActiveSubTab(tabs[0]);
+      setTimeout(() => {
+        const buttons = document.querySelectorAll('[role="tab"]');
+        if (buttons[0]) buttons[0].focus();
+      }, 0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      setActiveSubTab(tabs[tabs.length - 1]);
+      setTimeout(() => {
+        const buttons = document.querySelectorAll('[role="tab"]');
+        if (buttons[buttons.length - 1]) buttons[buttons.length - 1].focus();
+      }, 0);
+    }
+  };
+
   // Email breach state
   const [emailInput, setEmailInput] = useState('');
   const [emailResult, setEmailResult] = useState(null);
@@ -126,22 +162,28 @@ export default function ToolsTab() {
       </div>
 
       {/* Sub-tab navigation */}
-      <div className="sub-tabs-nav">
+      <div className="sub-tabs-nav" role="tablist">
         <button
+          id="email-tab"
           className={`sub-tab-btn ${activeSubTab === 'email' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('email')}
+          onKeyDown={handleTabKeyDown}
           role="tab"
           aria-selected={activeSubTab === 'email'}
           aria-controls="email-panel"
+          tabIndex={activeSubTab === 'email' ? 0 : -1}
         >
           📧 Courriel compromis
         </button>
         <button
+          id="advisor-tab"
           className={`sub-tab-btn ${activeSubTab === 'advisor' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('advisor')}
+          onKeyDown={handleTabKeyDown}
           role="tab"
           aria-selected={activeSubTab === 'advisor'}
           aria-controls="advisor-panel"
+          tabIndex={activeSubTab === 'advisor' ? 0 : -1}
         >
           💼 Conseiller autorisé
         </button>
@@ -154,6 +196,7 @@ export default function ToolsTab() {
         aria-labelledby="email-tab"
         hidden={activeSubTab !== 'email'}
         className="sub-tab-panel"
+        tabIndex={0}
       >
         {emailStep === 'input' ? (
           <form onSubmit={handleCheckEmail} className="tool-form">
@@ -272,6 +315,7 @@ export default function ToolsTab() {
         aria-labelledby="advisor-tab"
         hidden={activeSubTab !== 'advisor'}
         className="sub-tab-panel"
+        tabIndex={0}
       >
         {advisorStep === 'input' ? (
           <form onSubmit={handleCheckAdvisor} className="tool-form">
