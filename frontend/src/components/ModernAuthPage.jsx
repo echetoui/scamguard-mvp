@@ -3,13 +3,18 @@
  * Modern UX/UI standards with hero section and authentication
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './ModernAuthPage.css';
 import SMSAuthScreen from './SMSAuthScreen';
 // import SSOLogin from './SSOLogin'; // TODO: Implement SSO features
 
 export default function ModernAuthPage() {
   const [showAuth, setShowAuth] = useState(false);
+  const featuresRef = useRef(null);
+
+  const handleLearnMore = () => {
+    featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   if (showAuth) {
     return <SMSAuthScreen />;
@@ -61,6 +66,7 @@ export default function ModernAuthPage() {
               </button>
               <button
                 className="cta-secondary"
+                onClick={handleLearnMore}
                 aria-label="En savoir plus sur ScamGuard et ses fonctionnalités de protection"
               >
                 <span aria-hidden="true">ℹ️</span> En savoir plus
@@ -109,7 +115,7 @@ export default function ModernAuthPage() {
       </section>
 
       {/* Features Section */}
-      <section className="features-section">
+      <section className="features-section" ref={featuresRef}>
         <div className="features-container">
           <h2 className="section-title">Pourquoi choisir ScamGuard?</h2>
 
