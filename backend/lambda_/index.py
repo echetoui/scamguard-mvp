@@ -1,6 +1,6 @@
 """Lambda entry point for ScamGuard API - Routes to appropriate handlers"""
 
-def lambda_handler(event, context):
+def handler(event, context):
     """Route to appropriate handler based on path."""
     path = event.get("path", "")
 
@@ -14,4 +14,4 @@ def lambda_handler(event, context):
     return llm_handler(event, context)
 
 
-__all__ = ['lambda_handler']
+__all__ = ['handler']
