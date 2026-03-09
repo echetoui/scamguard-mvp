@@ -136,6 +136,7 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange, hasFamily = fal
     >
       {tabs.map((tab) => (
         <button
+          id={`tab-${tab.id}`}
           key={tab.id}
           className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
           onClick={() => onTabChange(tab.id)}
@@ -181,7 +182,7 @@ export const TabPanel = ({ tabId, activeTab, children }) => {
     <div
       id={`${tabId}-panel`}
       role="tabpanel"
-      aria-labelledby={tabId}
+      aria-labelledby={`tab-${tabId}`}
       hidden={activeTab !== tabId}
       className={`tab-panel ${activeTab === tabId ? 'active' : ''}`}
     >
