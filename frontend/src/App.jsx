@@ -2,6 +2,7 @@ import { useState, useCallback, lazy, Suspense } from 'react';
 import './App.css';
 import './styles/design-tokens.css';
 import './styles/animations.css';
+import ErrorBoundary from './components/ErrorBoundary';
 import SecurityHeartDashboard from './components/SecurityHeartDashboard';
 import BottomNavigation, { TabPanel } from './components/BottomNavigation';
 import useAnalysisHistory from './hooks/useAnalysisHistory';
@@ -190,7 +191,8 @@ export default function App() {
   }
 
   return (
-    <div className="app-wrapper" style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
+    <ErrorBoundary>
+      <div className="app-wrapper" style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
       <header className="app-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '20px'}}>
         <h1>🛡️ ScamGuard MVP - Phase 4</h1>
         <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
@@ -366,6 +368,7 @@ export default function App() {
         onTabChange={setActiveTab}
         hasFamily={hasFamily}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
