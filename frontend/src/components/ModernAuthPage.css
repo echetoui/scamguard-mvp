@@ -67,14 +67,18 @@ body {
   font-size: 28px;
 }
 
+/* WCAG AAA: Touch targets must be 48px minimum */
 .navbar-btn {
-  padding: 10px 24px;
+  padding: 14px 24px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 14px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
 }
 
 .navbar-btn-secondary {
@@ -305,7 +309,18 @@ body {
   border: 2px solid transparent;
 }
 
+/* Feature card hover and focus states */
 .feature-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Keyboard focus indicator for accessibility */
+.feature-card:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
   border-color: var(--primary);
   transform: translateY(-4px);
   background: var(--bg-white);
