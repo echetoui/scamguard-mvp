@@ -31,12 +31,10 @@ export default function App() {
   // State management
   const [activeTab, setActiveTab] = useState('securite'); // Default: Security tab
   const [view, setView] = useState('home');
-  const [scenario, setScenario] = useState(null);
   const [response, setResponse] = useState('');
   const [image, setImage] = useState(null);
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isListening, setIsListening] = useState(false);
 
   // Phase 4.0: Analysis history and statistics
   const { analyses, addAnalysis, getStatistics } = useAnalysisHistory();
@@ -98,45 +96,6 @@ export default function App() {
     }
   };
 
-  // Reconnaissance vocale (L'utilisateur parle au lieu de taper)
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window)) {
-      alert("La dictée vocale n'est pas supportée sur ce navigateur.");
-      return;
-    }
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = 'fr-FR';
-    recognition.interimResults = false;
-    
-    recognition.onstart = () => setIsListening(true);
-    
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setResponse(prev => prev + " " + transcript);
-      setIsListening(false);
-    };
-
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-    
-    recognition.start();
-  };
-
-  const getScenario = async () => {
-    setIsLoading(true);
-    setResponse('');
-    try {
-      const data = await analysisAPI.generateScenario(auth.user?.sub);
-      setScenario(data);
-      setView('scenario');
-      // Lecture automatique du scénario pour l'accessibilité
-      setTimeout(() => speak(`Nouveau message reçu. ${data.content}. Que faites-vous ?`), 500);
-    } catch (e) {
-      alert("Une petite erreur de connexion. Réessayez.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -254,74 +213,6 @@ export default function App() {
         <TabPanel tabId="verifier" activeTab={activeTab}>
           <div className="container">
         {view === 'home' && (
-          <div className="menu-grid">
-            <p className="welcome-text">Bonjour ! Que voulez-vous faire aujourd'hui ?</p>
-
-            <div className="option-card">
-              <button onClick={() => setView('detection')} className="btn-primary large-touch">
-                <span className="icon">✏️</span>
-                <span className="text">Saisissez votre texte</span>
-              </button>
-              <p className="option-description">
-                Collez le texte d'un courriel ou d'un SMS, et nous vous aiderons à déterminer s'il s'agit d'une arnaque.
-              </p>
-            </div>
-
-            <div className="option-card">
-              <button onClick={getScenario} className="btn-secondary large-touch">
-                <span className="icon">🎓</span>
-                <span className="text">M'entraîner avec un scénario</span>
-              </button>
-              <p className="option-description">
-                Apprenez à identifier les arnaques en répondant à des scénarios réalistes et reçevez des conseils personnalisés.
-              </p>
-            </div>
-          </div>
-        )}
-        
-        {view === 'scenario' && scenario && (
-          <div className="scenario-card">
-            <div className="scenario-header">
-              <h2>{scenario.title}</h2>
-              <button onClick={() => speak(scenario.content)} className="btn-icon" aria-label="Relire le message">
-                🔊
-              </button>
-            </div>
-            
-            <div className="message-box">
-              {scenario.content}
-            </div>
-            
-            <label htmlFor="response" className="instruction-label">
-              ❓ Que faites-vous face à ce message ?
-            </label>
-            
-            <div className="input-area">
-              <textarea 
-                id="response"
-                value={response}
-                onChange={e => setResponse(e.target.value)}
-                placeholder="Ex: Je supprime le message..."
-              />
-              <button 
-                onClick={startListening} 
-                className={`btn-mic ${isListening ? 'listening' : ''}`}
-                aria-label="Dicter ma réponse"
-              >
-                {isListening ? '🛑 Écoute...' : '🎙️ Dicter'}
-              </button>
-            </div>
-
-            <button onClick={submitAnalysis} className="btn-action large-touch" disabled={!response}>
-              ✅ Valider ma réponse
-            </button>
-            <button onClick={() => setView('home')} className="btn-text">
-              Annuler
-            </button>
-          </div>
-        )}
-        
-        {view === 'detection' && (
           <div className="detection-card">
             <h2>✏️ Analysez votre message</h2>
             <p className="instruction-text">
@@ -363,9 +254,9 @@ export default function App() {
             >
               🔍 Analyser le message
             </button>
-            <button onClick={() => setView('home')} className="btn-text">Retour</button>
           </div>
         )}
+        
         
         {view === 'result' && result && (
           <div className="result-card">
