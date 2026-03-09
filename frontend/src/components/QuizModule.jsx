@@ -123,7 +123,7 @@ export default function QuizModule({ onComplete }) {
     const passed = score >= 70;
 
     return (
-      <div className="quiz-results">
+      <div className="quiz-results" role="alert" aria-live="assertive">
         <div className="results-header">
           <h2 className="results-title">🎉 Quiz Terminé!</h2>
         </div>
@@ -174,7 +174,14 @@ export default function QuizModule({ onComplete }) {
           <span className="progress-text">
             Question {currentQuizIndex + 1}/{QUIZ_QUESTIONS.length}
           </span>
-          <div className="progress-bar">
+          <div
+            className="progress-bar"
+            role="progressbar"
+            aria-valuenow={((currentQuizIndex + 1) / QUIZ_QUESTIONS.length) * 100}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Progression du quiz"
+          >
             <div
               className="progress-fill"
               style={{
@@ -211,7 +218,7 @@ export default function QuizModule({ onComplete }) {
           </div>
 
           {selectedAnswer !== null && (
-            <div className="feedback-box">
+            <div className="feedback-box" role="alert" aria-live="polite">
               <p className="feedback-text">
                 {currentQuestion.options[selectedAnswer].feedback}
               </p>
