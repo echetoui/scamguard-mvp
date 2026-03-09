@@ -31,8 +31,8 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
       {/* Main Metrics Grid */}
       <div className="stats-grid">
         {/* Total Analyses */}
-        <div className="stat-card stat-analyses">
-          <div className="stat-icon">🔍</div>
+        <div className="stat-card stat-analyses" aria-label={`${total} messages analysés`}>
+          <div className="stat-icon" aria-hidden="true">🔍</div>
           <div className="stat-content">
             <div className="stat-value">{total}</div>
             <div className="stat-label">Messages Analysés</div>
@@ -40,8 +40,8 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
         </div>
 
         {/* Scams Avoided */}
-        <div className="stat-card stat-avoided">
-          <div className="stat-icon">✅</div>
+        <div className="stat-card stat-avoided" aria-label={`${scamsAvoided} arnaques évitées`}>
+          <div className="stat-icon" aria-hidden="true">✅</div>
           <div className="stat-content">
             <div className="stat-value">{scamsAvoided}</div>
             <div className="stat-label">Arnaques Évitées</div>
@@ -49,8 +49,8 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
         </div>
 
         {/* Threats Detected */}
-        <div className="stat-card stat-threats">
-          <div className="stat-icon">🚨</div>
+        <div className="stat-card stat-threats" aria-label={`${threatsDetected} menaces détectées`}>
+          <div className="stat-icon" aria-hidden="true">🚨</div>
           <div className="stat-content">
             <div className="stat-value">{threatsDetected}</div>
             <div className="stat-label">Menaces Détectées</div>
@@ -58,8 +58,8 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
         </div>
 
         {/* Success Rate */}
-        <div className="stat-card stat-rate">
-          <div className="stat-icon">📈</div>
+        <div className="stat-card stat-rate" aria-label={`Taux de réussite: ${successRate} pour cent`}>
+          <div className="stat-icon" aria-hidden="true">📈</div>
           <div className="stat-content">
             <div className="stat-value">{successRate}%</div>
             <div className="stat-label">Taux de Réussite</div>
@@ -67,8 +67,8 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
         </div>
 
         {/* Average Score */}
-        <div className="stat-card stat-score">
-          <div className="stat-icon">⭐</div>
+        <div className="stat-card stat-score" aria-label={`Score moyen: ${avgScore}`}>
+          <div className="stat-icon" aria-hidden="true">⭐</div>
           <div className="stat-content">
             <div className="stat-value">{avgScore}</div>
             <div className="stat-label">Score Moyen</div>
@@ -76,8 +76,8 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
         </div>
 
         {/* Total XP */}
-        <div className="stat-card stat-xp">
-          <div className="stat-icon">🎖️</div>
+        <div className="stat-card stat-xp" aria-label={`${totalXpEarned} points gagnés`}>
+          <div className="stat-icon" aria-hidden="true">🎖️</div>
           <div className="stat-content">
             <div className="stat-value">{totalXpEarned}</div>
             <div className="stat-label">Points Gagnés</div>
@@ -88,9 +88,9 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
       {/* Risk Distribution Chart */}
       {total > 0 && (
         <div className="risk-distribution">
-          <h3 className="chart-title">Distribution des Risques</h3>
+          <h3 id="chart-title-distribution" className="chart-title">Distribution des Risques</h3>
 
-          <div className="risk-bars">
+          <div className="risk-bars" aria-labelledby="chart-title-distribution">
             {/* Safe */}
             <div className="risk-bar-item">
               <div className="risk-bar-label">
@@ -100,10 +100,15 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
               <div className="risk-bar-container">
                 <div
                   className="risk-bar-fill safe"
+                  role="progressbar"
+                  aria-label="Messages sûrs"
+                  aria-valuenow={Math.round((safe / total) * 100)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
                   style={{ width: `${(safe / total) * 100}%` }}
                 />
               </div>
-              <div className="risk-bar-percentage">
+              <div className="risk-bar-percentage" aria-hidden="true">
                 {Math.round((safe / total) * 100)}%
               </div>
             </div>
@@ -117,10 +122,15 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
               <div className="risk-bar-container">
                 <div
                   className="risk-bar-fill moderate"
+                  role="progressbar"
+                  aria-label="Messages modérés"
+                  aria-valuenow={Math.round((moderate / total) * 100)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
                   style={{ width: `${(moderate / total) * 100}%` }}
                 />
               </div>
-              <div className="risk-bar-percentage">
+              <div className="risk-bar-percentage" aria-hidden="true">
                 {Math.round((moderate / total) * 100)}%
               </div>
             </div>
@@ -134,10 +144,15 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
               <div className="risk-bar-container">
                 <div
                   className="risk-bar-fill danger"
+                  role="progressbar"
+                  aria-label="Messages dangereux"
+                  aria-valuenow={Math.round((danger / total) * 100)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
                   style={{ width: `${(danger / total) * 100}%` }}
                 />
               </div>
-              <div className="risk-bar-percentage">
+              <div className="risk-bar-percentage" aria-hidden="true">
                 {Math.round((danger / total) * 100)}%
               </div>
             </div>
