@@ -139,8 +139,8 @@ export default function FamilyDashboard() {
 
   if (loading) {
     return (
-      <div className="family-dashboard loading">
-        <div className="spinner">⏳</div>
+      <div className="family-dashboard loading" aria-live="polite" aria-busy="true">
+        <div className="spinner" aria-hidden="true">⏳</div>
         <p>Chargement de votre famille...</p>
       </div>
     );
@@ -208,7 +208,11 @@ export default function FamilyDashboard() {
           ) : (
             <div className="members-grid">
               {familyData.members.map((member, index) => (
-                <div key={index} className="member-card">
+                <div
+                  key={index}
+                  className="member-card"
+                  aria-label={`${member.email?.split('@')[0]}, ${getRoleLabel(member.role)}, actif il y a ${formatTimeAgo(member.lastActive)}`}
+                >
                   <div className="member-header">
                     <div className="member-icon">
                       {getRoleIcon(member.role)}
@@ -240,12 +244,12 @@ export default function FamilyDashboard() {
           <div className="threats-section">
             <h3>🚨 Menaces récentes dans la famille</h3>
 
-            <div className="threats-list">
+            <div className="threats-list" role="list">
               {familyData.threats.map((threat, index) => {
                 const threatLevel = formatThreatLevel(threat.severity);
                 return (
-                  <div key={index} className="threat-item">
-                    <div className="threat-level-indicator">
+                  <div key={index} className="threat-item" role="listitem">
+                    <div className="threat-level-indicator" aria-hidden="true">
                       {threatLevel.icon}
                     </div>
 
