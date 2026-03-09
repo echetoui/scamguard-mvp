@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import './App.css';
 import './styles/design-tokens.css';
 import './styles/animations.css';
@@ -14,11 +14,21 @@ import useAccountProfile from './hooks/useAccountProfile';
 import AccountProfile from './components/AccountProfile';
 import useAuth from './hooks/useAuth';
 import ModernAuthPage from './components/ModernAuthPage';
-import ResourcesTab from './components/Resources/ResourcesTab';
-import FamilyDashboard from './components/FamilyDashboard';
-import ToolsTab from './components/ToolsTab';
 import useFamilyDashboard from './hooks/useFamilyDashboard';
 import { analysisAPI } from './services/api';
+
+// Lazy-loaded components (defer loading until tab is activated)
+const ResourcesTab = lazy(() => import('./components/Resources/ResourcesTab'));
+const ToolsTab = lazy(() => import('./components/ToolsTab'));
+const FamilyDashboard = lazy(() => import('./components/FamilyDashboard'));
+
+// Loading placeholder component
+const LoadingPlaceholder = () => (
+  <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
+    <p>Chargement...</p>
+  </div>
+);
 
 export default function App() {
   // ============================================================================
@@ -305,18 +315,24 @@ export default function App() {
 
         {/* Tab 4: Ressources - Blocking Guides & Security Tips (Phase 5E.1) */}
         <TabPanel tabId="ressources" activeTab={activeTab}>
-          <ResourcesTab />
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <ResourcesTab />
+          </Suspense>
         </TabPanel>
 
         {/* Tab 5: Outils - Verification Tools (Phase 5C) */}
         <TabPanel tabId="outils" activeTab={activeTab}>
-          <ToolsTab />
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <ToolsTab />
+          </Suspense>
         </TabPanel>
 
         {/* Tab 6: Famille - Family Protection Dashboard (Phase 5A) */}
         {hasFamily && (
           <TabPanel tabId="famille" activeTab={activeTab}>
-            <FamilyDashboard />
+            <Suspense fallback={<LoadingPlaceholder />}>
+              <FamilyDashboard />
+            </Suspense>
           </TabPanel>
         )}
 
