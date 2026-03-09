@@ -1,5 +1,8 @@
 name: Security Scan
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [develop, main]
@@ -65,6 +68,9 @@ jobs:
 
   code-scanning:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
