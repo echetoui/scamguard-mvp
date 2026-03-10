@@ -1,312 +1,366 @@
 /**
- * SMSAuthScreen Component Tests (Simplified)
- * Phase 5E - Test Coverage Expansion
- *
- * Tests for utility functions and basic component behavior
+ * SMSAuthScreen Component Tests
+ * Phase 6 - Coverage Expansion Continuation
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import SMSAuthScreen from '../SMSAuthScreen';
+
+vi.mock('../auth/RoleSelectionCards', () => ({
+  default: ({ selectedRole, onSelectRole, loading }) => (
+    <div className="role-selection-mock">
+      <button onClick={() => onSelectRole('senior')} disabled={loading}>
+        Select Senior
+      </button>
+    </div>
+  )
+}));
+
+vi.mock('../auth/EmailAuthForm', () => ({
+  default: ({ email, setEmail, password, setPassword, mode, loading, error, onGeneratePassword, onCopyPassword, onSubmit, onModeChange }) => (
+    <div className="email-auth-form-mock">
+      <input id="email-input" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input id="password-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={onGeneratePassword}>Generate</button>
+      <button onClick={onCopyPassword}>Copy</button>
+      <button onClick={() => onSubmit(email, password)} disabled={loading}>{mode === 'login' ? 'Se connecter' : 'S\'inscrire'}</button>
+      {error && <div role="alert">{error}</div>}
+    </div>
+  )
+}));
+
+vi.mock('../Toast', () => ({
+  default: ({ message }) => <div className="toast-mock" role="alert">{message}</div>
+}));
+
+vi.mock('../constants/errorMessages', () => ({
+  ERROR_MESSAGES: { NETWORK_ERROR: 'Erreur réseau. Veuillez réessayer.' }
+}));
+
+vi.mock('../utils/authStorage', () => ({
+  setAuth: vi.fn(),
+  setUserId: vi.fn(),
+}));
 
 describe('SMSAuthScreen Component', () => {
-  describe('Phone Formatting Utility', () => {
-    // Simulating the formatPhone function from the component
-    const formatPhone = (value) => {
-      let cleaned = value.replace(/\D/g, '');
-      if (cleaned.startsWith('1')) {
-        cleaned = cleaned.substring(1);
-      }
-      if (cleaned.length <= 3) {
-        return `+1 ${cleaned}`;
-      } else if (cleaned.length <= 6) {
-        return `+1 (${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
-      } else {
-        return `+1 (${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
-      }
-    };
+  beforeEach(() => {
+    vi.clearAllMocks();
+    global.fetch = vi.fn();
+    global.navigator.clipboard = { writeText: vi.fn() };
+  });
 
-    it('should format 3-digit phone number', () => {
-      expect(formatPhone('555')).toBe('+1 555');
+  it('should render main auth screen', () => {
+    const { container } = render(<SMSAuthScreen />);
+    expect(container.querySelector('.sms-auth-screen')).toBeTruthy();
+  });
+
+  it('should display header with logo', () => {
+    render(<SMSAuthScreen />);
+    expect(screen.getByText('🛡️ ScamGuard')).toBeTruthy();
+  });
+
+  it('should display header subtitle', () => {
+    render(<SMSAuthScreen />);
+    expect(screen.getByText('Protégez-vous contre les arnaques')).toBeTruthy();
+  });
+
+  it('should have role="main"', () => {
+    const { container } = render(<SMSAuthScreen />);
+    expect(container.querySelector('[role="main"]')).toBeTruthy();
+  });
+
+  it('should display mode selection initially', () => {
+    render(<SMSAuthScreen />);
+    expect(screen.getByText('Que voulez-vous faire?')).toBeTruthy();
+  });
+
+  it('should display mode selection buttons', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    expect(buttons.length).toBe(2);
+  });
+
+  it('should display login button', () => {
+    render(<SMSAuthScreen />);
+    expect(screen.getByText('🔐 Se connecter')).toBeTruthy();
+  });
+
+  it('should go to role selection on signup', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]); // First button is signup
+    expect(container.querySelector('.role-selection-mock')).toBeTruthy();
+  });
+
+  it('should display role selection cards', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]);
+    expect(screen.getByText('Select Senior')).toBeTruthy();
+  });
+
+  it('should go to email form after role selection', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]);
+    const selectRoleBtn = screen.getByText('Select Senior');
+    fireEvent.click(selectRoleBtn);
+    expect(container.querySelector('.email-auth-form-mock')).toBeTruthy();
+  });
+
+  it('should go to email form on login', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]); // Second button is login
+    expect(container.querySelector('.email-auth-form-mock')).toBeTruthy();
+  });
+
+  it('should have back button in email form', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
+    expect(screen.getByText('← Retour')).toBeTruthy();
+  });
+
+  it('should submit login form', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+      })
     });
 
-    it('should format 6-digit phone number', () => {
-      expect(formatPhone('555123')).toBe('+1 (555) 123');
-    });
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
 
-    it('should format 10-digit phone number', () => {
-      expect(formatPhone('5551234567')).toBe('+1 (555) 123-4567');
-    });
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
 
-    it('should handle leading 1', () => {
-      expect(formatPhone('15551234567')).toBe('+1 (555) 123-4567');
-    });
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password' } });
+    fireEvent.click(submitBtn);
 
-    it('should remove non-digit characters', () => {
-      expect(formatPhone('(555) 123-4567')).toBe('+1 (555) 123-4567');
-    });
-
-    it('should handle partially formatted input', () => {
-      expect(formatPhone('+1 555')).toBe('+1 555');
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/auth/login'), expect.any(Object));
     });
   });
 
-  describe('E.164 Phone Conversion', () => {
-    const getE164Phone = (displayPhone) => {
-      const cleaned = displayPhone.replace(/\D/g, '');
-      const lastTen = cleaned.slice(-10);
-      return `+1${lastTen}`;
-    };
-
-    it('should convert to E.164 format', () => {
-      expect(getE164Phone('+1 (555) 123-4567')).toBe('+15551234567');
+  it('should show success message on successful login', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+      })
     });
 
-    it('should handle formatted phone numbers', () => {
-      expect(getE164Phone('(555) 123-4567')).toBe('+15551234567');
-    });
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
 
-    it('should handle unformatted phone numbers', () => {
-      expect(getE164Phone('5551234567')).toBe('+15551234567');
-    });
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
 
-    it('should take last 10 digits', () => {
-      expect(getE164Phone('15551234567')).toBe('+15551234567');
-    });
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password' } });
+    fireEvent.click(submitBtn);
 
-    it('should produce valid length E.164 number', () => {
-      const result = getE164Phone('5551234567');
-      expect(result).toMatch(/^\+1\d{10}$/);
+    await waitFor(() => {
+      expect(screen.getByText('✅ Bienvenue!')).toBeTruthy();
     });
   });
 
-  describe('Password Generation', () => {
-    // Simulating password generation requirements
-    const hasUppercase = (str) => /[A-Z]/.test(str);
-    const hasLowercase = (str) => /[a-z]/.test(str);
-    const hasDigit = (str) => /\d/.test(str);
-    const hasSymbol = (str) => /[!@#$%^&*]/.test(str);
-
-    it('should generate password with uppercase letters', () => {
-      expect(hasUppercase('AbC')).toBe(true);
+  it('should show error on API failure', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: { message: 'Invalid' } })
     });
 
-    it('should generate password with lowercase letters', () => {
-      expect(hasLowercase('abc')).toBe(true);
-    });
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
 
-    it('should generate password with digits', () => {
-      expect(hasDigit('abc123')).toBe(true);
-    });
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
 
-    it('should generate password with symbols', () => {
-      expect(hasSymbol('test!@#')).toBe(true);
-    });
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'wrong' } });
+    fireEvent.click(submitBtn);
 
-    it('should generate 16 character password', () => {
-      const password = 'Abcd1234!@#$%^&*';
-      expect(password.length).toBe(16);
-    });
-
-    it('should require at least one of each character type', () => {
-      const password = 'Abcd1234!@#$%^&';
-      expect(
-        hasUppercase(password) &&
-        hasLowercase(password) &&
-        hasDigit(password) &&
-        hasSymbol(password)
-      ).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByText('Invalid')).toBeTruthy();
     });
   });
 
-  describe('Email Validation', () => {
-    const isValidEmail = (email) => {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
+  it('should show network error on fetch failure', async () => {
+    global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
-    it('should validate correct email format', () => {
-      expect(isValidEmail('user@example.com')).toBe(true);
-    });
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
 
-    it('should reject email without @', () => {
-      expect(isValidEmail('userexample.com')).toBe(false);
-    });
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
 
-    it('should reject email without domain', () => {
-      expect(isValidEmail('user@')).toBe(false);
-    });
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password' } });
+    fireEvent.click(submitBtn);
 
-    it('should reject email without local part', () => {
-      expect(isValidEmail('@example.com')).toBe(false);
-    });
-
-    it('should reject empty string', () => {
-      expect(isValidEmail('')).toBe(false);
-    });
-
-    it('should reject multiple @ symbols', () => {
-      // Basic regex allows this, but real validation should reject
-      expect(isValidEmail('user@@example.com')).toBe(false); // This actually fails the regex due to space check
+    await waitFor(() => {
+      expect(screen.getByText(/Erreur réseau/)).toBeTruthy();
     });
   });
 
-  describe('Phone Validation', () => {
-    const isValidPhone = (phone) => {
-      const cleaned = phone.replace(/\D/g, '');
-      return cleaned.length >= 10;
-    };
+  it('should generate 16-char password', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]);
+    const selectRoleBtn = screen.getByText('Select Senior');
+    fireEvent.click(selectRoleBtn);
 
-    it('should validate 10-digit phone number', () => {
-      expect(isValidPhone('5551234567')).toBe(true);
-    });
+    const generateBtn = screen.getByText('Generate');
+    fireEvent.click(generateBtn);
 
-    it('should validate formatted phone number', () => {
-      expect(isValidPhone('+1 (555) 123-4567')).toBe(true);
-    });
+    const passwordInput = container.querySelector('#password-input');
+    expect(passwordInput.value.length).toBe(16);
+  });
 
-    it('should reject too short phone number', () => {
-      expect(isValidPhone('555123')).toBe(false);
-    });
+  it('should copy password to clipboard', async () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]);
+    const selectRoleBtn = screen.getByText('Select Senior');
+    fireEvent.click(selectRoleBtn);
 
-    it('should reject empty string', () => {
-      expect(isValidPhone('')).toBe(false);
-    });
+    const generateBtn = screen.getByText('Generate');
+    fireEvent.click(generateBtn);
+    const copyBtn = screen.getByText('Copy');
+    fireEvent.click(copyBtn);
 
-    it('should handle 11-digit number (with leading 1)', () => {
-      expect(isValidPhone('15551234567')).toBe(true);
+    await waitFor(() => {
+      expect(global.navigator.clipboard.writeText).toHaveBeenCalled();
     });
   });
 
-  describe('OTP Validation', () => {
-    const isValidOTP = (otpArray) => {
-      return otpArray && otpArray.length === 6 && otpArray.every(digit => /\d/.test(digit));
-    };
+  it('should show toast on password copy', async () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]);
+    const selectRoleBtn = screen.getByText('Select Senior');
+    fireEvent.click(selectRoleBtn);
 
-    it('should validate complete OTP', () => {
-      expect(isValidOTP(['1', '2', '3', '4', '5', '6'])).toBe(true);
-    });
+    const generateBtn = screen.getByText('Generate');
+    fireEvent.click(generateBtn);
+    const copyBtn = screen.getByText('Copy');
+    fireEvent.click(copyBtn);
 
-    it('should reject incomplete OTP', () => {
-      expect(isValidOTP(['1', '2', '3', '', '', ''])).toBe(false);
-    });
-
-    it('should reject non-digit OTP', () => {
-      expect(isValidOTP(['a', 'b', 'c', 'd', 'e', 'f'])).toBe(false);
-    });
-
-    it('should reject wrong length OTP', () => {
-      expect(isValidOTP(['1', '2', '3', '4', '5'])).toBe(false);
-    });
-
-    it('should require exactly 6 digits', () => {
-      expect(isValidOTP(['1', '2', '3', '4', '5', '6', '7'])).toBe(false);
+    await waitFor(() => {
+      expect(screen.getByText(/Mot de passe copié/)).toBeTruthy();
     });
   });
 
-  describe('State Management Logic', () => {
-    // Test state transition logic
-    it('should transition from choose to email mode', () => {
-      let mode = 'choose';
-      let step = 'role';
+  it('should go back from role selection', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[0]);
+    const backBtn = screen.getByText('← Retour');
+    fireEvent.click(backBtn);
+    expect(screen.getByText('Que voulez-vous faire?')).toBeTruthy();
+  });
 
-      if (mode === 'choose') {
-        mode = 'login';
-        step = 'email';
-      }
+  it('should go back from email form', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
+    const backBtn = screen.getByText('← Retour');
+    fireEvent.click(backBtn);
+    expect(screen.getByText('Que voulez-vous faire?')).toBeTruthy();
+  });
 
-      expect(mode).toBe('login');
-      expect(step).toBe('email');
+  it('should disable buttons during loading', async () => {
+    global.fetch.mockImplementation(() => new Promise(() => {}));
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
+
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password' } });
+    fireEvent.click(submitBtn);
+
+    expect(submitBtn.disabled).toBe(true);
+  });
+
+  it('should have proper heading structure', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const h1s = container.querySelectorAll('h1');
+    expect(h1s.length).toBeGreaterThan(0);
+  });
+
+  it('should normalize email to lowercase', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+      })
     });
 
-    it('should transition from email to phone mode', () => {
-      let step = 'email';
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
 
-      if (step === 'email') {
-        step = 'phone';
-      }
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
 
-      expect(step).toBe('phone');
-    });
+    fireEvent.change(emailInput, { target: { value: 'Test@Example.COM' } });
+    fireEvent.change(passwordInput, { target: { value: 'password' } });
+    fireEvent.click(submitBtn);
 
-    it('should transition from phone to otp mode', () => {
-      let step = 'phone';
-
-      if (step === 'phone') {
-        step = 'otp';
-      }
-
-      expect(step).toBe('otp');
-    });
-
-    it('should transition to success mode', () => {
-      let step = 'otp';
-
-      if (step === 'otp') {
-        step = 'success';
-      }
-
-      expect(step).toBe('success');
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+        body: expect.stringContaining('test@example.com')
+      }));
     });
   });
 
-  describe('Error Message Handling', () => {
-    const ERROR_MESSAGES = {
-      NETWORK_ERROR: 'Erreur réseau. Veuillez réessayer.',
-      INVALID_EMAIL: 'Adresse e-mail invalide',
-      INVALID_PHONE: 'Numéro de téléphone invalide',
-      INVALID_OTP: 'Code OTP invalide',
-      INVALID_CREDENTIALS: 'Identifiants invalides',
-    };
-
-    it('should have network error message', () => {
-      expect(ERROR_MESSAGES.NETWORK_ERROR).toContain('Erreur réseau');
-    });
-
-    it('should have email error message', () => {
-      expect(ERROR_MESSAGES.INVALID_EMAIL).toContain('e-mail');
-    });
-
-    it('should have phone error message', () => {
-      expect(ERROR_MESSAGES.INVALID_PHONE).toContain('téléphone');
-    });
-
-    it('should have OTP error message', () => {
-      expect(ERROR_MESSAGES.INVALID_OTP).toContain('OTP');
-    });
-
-    it('should have credential error message', () => {
-      expect(ERROR_MESSAGES.INVALID_CREDENTIALS).toContain('Identifiants');
-    });
-
-    it('should be in French', () => {
-      const messages = Object.values(ERROR_MESSAGES);
-      expect(messages.some(msg => msg.includes('é'))).toBe(true);
-    });
+  it('should have aria-labels on buttons', () => {
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('[aria-label]');
+    expect(buttons.length).toBeGreaterThan(0);
   });
 
-  describe('Timer Logic', () => {
-    it('should initialize timer at 60', () => {
-      let resendTimer = 60;
-      expect(resendTimer).toBe(60);
+  it('should show success emoji', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+      })
     });
 
-    it('should decrement timer', () => {
-      let resendTimer = 60;
-      resendTimer--;
-      expect(resendTimer).toBe(59);
-    });
+    const { container } = render(<SMSAuthScreen />);
+    const buttons = container.querySelectorAll('.auth-button');
+    fireEvent.click(buttons[1]);
 
-    it('should stop at 0', () => {
-      let resendTimer = 1;
-      resendTimer--;
-      if (resendTimer < 0) {
-        resendTimer = 0;
-      }
-      expect(resendTimer).toBe(0);
-    });
+    const emailInput = container.querySelector('#email-input');
+    const passwordInput = container.querySelector('#password-input');
+    const submitBtn = screen.getByText('Se connecter');
 
-    it('should not go negative', () => {
-      let resendTimer = 0;
-      const decremented = Math.max(0, resendTimer - 1);
-      expect(decremented).toBe(0);
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password' } });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('✅ Bienvenue!')).toBeTruthy();
     });
   });
 });
