@@ -394,4 +394,134 @@ describe('PhoneOTPForm', () => {
       expect(backBtn).toHaveAttribute('aria-label');
     });
   });
+
+  describe('OTP Event Handling', () => {
+    it('ignores non-digit input in OTP field', async () => {
+      const setOtpMock = vi.fn();
+      const user = userEvent.setup();
+      const { container } = render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          setOtp={setOtpMock}
+          otp={['', '', '', '', '', '']}
+        />
+      );
+
+      const otpInputs = container.querySelectorAll('.otp-input');
+      await user.type(otpInputs[0], 'a');
+
+      // Should not have called setOtp for non-digit input
+      expect(setOtpMock).not.toHaveBeenCalled();
+    });
+
+    it('accepts digit input in OTP field', async () => {
+      const setOtpMock = vi.fn();
+      const user = userEvent.setup();
+      const { container } = render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          setOtp={setOtpMock}
+          otp={['', '', '', '', '', '']}
+        />
+      );
+
+      const otpInputs = container.querySelectorAll('.otp-input');
+      await user.type(otpInputs[0], '1');
+
+      expect(setOtpMock).toHaveBeenCalled();
+    });
+
+    it('disables OTP inputs when loading', () => {
+      const { container } = render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          loading={true}
+          otp={['', '', '', '', '', '']}
+        />
+      );
+
+      const otpInputs = container.querySelectorAll('.otp-input');
+      otpInputs.forEach(input => {
+        expect(input).toHaveAttribute('disabled');
+      });
+    });
+
+    it('enables OTP inputs when not loading', () => {
+      const { container } = render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          loading={false}
+          otp={['', '', '', '', '', '']}
+        />
+      );
+
+      const otpInputs = container.querySelectorAll('.otp-input');
+      otpInputs.forEach(input => {
+        expect(input).not.toHaveAttribute('disabled');
+      });
+    });
+
+    it('shows error message on OTP step', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          error="Code invalide"
+          otp={['', '', '', '', '', '']}
+        />
+      );
+
+      expect(screen.getByText('Code invalide')).toBeInTheDocument();
+    });
+
+    it('disables verify button when OTP incomplete', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          otp={['1', '2', '3', '', '', '']}
+        />
+      );
+
+      const verifyBtn = screen.getByRole('button', { name: /Vérifier/ });
+      expect(verifyBtn).toHaveAttribute('disabled');
+    });
+
+    it('enables verify button when OTP complete', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          otp={['1', '2', '3', '4', '5', '6']}
+        />
+      );
+
+      const verifyBtn = screen.getByRole('button', { name: /Vérifier/ });
+      expect(verifyBtn).not.toHaveAttribute('disabled');
+    });
+
+    it('handles backspace key event on OTP input', () => {
+      const setOtpMock = vi.fn();
+      const { container } = render(
+        <PhoneOTPForm
+          {...defaultProps}
+          step="otp"
+          setOtp={setOtpMock}
+          otp={['1', '', '', '', '', '']}
+        />
+      );
+
+      const otpInputs = container.querySelectorAll('.otp-input');
+
+      // Simulate backspace on second field (empty)
+      fireEvent.keyDown(otpInputs[1], { key: 'Backspace' });
+
+      // Event handling should not throw
+      expect(otpInputs[1]).toBeInTheDocument();
+    });
+  });
 });
