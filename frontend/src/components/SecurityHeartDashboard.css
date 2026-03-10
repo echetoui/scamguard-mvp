@@ -46,14 +46,6 @@
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
 
 /* Loading Spinner */
 .heart-spinner {
@@ -72,14 +64,6 @@
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 .heart-spinner p {
   font-size: 20px;
@@ -110,14 +94,6 @@
   animation: bounce 1s ease-in-out infinite;
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
 
 /* ============ Status Section ============ */
 
