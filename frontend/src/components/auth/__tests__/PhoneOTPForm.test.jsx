@@ -1,95 +1,397 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PhoneOTPForm from '../PhoneOTPForm';
 
 describe('PhoneOTPForm', () => {
-  it('renders phone input field', () => {
-    render(
-      <PhoneOTPForm
-        phone=""
-        setPhone={vi.fn()}
-        otp={['', '', '', '', '', '']}
-        setOtp={vi.fn()}
-        step="phone"
-        loading={false}
-        error=""
-        resendTimer={0}
-        onRequestOtp={vi.fn()}
-        onSubmitOtp={vi.fn()}
-      />
-    );
+  const defaultProps = {
+    phone: '',
+    setPhone: vi.fn(),
+    otp: ['', '', '', '', '', ''],
+    setOtp: vi.fn(),
+    step: 'phone',
+    setStep: vi.fn(),
+    loading: false,
+    error: '',
+    resendTimer: 0,
+    onRequestOtp: vi.fn(),
+    onVerifyOtp: vi.fn(),
+    onResendOtp: vi.fn(),
+  };
 
-    const phoneInput = screen.getByRole('textbox', { name: /téléphone/i });
-    expect(phoneInput).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('calls onRequestOtp when phone form is submitted', async () => {
-    const mockOnRequestOtp = vi.fn();
-    const user = userEvent.setup();
+  describe('Phone Step - Rendering', () => {
+    it('renders phone input field', () => {
+      render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      const phoneInput = screen.getByRole('textbox');
+      expect(phoneInput).toBeInTheDocument();
+    });
 
-    render(
-      <PhoneOTPForm
-        phone="+1 (555) 123-4567"
-        setPhone={vi.fn()}
-        otp={['', '', '', '', '', '']}
-        setOtp={vi.fn()}
-        step="phone"
-        loading={false}
-        error=""
-        resendTimer={0}
-        onRequestOtp={mockOnRequestOtp}
-        onSubmitOtp={vi.fn()}
-      />
-    );
+    it('displays phone step title', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      const title = container.querySelector('.form-title');
+      expect(title).toBeInTheDocument();
+      expect(title.textContent).toBe('Numéro de téléphone');
+    });
 
-    const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(0);
-    // Just verify a button exists that can be clicked
-    if (buttons.length > 0) {
-      await user.click(buttons[0]);
-      expect(mockOnRequestOtp).toHaveBeenCalled();
-    }
+    it('displays form subtitle', () => {
+      render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      expect(screen.getByText(/Nous enverrons un code SMS/)).toBeInTheDocument();
+    });
+
+    it('displays phone hint text', () => {
+      render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      expect(screen.getByText(/Format:/)).toBeInTheDocument();
+    });
+
+    it('has correct phone input placeholder', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      const phoneInput = container.querySelector('input[type="tel"]');
+      expect(phoneInput.placeholder).toContain('+1');
+    });
   });
 
-  it('renders 6 digit OTP inputs when step is otp', () => {
-    render(
-      <PhoneOTPForm
-        phone="+1 (555) 123-4567"
-        setPhone={vi.fn()}
-        otp={['', '', '', '', '', '']}
-        setOtp={vi.fn()}
-        step="otp"
-        loading={false}
-        error=""
-        resendTimer={0}
-        onRequestOtp={vi.fn()}
-        onSubmitOtp={vi.fn()}
-      />
-    );
+  describe('Phone Step - Form Submission', () => {
+    it('calls onRequestOtp when phone form is submitted', async () => {
+      const mockOnRequestOtp = vi.fn();
+      const user = userEvent.setup();
 
-    const otpInputs = screen.getAllByRole('textbox');
-    expect(otpInputs.length).toBeGreaterThanOrEqual(6);
+      render(
+        <PhoneOTPForm {...defaultProps} phone="+1 (555) 123-4567" onRequestOtp={mockOnRequestOtp} step="phone" />
+      );
+
+      const submitBtn = screen.getByRole('button', { name: /Envoyer/ });
+      await user.click(submitBtn);
+
+      expect(mockOnRequestOtp).toHaveBeenCalledWith('+1 (555) 123-4567');
+    });
+
+    it('disables submit button when phone is empty', () => {
+      render(<PhoneOTPForm {...defaultProps} phone="" step="phone" />);
+      const submitBtn = screen.getByRole('button', { name: /Envoyer/ });
+      expect(submitBtn).toBeDisabled();
+    });
+
+    it('enables submit button when phone is filled', () => {
+      render(<PhoneOTPForm {...defaultProps} phone="+1 (555) 123-4567" step="phone" />);
+      const submitBtn = screen.getByRole('button', { name: /Envoyer/ });
+      expect(submitBtn).not.toBeDisabled();
+    });
+
+    it('shows loading text during submission', () => {
+      render(<PhoneOTPForm {...defaultProps} phone="+1 (555) 123-4567" loading={true} step="phone" />);
+      expect(screen.getByText(/Envoi/)).toBeInTheDocument();
+    });
+
+    it('disables phone input during loading', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} loading={true} step="phone" />);
+      const phoneInput = container.querySelector('input[type="tel"]');
+      expect(phoneInput).toBeDisabled();
+    });
   });
 
-  it('disables resend button when resendTimer > 0', () => {
-    render(
-      <PhoneOTPForm
-        phone="+1 (555) 123-4567"
-        setPhone={vi.fn()}
-        otp={['', '', '', '', '', '']}
-        setOtp={vi.fn()}
-        step="otp"
-        loading={false}
-        error=""
-        resendTimer={30}
-        onRequestOtp={vi.fn()}
-        onSubmitOtp={vi.fn()}
-      />
-    );
+  describe('Phone Step - Input Handling', () => {
+    it('calls setPhone when phone input changes', async () => {
+      const mockSetPhone = vi.fn();
+      const user = userEvent.setup();
 
-    const resendButton = screen.getByRole('button', { name: /renvoi|renvoyer/i });
-    expect(resendButton).toBeDisabled();
+      const { container } = render(
+        <PhoneOTPForm {...defaultProps} setPhone={mockSetPhone} step="phone" />
+      );
+
+      const phoneInput = container.querySelector('input[type="tel"]');
+      await user.type(phoneInput, '+1');
+
+      expect(mockSetPhone).toHaveBeenCalled();
+    });
+
+    it('has aria-label on phone input', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      const phoneInput = container.querySelector('input[type="tel"]');
+      expect(phoneInput).toHaveAttribute('aria-label');
+    });
+  });
+
+  describe('Phone Step - Error Handling', () => {
+    it('displays error message when error prop provided', () => {
+      const errorMsg = 'Numéro de téléphone invalide';
+      render(<PhoneOTPForm {...defaultProps} error={errorMsg} step="phone" />);
+      expect(screen.getByText(errorMsg)).toBeInTheDocument();
+    });
+
+    it('displays error with alert role', () => {
+      render(<PhoneOTPForm {...defaultProps} error="Test error" step="phone" />);
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+
+    it('does not display error when error is empty', () => {
+      const { queryByRole } = render(<PhoneOTPForm {...defaultProps} error="" step="phone" />);
+      expect(queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('OTP Step - Rendering', () => {
+    it('renders 6 OTP digit inputs when step is otp', () => {
+      render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      const inputs = screen.getAllByRole('textbox');
+      expect(inputs.length).toBeGreaterThanOrEqual(6);
+    });
+
+    it('displays OTP step title', () => {
+      render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      expect(screen.getByText('Vérifier le code SMS')).toBeInTheDocument();
+    });
+
+    it('displays OTP subtitle', () => {
+      render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      expect(screen.getByText(/Entrez le code à 6 chiffres/)).toBeInTheDocument();
+    });
+
+    it('has numeric inputMode on OTP inputs', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      const otpInputs = container.querySelectorAll('.otp-input');
+      otpInputs.forEach(input => {
+        expect(input.getAttribute('inputMode')).toBe('numeric');
+      });
+    });
+
+    it('has maxLength 1 on OTP inputs', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      const otpInputs = container.querySelectorAll('.otp-input');
+      otpInputs.forEach(input => {
+        expect(input.getAttribute('maxLength')).toBe('1');
+      });
+    });
+  });
+
+  describe('OTP Step - Form Submission', () => {
+    it('calls onVerifyOtp when OTP form is submitted', async () => {
+      const mockOnVerifyOtp = vi.fn();
+      const user = userEvent.setup();
+
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          otp={['1', '2', '3', '4', '5', '6']}
+          onVerifyOtp={mockOnVerifyOtp}
+          step="otp"
+        />
+      );
+
+      const submitBtn = screen.getByRole('button', { name: /Vérifier/ });
+      await user.click(submitBtn);
+
+      expect(mockOnVerifyOtp).toHaveBeenCalledWith('123456');
+    });
+
+    it('disables submit button when OTP incomplete', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          otp={['1', '2', '', '', '', '']}
+          step="otp"
+        />
+      );
+
+      const submitBtn = screen.getByRole('button', { name: /Vérifier/ });
+      expect(submitBtn).toBeDisabled();
+    });
+
+    it('enables submit button when OTP complete', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          otp={['1', '2', '3', '4', '5', '6']}
+          step="otp"
+        />
+      );
+
+      const submitBtn = screen.getByRole('button', { name: /Vérifier/ });
+      expect(submitBtn).not.toBeDisabled();
+    });
+
+    it('shows loading text during verification', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          otp={['1', '2', '3', '4', '5', '6']}
+          loading={true}
+          step="otp"
+        />
+      );
+
+      expect(screen.getByText(/Vérification/)).toBeInTheDocument();
+    });
+  });
+
+  describe('OTP Step - Resend Button', () => {
+    it('enables resend button when resendTimer is 0', () => {
+      render(
+        <PhoneOTPForm {...defaultProps} resendTimer={0} step="otp" />
+      );
+
+      const resendBtn = screen.getByRole('button', { name: /Renvoyer le code/ });
+      expect(resendBtn).not.toBeDisabled();
+    });
+
+    it('disables resend button when resendTimer > 0', () => {
+      render(
+        <PhoneOTPForm {...defaultProps} resendTimer={30} step="otp" />
+      );
+
+      const resendBtn = screen.getByRole('button', { name: /Renvoyer/ });
+      expect(resendBtn).toBeDisabled();
+    });
+
+    it('displays countdown on resend button', () => {
+      render(
+        <PhoneOTPForm {...defaultProps} resendTimer={45} step="otp" />
+      );
+
+      expect(screen.getByText(/Renvoyer dans 45s/)).toBeInTheDocument();
+    });
+
+    it('calls onResendOtp when resend is clicked', async () => {
+      const mockOnResendOtp = vi.fn();
+      const user = userEvent.setup();
+
+      render(
+        <PhoneOTPForm {...defaultProps} onResendOtp={mockOnResendOtp} resendTimer={0} step="otp" />
+      );
+
+      const resendBtn = screen.getByRole('button', { name: /Renvoyer le code/ });
+      await user.click(resendBtn);
+
+      expect(mockOnResendOtp).toHaveBeenCalled();
+    });
+  });
+
+  describe('OTP Step - Back Button', () => {
+    it('has back button on OTP step', () => {
+      render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      expect(screen.getByRole('button', { name: /Retour/ })).toBeInTheDocument();
+    });
+
+    it('calls setStep when back button is clicked', async () => {
+      const mockSetStep = vi.fn();
+      const user = userEvent.setup();
+
+      render(
+        <PhoneOTPForm {...defaultProps} setStep={mockSetStep} step="otp" />
+      );
+
+      const backBtn = screen.getByRole('button', { name: /Retour/ });
+      await user.click(backBtn);
+
+      expect(mockSetStep).toHaveBeenCalledWith('phone');
+    });
+
+    it('disables back button when loading', () => {
+      render(
+        <PhoneOTPForm {...defaultProps} loading={true} step="otp" />
+      );
+
+      const backBtn = screen.getByRole('button', { name: /Retour/ });
+      expect(backBtn).toBeDisabled();
+    });
+  });
+
+  describe('OTP Step - Error Handling', () => {
+    it('displays error on OTP verification failure', () => {
+      const errorMsg = 'Code incorrect';
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          error={errorMsg}
+          step="otp"
+        />
+      );
+
+      expect(screen.getByText(errorMsg)).toBeInTheDocument();
+    });
+
+    it('displays error with alert role on OTP step', () => {
+      render(
+        <PhoneOTPForm {...defaultProps} error="Test error" step="otp" />
+      );
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
+
+  describe('OTP Step - Accessibility', () => {
+    it('has aria-label on each OTP input', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      const otpInputs = container.querySelectorAll('.otp-input');
+      otpInputs.forEach((input, index) => {
+        expect(input).toHaveAttribute('aria-label');
+        expect(input.getAttribute('aria-label')).toContain(`Chiffre ${index + 1}`);
+      });
+    });
+  });
+
+  describe('Null Step', () => {
+    it('returns null for invalid step', () => {
+      const { container } = render(
+        <PhoneOTPForm {...defaultProps} step="invalid" />
+      );
+
+      expect(container.firstChild).toBeNull();
+    });
+  });
+
+  describe('Form Element Roles', () => {
+    it('has form role on phone step', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      expect(container.querySelector('form')).toBeInTheDocument();
+    });
+
+    it('has form role on OTP step', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      expect(container.querySelector('form')).toBeInTheDocument();
+    });
+  });
+
+  describe('Accessibility Features', () => {
+    it('phone input has aria-describedby', () => {
+      const { container } = render(<PhoneOTPForm {...defaultProps} step="phone" />);
+      const phoneInput = container.querySelector('input[type="tel"]');
+      expect(phoneInput).toHaveAttribute('aria-describedby');
+    });
+
+    it('submit button has aria-busy on phone step', () => {
+      render(<PhoneOTPForm {...defaultProps} loading={true} step="phone" />);
+      const submitBtn = screen.getByRole('button', { name: /Envoi/ });
+      expect(submitBtn).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('submit button has aria-busy on OTP step', () => {
+      render(
+        <PhoneOTPForm
+          {...defaultProps}
+          otp={['1', '2', '3', '4', '5', '6']}
+          loading={true}
+          step="otp"
+        />
+      );
+      const submitBtn = screen.getByRole('button', { name: /Vérification/ });
+      expect(submitBtn).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('resend button has aria-label', () => {
+      render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      const resendBtn = screen.getByRole('button', { name: /Renvoyer/ });
+      expect(resendBtn).toHaveAttribute('aria-label');
+    });
+
+    it('back button has aria-label', () => {
+      render(<PhoneOTPForm {...defaultProps} step="otp" />);
+      const backBtn = screen.getByRole('button', { name: /Retour/ });
+      expect(backBtn).toHaveAttribute('aria-label');
+    });
   });
 });
