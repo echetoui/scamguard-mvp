@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { authAPI } from '../services/api';
+import { getAuth, setAuth, clearAuth, setUserId, getAuthToken } from '../utils/authStorage';
 
 /**
  * Decode JWT token to extract claims (without verification)
@@ -58,7 +59,7 @@ export default function useAuth() {
   // Refresh token using refresh_token
   const refreshAuthToken = useCallback(async () => {
     try {
-      const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
+      const auth = getAuth();
       const refreshToken = auth.refresh_token;
 
       if (!refreshToken) {
@@ -70,14 +71,12 @@ export default function useAuth() {
       const result = await authAPI.refreshToken(refreshToken);
 
       // Store new tokens
-      const authData = {
+      setAuth({
         id_token: result.id_token,
         access_token: result.access_token,
         refresh_token: result.refresh_token,
         expires_in: result.expires_in,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem('scamguard_auth', JSON.stringify(authData));
+      });
 
       // Update user from new token
       const userData = getUserFromToken(result.id_token);
@@ -90,8 +89,7 @@ export default function useAuth() {
     } catch (err) {
       console.error('Token refresh failed:', err);
       // Refresh failed, clear auth
-      localStorage.removeItem('scamguard_auth');
-      localStorage.removeItem('userId');
+      clearAuth();
       setUser(null);
       setIsAuthenticated(false);
       return false;
@@ -124,7 +122,7 @@ export default function useAuth() {
   useEffect(() => {
     const checkAuth = () => {
       try {
-        const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
+        const auth = getAuth();
         const token = auth.id_token || auth.idToken;
         const expiresIn = auth.expires_in || 3600;
 
@@ -134,14 +132,13 @@ export default function useAuth() {
             setUser(userData);
             setIsAuthenticated(true);
             // Store userId for backward compatibility
-            localStorage.setItem('userId', userData.sub);
+            setUserId(userData.sub);
             // Setup auto-refresh timer
             setupRefreshTimer(expiresIn);
           }
         } else {
           // Token is invalid or missing
-          localStorage.removeItem('scamguard_auth');
-          localStorage.removeItem('userId');
+          clearAuth();
           setUser(null);
           setIsAuthenticated(false);
         }
@@ -254,14 +251,12 @@ export default function useAuth() {
       const result = await authAPI.login(email, password);
 
       // Store tokens
-      const authData = {
+      setAuth({
         id_token: result.id_token,
         access_token: result.access_token,
         refresh_token: result.refresh_token,
         expires_in: result.expires_in,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem('scamguard_auth', JSON.stringify(authData));
+      });
 
       // Extract user info from token
       const userData = getUserFromToken(result.id_token);
@@ -269,7 +264,7 @@ export default function useAuth() {
         setUser(userData);
         setIsAuthenticated(true);
         // Store userId for backward compatibility
-        localStorage.setItem('userId', userData.sub);
+        setUserId(userData.sub);
         // Setup auto-refresh timer
         setupRefreshTimer(result.expires_in);
       }
@@ -307,8 +302,7 @@ export default function useAuth() {
     }
 
     // Clear local auth state
-    localStorage.removeItem('scamguard_auth');
-    localStorage.removeItem('userId');
+    clearAuth();
     setUser(null);
     setIsAuthenticated(false);
     setIsLoading(false);

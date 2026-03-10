@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { getAuthToken, getAuth } from '../utils/authStorage';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://mzkwpdt7m3.execute-api.us-east-1.amazonaws.com/staging/api/v1';
 
@@ -24,8 +25,7 @@ export default function useFamilyDashboard() {
     const fetchFamilyData = async () => {
       try {
         setLoading(true);
-        const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
-        const token = auth.id_token || auth.idToken;
+        const token = getAuthToken();
 
         if (!token) {
           setError('Authentification requise');

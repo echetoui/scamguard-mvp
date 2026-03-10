@@ -11,6 +11,7 @@
  */
 
 import React, { useState } from 'react';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 import './ToolsTab.css';
 
 export default function ToolsTab() {
@@ -94,7 +95,7 @@ export default function ToolsTab() {
       setEmailResult(data.data);
       setEmailStep('result');
     } catch (err) {
-      setEmailError('Impossible de vérifier le courriel. Réessayez plus tard.');
+      setEmailError(ERROR_MESSAGES.EMAIL_CHECK_FAILED);
       console.error('Email check error:', err);
     } finally {
       setEmailLoading(false);
@@ -129,7 +130,7 @@ export default function ToolsTab() {
       setAdvisorResult(data.data);
       setAdvisorStep('result');
     } catch (err) {
-      setAdvisorError('Impossible de vérifier le conseiller. Réessayez plus tard.');
+      setAdvisorError(ERROR_MESSAGES.ADVISOR_CHECK_FAILED);
       console.error('Advisor check error:', err);
     } finally {
       setAdvisorLoading(false);

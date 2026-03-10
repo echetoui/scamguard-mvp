@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setAuth, setUserId } from '../utils/authStorage';
 
 const AuthCallback = () => {
   const [status, setStatus] = useState('processing');
@@ -51,18 +52,16 @@ const AuthCallback = () => {
         const tokens = await tokenResponse.json();
 
         // Store tokens
-        const authData = {
+        setAuth({
           id_token: tokens.id_token,
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token,
           expires_in: tokens.expires_in,
-          timestamp: Date.now(),
-        };
-        localStorage.setItem('scamguard_auth', JSON.stringify(authData));
+        });
 
         // Extract user info from ID token
         const idTokenPayload = JSON.parse(atob(tokens.id_token.split('.')[1]));
-        localStorage.setItem('userId', idTokenPayload.sub);
+        setUserId(idTokenPayload.sub);
 
         setStatus('success');
         
