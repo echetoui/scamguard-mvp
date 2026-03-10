@@ -6,7 +6,7 @@
  * Tracks all verified messages/images with results and dates
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { analysisAPI } from '../services/api';
 
 const STORAGE_KEY = 'scamguard_analysis_history';
@@ -32,6 +32,7 @@ const STORAGE_KEY = 'scamguard_analysis_history';
 export const useAnalysisHistory = () => {
   const [analyses, setAnalyses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const saveTimeoutRef = useRef(null);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -47,15 +48,31 @@ export const useAnalysisHistory = () => {
     }
   }, []);
 
-  // Save to localStorage whenever analyses change
+  // Debounced save to localStorage (500ms debounce)
   useEffect(() => {
-    if (!isLoading) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(analyses));
-      } catch (error) {
-        console.error('Error saving analysis history:', error);
+    if (!isLoading && analyses.length > 0) {
+      // Cancel previous timeout if it exists
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
+
+      // Set new debounced save
+      saveTimeoutRef.current = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(analyses));
+        } catch (error) {
+          console.error('Error saving analysis history:', error);
+        }
+        saveTimeoutRef.current = null;
+      }, 500);
     }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
   }, [analyses, isLoading]);
 
   /**
