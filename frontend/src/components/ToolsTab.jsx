@@ -8,7 +8,7 @@
  * ✅ WCAG AAA accessibility
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import EmailBreachChecker from './EmailBreachChecker';
 import AdvisorVerifier from './AdvisorVerifier';
 import './ToolsTab.css';
@@ -17,7 +17,7 @@ export default function ToolsTab() {
   const [activeSubTab, setActiveSubTab] = useState('email');
 
   // Handle keyboard navigation for tabs (arrow keys)
-  const handleTabKeyDown = (e) => {
+  const handleTabKeyDown = useCallback((e) => {
     const tabs = ['email', 'advisor'];
     const currentIndex = tabs.indexOf(activeSubTab);
 
@@ -50,7 +50,11 @@ export default function ToolsTab() {
         if (buttons[buttons.length - 1]) buttons[buttons.length - 1].focus();
       }, 0);
     }
-  };
+  }, [activeSubTab]);
+
+  // Memoized tab click handlers
+  const handleEmailTabClick = useCallback(() => setActiveSubTab('email'), []);
+  const handleAdvisorTabClick = useCallback(() => setActiveSubTab('advisor'), []);
 
   return (
     <div className="tools-tab">
@@ -65,7 +69,7 @@ export default function ToolsTab() {
         <button
           id="email-tab"
           className={`sub-tab-btn ${activeSubTab === 'email' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('email')}
+          onClick={handleEmailTabClick}
           onKeyDown={handleTabKeyDown}
           role="tab"
           aria-selected={activeSubTab === 'email'}
@@ -77,7 +81,7 @@ export default function ToolsTab() {
         <button
           id="advisor-tab"
           className={`sub-tab-btn ${activeSubTab === 'advisor' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('advisor')}
+          onClick={handleAdvisorTabClick}
           onKeyDown={handleTabKeyDown}
           role="tab"
           aria-selected={activeSubTab === 'advisor'}
