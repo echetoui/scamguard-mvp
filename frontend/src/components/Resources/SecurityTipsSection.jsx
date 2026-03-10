@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import tipsData from '../../data/securityTips.json';
 
-const SecurityTipsSection = () => {
+const SecurityTipsSection = memo(() => {
   const [expandedChecklist, setExpandedChecklist] = useState('before-block');
 
   const renderChecklist = (checklist) => {
@@ -164,6 +164,6 @@ const SecurityTipsSection = () => {
       </div>
     </div>
   );
-};
+});
 
 export default SecurityTipsSection;

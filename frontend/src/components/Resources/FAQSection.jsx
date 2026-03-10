@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import faqData from '../../data/faqData.json';
 import FAQItem from './FAQItem';
 
-const FAQSection = () => {
+const FAQSection = memo(() => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [expandedCategory, setExpandedCategory] = useState(null);
@@ -138,6 +138,6 @@ const FAQSection = () => {
       </div>
     </div>
   );
-};
+});
 
 export default FAQSection;

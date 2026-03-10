@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import guidesData from '../../data/blockingGuides.json';
 import GuideCard from './GuideCard';
 
-const BlockingGuidesSection = () => {
+const BlockingGuidesSection = memo(() => {
   const guides = guidesData.guides;
 
   // Group guides by platform
@@ -37,6 +37,6 @@ const BlockingGuidesSection = () => {
       </div>
     </div>
   );
-};
+});
 
 export default BlockingGuidesSection;

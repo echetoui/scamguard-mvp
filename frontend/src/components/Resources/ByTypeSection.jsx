@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import guidesData from '../../data/blockingGuides.json';
 
-const ByTypeSection = () => {
+const ByTypeSection = memo(() => {
   // Group guides by type
   const types = {
     'appel': { icon: '☎️', label: 'Appels Téléphoniques' },
@@ -78,6 +78,6 @@ const ByTypeSection = () => {
       </div>
     </div>
   );
-};
+});
 
 export default ByTypeSection;
