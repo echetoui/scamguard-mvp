@@ -3,31 +3,9 @@
  * Handles authentication, request/response formatting, and token management
  */
 
+import { getAuthToken, getRefreshToken, setAuth, clearAuth } from '../utils/authStorage';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
-
-/**
- * Retrieve the stored JWT token from localStorage
- */
-function getAuthToken() {
-  try {
-    const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
-    return auth.id_token || auth.idToken || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Retrieve the refresh token from localStorage
- */
-function getRefreshToken() {
-  try {
-    const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
-    return auth.refresh_token || null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Attempt to refresh the JWT token using refresh_token
@@ -53,13 +31,12 @@ async function refreshAccessToken() {
     const result = data.data || data;
 
     // Store new tokens
-    localStorage.setItem('scamguard_auth', JSON.stringify({
+    setAuth({
       id_token: result.id_token,
       access_token: result.access_token,
       refresh_token: result.refresh_token,
       expires_in: result.expires_in,
-      timestamp: Date.now(),
-    }));
+    });
 
     return true;
   } catch (err) {
@@ -112,8 +89,7 @@ async function apiCall(endpoint, options = {}) {
       });
     } else {
       // Refresh failed, clear auth and retry without token
-      localStorage.removeItem('scamguard_auth');
-      localStorage.removeItem('userId');
+      clearAuth();
 
       const retryHeaders = {
         'Content-Type': 'application/json',

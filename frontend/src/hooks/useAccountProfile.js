@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { analysisAPI } from '../services/api';
+import { getAuth, getUserId, getAuthToken } from '../utils/authStorage';
 
 const STORAGE_KEY = 'scamguard_profile';
 
@@ -51,12 +52,11 @@ export default function useAccountProfile() {
 
         // Fire-and-forget cloud sync to DynamoDB (only if authenticated)
         try {
-          const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
-          const token = auth.id_token || auth.idToken;
+          const token = getAuthToken();
 
           // Only sync if user is authenticated
           if (token) {
-            const userId = localStorage.getItem('userId') || 'anonymous';
+            const userId = getUserId() || 'anonymous';
             // Async call without awaiting
             analysisAPI.saveProfile(userId, data).catch((err) => {
               // Silently fail - user can still use app without cloud sync

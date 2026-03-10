@@ -16,6 +16,8 @@ import Toast from './Toast';
 import RoleSelectionCards from './auth/RoleSelectionCards';
 import EmailAuthForm from './auth/EmailAuthForm';
 import PhoneOTPForm from './auth/PhoneOTPForm';
+import { setAuth, setUserId } from '../utils/authStorage';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 import './SMSAuthScreen.css';
 
 export default function SMSAuthScreen() {
@@ -157,15 +159,14 @@ export default function SMSAuthScreen() {
         }
 
         // Store tokens
-        localStorage.setItem('scamguard_auth', JSON.stringify({
+        setAuth({
           id_token: data.data.id_token,
           access_token: data.data.access_token,
           refresh_token: data.data.refresh_token,
           expires_in: data.data.expires_in,
-          timestamp: Date.now()
-        }));
+        });
 
-        localStorage.setItem('userId', data.data.user.sub);
+        setUserId(data.data.user.sub);
 
         setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
         setStep('success');
@@ -175,7 +176,7 @@ export default function SMSAuthScreen() {
           window.location.href = '/';
         }, 2000);
       } catch (err) {
-        setError('Erreur réseau. Veuillez réessayer.');
+        setError(ERROR_MESSAGES.NETWORK_ERROR);
         setLoading(false);
       }
     } else {
@@ -211,14 +212,13 @@ export default function SMSAuthScreen() {
 
         // Store tokens if provided
         if (data.data?.id_token) {
-          localStorage.setItem('scamguard_auth', JSON.stringify({
+          setAuth({
             id_token: data.data.id_token,
             access_token: data.data.access_token,
             refresh_token: data.data.refresh_token,
             expires_in: data.data.expires_in,
-            timestamp: Date.now()
-          }));
-          localStorage.setItem('userId', data.data.user?.sub || 'anonymous');
+          });
+          setUserId(data.data.user?.sub || 'anonymous');
         }
 
         setStep('success');
@@ -228,7 +228,7 @@ export default function SMSAuthScreen() {
           window.location.href = '/';
         }, 2000);
       } catch (err) {
-        setError('Erreur réseau. Veuillez réessayer.');
+        setError(ERROR_MESSAGES.NETWORK_ERROR);
         setLoading(false);
       }
     }
@@ -359,14 +359,14 @@ export default function SMSAuthScreen() {
       }
 
       // Store tokens
-      localStorage.setItem('scamguard_auth', JSON.stringify({
+      setAuth({
         id_token: data.data.id_token,
         access_token: data.data.access_token,
         refresh_token: data.data.refresh_token,
-        expires_in: data.data.expires_in
-      }));
+        expires_in: data.data.expires_in,
+      });
 
-      localStorage.setItem('userId', data.data.user.sub);
+      setUserId(data.data.user.sub);
 
       setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
       setStep('success');
@@ -376,7 +376,7 @@ export default function SMSAuthScreen() {
         window.location.href = '/';
       }, 2000);
     } catch (err) {
-      setError('Erreur réseau. Veuillez réessayer.');
+      setError(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {
       setLoading(false);
     }

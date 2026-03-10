@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { getAuthToken } from '../utils/authStorage';
 import './FamilyDashboard.css';
 
 export default function FamilyDashboard() {
@@ -32,8 +33,7 @@ export default function FamilyDashboard() {
     const fetchFamilyData = async () => {
       try {
         setLoading(true);
-        const auth = JSON.parse(localStorage.getItem('scamguard_auth') || '{}');
-        const token = auth.id_token || auth.idToken;
+        const token = getAuthToken();
 
         if (!token) {
           setError('Authentification requise');
