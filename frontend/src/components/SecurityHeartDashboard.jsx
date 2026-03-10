@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './SecurityHeartDashboard.css';
+import {
+  getScoreStatus,
+  getScoreColor,
+  getScoreEmoji,
+  getStatusMessage,
+  getStatusText,
+  calculateGraphPoints,
+  calculateDataPoint
+} from '../utils/dashboardUtils';
 
 /**
  * Security Heart Dashboard - Phase 3.1.1
@@ -62,40 +71,6 @@ const SecurityHeartDashboard = ({ userId }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const getScoreStatus = (score) => {
-    if (score >= 70) return 'safe';
-    if (score >= 40) return 'moderate';
-    return 'warning';
-  };
-
-  const getScoreColor = (score) => {
-    if (score >= 70) return '#2E7D32'; // Dark green
-    if (score >= 40) return '#F57C00'; // Orange
-    return '#D32F2F'; // Red
-  };
-
-  const getScoreEmoji = (score) => {
-    if (score >= 70) return '🟢';
-    if (score >= 40) return '🟡';
-    return '🔴';
-  };
-
-  const getStatusMessage = (score) => {
-    if (score >= 80) return 'Vous êtes très bien protégé!';
-    if (score >= 70) return 'Vous êtes bien protégé!';
-    if (score >= 40) return 'Soyez vigilant!';
-    return 'Action recommandée!';
-  };
-
-  const getStatusText = (status) => {
-    const statusMap = {
-      'safe': 'TRÈS SÛRS',
-      'moderate': 'MODÉRÉ',
-      'warning': 'VIGILANCE',
-      'error': 'ERREUR'
-    };
-    return statusMap[status] || 'CHARGEMENT';
-  };
 
   return (
     <div className="security-heart-dashboard">
@@ -166,31 +141,24 @@ const SecurityHeartDashboard = ({ userId }) => {
 
               {/* Plot line */}
               <polyline
-                points={scoreHistory
-                  .map((score, idx) => {
-                    const x = (idx / (scoreHistory.length - 1)) * 280 + 10;
-                    const y = 80 - (score / 100) * 60;
-                    return `${x},${y}`;
-                  })
-                  .join(' ')}
+                points={calculateGraphPoints(scoreHistory)}
                 className="graph-line"
                 fill="none"
               />
 
               {/* Data points */}
               {scoreHistory.map((score, idx) => {
-                const x = (idx / (scoreHistory.length - 1)) * 280 + 10;
-                const y = 80 - (score / 100) * 60;
+                const point = calculateDataPoint(score, idx, scoreHistory.length);
                 return (
                   <circle
                     key={idx}
-                    cx={x}
-                    cy={y}
+                    cx={point.x}
+                    cy={point.y}
                     r="3"
                     className="graph-point"
                     role="button"
                     tabIndex="0"
-                    aria-label={`Jour ${idx + 1}: ${score} points`}
+                    aria-label={point.label}
                   />
                 );
               })}
