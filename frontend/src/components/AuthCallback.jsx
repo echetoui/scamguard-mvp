@@ -5,6 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setAuth, setUserId } from '../utils/authStorage';
+import './AuthCallback.css';
 
 const AuthCallback = () => {
   const [status, setStatus] = useState('processing');
@@ -64,7 +65,7 @@ const AuthCallback = () => {
         setUserId(idTokenPayload.sub);
 
         setStatus('success');
-        
+
         // Redirect to dashboard
         setTimeout(() => navigate('/dashboard'), 1000);
 
@@ -79,28 +80,11 @@ const AuthCallback = () => {
   }, [navigate]);
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      padding: '2rem',
-      fontFamily: 'Lora, serif',
-      background: '#FFF9F3'
-    }}>
+    <div className="auth-callback-container">
       {status === 'processing' && (
         <>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid #D4A574',
-            borderTop: '3px solid #C85A2A',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            marginBottom: '1rem'
-          }} />
-          <p style={{ color: '#7A9B7F', fontSize: '1.1rem' }}>
+          <div className="auth-spinner" />
+          <p className="auth-status-text">
             Connexion en cours...
           </p>
         </>
@@ -108,19 +92,10 @@ const AuthCallback = () => {
 
       {status === 'success' && (
         <>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            background: '#7A9B7F',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1rem'
-          }}>
-            <span style={{ color: 'white', fontSize: '1.5rem' }}>✓</span>
+          <div className="auth-success-icon">
+            <span className="auth-success-mark">✓</span>
           </div>
-          <p style={{ color: '#7A9B7F', fontSize: '1.1rem' }}>
+          <p className="auth-status-text">
             Connexion réussie ! Redirection...
           </p>
         </>
@@ -128,30 +103,14 @@ const AuthCallback = () => {
 
       {status === 'error' && (
         <>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            background: '#C85A2A',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1rem'
-          }}>
-            <span style={{ color: 'white', fontSize: '1.5rem' }}>✗</span>
+          <div className="auth-error-icon">
+            <span className="auth-error-mark">✗</span>
           </div>
-          <p style={{ color: '#C85A2A', fontSize: '1.1rem' }}>
+          <p className="auth-error-text">
             Erreur de connexion. Redirection...
           </p>
         </>
       )}
-
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };
