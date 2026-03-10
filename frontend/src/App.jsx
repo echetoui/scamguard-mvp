@@ -10,9 +10,7 @@ import AnalysisHistory from './components/AnalysisHistory';
 import DashboardStats from './components/DashboardStats';
 import QuizModule from './components/QuizModule';
 import useCreditSystem from './hooks/useCreditSystem';
-import CreditSystem from './components/CreditSystem';
 import useAccountProfile from './hooks/useAccountProfile';
-import AccountProfile from './components/AccountProfile';
 import useAuth from './hooks/useAuth';
 import ModernAuthPage from './components/ModernAuthPage';
 import useFamilyDashboard from './hooks/useFamilyDashboard';
@@ -22,6 +20,8 @@ import { analysisAPI } from './services/api';
 const ResourcesTab = lazy(() => import('./components/Resources/ResourcesTab'));
 const ToolsTab = lazy(() => import('./components/ToolsTab'));
 const FamilyDashboard = lazy(() => import('./components/FamilyDashboard'));
+const AccountProfile = lazy(() => import('./components/AccountProfile'));
+const CreditSystem = lazy(() => import('./components/CreditSystem'));
 
 // Loading placeholder component
 const LoadingPlaceholder = () => (
@@ -341,24 +341,28 @@ export default function App() {
         {/* Tab 7: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
         <TabPanel tabId="parametres" activeTab={activeTab}>
           {/* Phase 4.2: Account Profile Section */}
-          <AccountProfile
-            profile={profile}
-            statistics={statistics}
-            onUpdateName={updateName}
-            onUpdateAvatar={updateAvatar}
-            onTogglePreference={togglePreference}
-            onResetProfile={resetProfile}
-            joinDate={getJoinDateFormatted()}
-            onExportData={handleExportData}
-            onLogout={auth.logout}
-          />
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <AccountProfile
+              profile={profile}
+              statistics={statistics}
+              onUpdateName={updateName}
+              onUpdateAvatar={updateAvatar}
+              onTogglePreference={togglePreference}
+              onResetProfile={resetProfile}
+              joinDate={getJoinDateFormatted()}
+              onExportData={handleExportData}
+              onLogout={auth.logout}
+            />
+          </Suspense>
           {/* Phase 4.0.4: Credit System Section */}
-          <CreditSystem
-            balance={balance}
-            transactions={transactions}
-            stats={creditStats}
-            formatTimeAgo={formatTimeAgo}
-          />
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <CreditSystem
+              balance={balance}
+              transactions={transactions}
+              stats={creditStats}
+              formatTimeAgo={formatTimeAgo}
+            />
+          </Suspense>
         </TabPanel>
       </div>
 
