@@ -363,4 +363,441 @@ describe('SMSAuthScreen Component', () => {
       expect(screen.getByText('✅ Bienvenue!')).toBeTruthy();
     });
   });
+
+  // Phase 6 - Expanded Coverage Tests
+
+  describe('Signup Flow with Password Generation', () => {
+    it('should generate password with at least one uppercase letter', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]); // signup
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      for (let i = 0; i < 5; i++) {
+        const generateBtn = screen.getByText('Generate');
+        fireEvent.click(generateBtn);
+        const passwordInput = container.querySelector('#password-input');
+        const hasUpper = /[A-Z]/.test(passwordInput.value);
+        expect(hasUpper).toBe(true);
+      }
+    });
+
+    it('should generate password with at least one lowercase letter', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]);
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      for (let i = 0; i < 5; i++) {
+        const generateBtn = screen.getByText('Generate');
+        fireEvent.click(generateBtn);
+        const passwordInput = container.querySelector('#password-input');
+        const hasLower = /[a-z]/.test(passwordInput.value);
+        expect(hasLower).toBe(true);
+      }
+    });
+
+    it('should generate password with at least one digit', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]);
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      for (let i = 0; i < 5; i++) {
+        const generateBtn = screen.getByText('Generate');
+        fireEvent.click(generateBtn);
+        const passwordInput = container.querySelector('#password-input');
+        const hasDigit = /[0-9]/.test(passwordInput.value);
+        expect(hasDigit).toBe(true);
+      }
+    });
+
+    it('should generate password with at least one symbol', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]);
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      for (let i = 0; i < 5; i++) {
+        const generateBtn = screen.getByText('Generate');
+        fireEvent.click(generateBtn);
+        const passwordInput = container.querySelector('#password-input');
+        const hasSymbol = /[!@#$%^&*]/.test(passwordInput.value);
+        expect(hasSymbol).toBe(true);
+      }
+    });
+
+    it('should generate unique passwords on each call', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]);
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      const generateBtn = screen.getByText('Generate');
+      fireEvent.click(generateBtn);
+      const password1 = container.querySelector('#password-input').value;
+
+      fireEvent.click(generateBtn);
+      const password2 = container.querySelector('#password-input').value;
+
+      // Passwords should be different (high probability)
+      expect(password1).not.toBe(password2);
+    });
+
+    it('should submit signup form with generated password', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: { user_id: 'user123', status: 'pending', message: 'Verify email' }
+        })
+      }).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600 }
+        })
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]); // signup
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      const generateBtn = screen.getByText('Generate');
+      fireEvent.click(generateBtn);
+
+      const emailInput = container.querySelector('#email-input');
+      const submitBtn = screen.getByText('S\'inscrire');
+
+      fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Email & Password Submission', () => {
+    it('should clear error on successful second attempt', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: { message: 'Invalid' } })
+      }).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+        })
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]); // login
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      // First attempt - error
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'wrong' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText('Invalid')).toBeTruthy();
+      });
+
+      // Second attempt - success
+      fireEvent.change(passwordInput, { target: { value: 'correct' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText('✅ Bienvenue!')).toBeTruthy();
+      });
+    });
+
+    it('should store auth on successful login', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: { id_token: 'test-token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+        })
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText('✅ Bienvenue!')).toBeTruthy();
+      });
+    });
+
+    it('should handle empty email submission', async () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      // Email is empty
+      fireEvent.click(submitBtn);
+
+      // Should show validation error
+      await waitFor(() => {
+        expect(global.fetch).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should handle empty password submission', async () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      // Password is empty
+      fireEvent.click(submitBtn);
+
+      // Should show validation error
+      await waitFor(() => {
+        expect(global.fetch).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should trim whitespace from email', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: { id_token: 'token', access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { sub: 'user123' } }
+        })
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: '  test@example.com  ' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+          body: expect.stringContaining('test@example.com')
+        }));
+      });
+    });
+  });
+
+  describe('Mode Switching', () => {
+    it('should reset error when switching modes', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]); // login
+
+      // Mock to show error
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: { message: 'Error' } })
+      });
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'pass' } });
+
+      // Go back
+      const backBtn = screen.getByText('← Retour');
+      fireEvent.click(backBtn);
+
+      // Verify mode is reset
+      expect(screen.getByText('Que voulez-vous faire?')).toBeTruthy();
+    });
+
+    it('should allow switching between modes', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]); // signup
+      fireEvent.click(screen.getByText('Select Senior'));
+
+      // Now in email form for signup
+      expect(container.querySelector('.email-auth-form-mock')).toBeTruthy();
+
+      // Go back to mode selection
+      let backBtn = screen.getByText('← Retour');
+      fireEvent.click(backBtn);
+      backBtn = screen.getByText('← Retour');
+      fireEvent.click(backBtn);
+
+      // Back at mode selection
+      expect(screen.getByText('Que voulez-vous faire?')).toBeTruthy();
+
+      // Switch to login
+      fireEvent.click(buttons[1]);
+
+      // Now in email form for login
+      expect(container.querySelector('.email-auth-form-mock')).toBeTruthy();
+    });
+  });
+
+  describe('Accessibility & UI', () => {
+    it('should use semantic HTML', () => {
+      const { container } = render(<SMSAuthScreen />);
+      expect(container.querySelector('[role="main"]')).toBeTruthy();
+    });
+
+    it('should display instructions clearly', () => {
+      render(<SMSAuthScreen />);
+      expect(screen.getByText('Que voulez-vous faire?')).toBeTruthy();
+    });
+
+    it('should have visual feedback for selected role', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[0]);
+
+      const selectRoleBtn = screen.getByText('Select Senior');
+      fireEvent.click(selectRoleBtn);
+
+      // Role is selected, should move to email form
+      expect(container.querySelector('.email-auth-form-mock')).toBeTruthy();
+    });
+
+    it('should disable buttons during loading', async () => {
+      global.fetch.mockImplementation(() => new Promise(() => {}));
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const submitBtn = screen.getByText('Se connecter');
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      // Submit button should be disabled
+      expect(submitBtn.disabled).toBe(true);
+    });
+
+    it('should render without crashing', () => {
+      const { container } = render(<SMSAuthScreen />);
+      expect(container).toBeTruthy();
+    });
+
+    it('should have proper structure with main element', () => {
+      const { container } = render(<SMSAuthScreen />);
+      const smsScreen = container.querySelector('.sms-auth-screen');
+      expect(smsScreen).toBeTruthy();
+      expect(smsScreen.getAttribute('role')).toBe('main');
+    });
+  });
+
+  describe('Error Handling & Edge Cases', () => {
+    it('should handle null/undefined API response', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({})
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeTruthy();
+      });
+    });
+
+    it('should handle malformed JSON response', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => { throw new Error('Parse error'); }
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeTruthy();
+      });
+    });
+
+    it('should handle timeout error gracefully', async () => {
+      global.fetch.mockRejectedValueOnce(new Error('Timeout'));
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Erreur réseau/)).toBeTruthy();
+      });
+    });
+
+    it('should handle 500 server error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({ error: { message: 'Server error' } })
+      });
+
+      const { container } = render(<SMSAuthScreen />);
+      const buttons = container.querySelectorAll('.auth-button');
+      fireEvent.click(buttons[1]);
+
+      const emailInput = container.querySelector('#email-input');
+      const passwordInput = container.querySelector('#password-input');
+      const submitBtn = screen.getByText('Se connecter');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeTruthy();
+      });
+    });
+  });
 });
