@@ -282,7 +282,7 @@ export default function SMSAuthScreen() {
         });
       }, 1000);
     } catch (err) {
-      setError('Erreur réseau. Veuillez réessayer.');
+      setError(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {
       setLoading(false);
     }
