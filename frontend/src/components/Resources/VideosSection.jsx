@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 
-const VideosSection = () => {
+const VideosSection = memo(() => {
   const [selectedVideo, setSelectedVideo] = useState(null);
 
   const videos = [
@@ -172,6 +172,6 @@ const VideosSection = () => {
       </div>
     </div>
   );
-};
+});
 
 export default VideosSection;

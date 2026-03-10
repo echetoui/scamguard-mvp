@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import linksData from '../../data/externalLinks.json';
 
-const ExternalLinksSection = () => {
+const ExternalLinksSection = memo(() => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [expandedCategory, setExpandedCategory] = useState('police');
 
@@ -137,6 +137,6 @@ const ExternalLinksSection = () => {
       </div>
     </div>
   );
-};
+});
 
 export default ExternalLinksSection;
