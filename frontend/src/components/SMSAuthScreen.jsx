@@ -13,6 +13,9 @@
 
 import React, { useState, useRef } from 'react';
 import Toast from './Toast';
+import RoleSelectionCards from './auth/RoleSelectionCards';
+import EmailAuthForm from './auth/EmailAuthForm';
+import PhoneOTPForm from './auth/PhoneOTPForm';
 import './SMSAuthScreen.css';
 
 export default function SMSAuthScreen() {
@@ -430,69 +433,14 @@ export default function SMSAuthScreen() {
         {/* Step 1: Role Selection (Signup only) - Phase 5A */}
         {step === 'role' && mode === 'signup' && (
           <div className="auth-form">
-            <h2>Qui êtes-vous?</h2>
-            <p className="step-description">
-              Choisissez votre profil pour une protection adaptée
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-              {/* Senior Card */}
-              <button
-                type="button"
-                className={`role-card ${userRole === 'senior' ? 'selected' : ''}`}
-                onClick={() => {
-                  setUserRole('senior');
-                  setStep('email');
-                }}
-                aria-label="Je suis un aîné"
-              >
-                <div className="role-card-icon">🧓</div>
-                <div className="role-card-content">
-                  <h3>Je suis un Aîné</h3>
-                  <p>Protection personnalisée pour les seniors</p>
-                  <small>Rejoignez la famille avec un code invitation (optionnel)</small>
-                </div>
-                <div className="role-card-arrow">→</div>
-              </button>
-
-              {/* Family/Guardian Card */}
-              <button
-                type="button"
-                className={`role-card ${userRole === 'family' ? 'selected' : ''}`}
-                onClick={() => {
-                  setUserRole('family');
-                  setStep('email');
-                }}
-                aria-label="Je protège ma famille"
-              >
-                <div className="role-card-icon">👨‍👩‍👦</div>
-                <div className="role-card-content">
-                  <h3>Je protège ma famille</h3>
-                  <p>Créez un groupe familial et surveillez vos proches</p>
-                  <small>Gérez les alertes et le tableau de bord familial</small>
-                </div>
-                <div className="role-card-arrow">→</div>
-              </button>
-
-              {/* Individual Card (No family) */}
-              <button
-                type="button"
-                className={`role-card ${userRole === 'individual' ? 'selected' : ''}`}
-                onClick={() => {
-                  setUserRole('individual');
-                  setStep('email');
-                }}
-                aria-label="Protection personnelle seule"
-              >
-                <div className="role-card-icon">👤</div>
-                <div className="role-card-content">
-                  <h3>Je souhaite une protection personnelle</h3>
-                  <p>Scannez et signalez les arnaques en toute autonomie</p>
-                  <small>Sans gestion familiale</small>
-                </div>
-                <div className="role-card-arrow">→</div>
-              </button>
-            </div>
+            <RoleSelectionCards
+              selectedRole={userRole}
+              onSelectRole={(role) => {
+                setUserRole(role);
+                setStep('email');
+              }}
+              loading={loading}
+            />
 
             <button
               type="button"
@@ -507,155 +455,37 @@ export default function SMSAuthScreen() {
 
         {/* Step 2: Email & Password */}
         {step === 'email' && (
-          <form onSubmit={handleEmailSubmit} className="auth-form">
-            <h2>{mode === 'login' ? 'Connectez-vous' : 'S\'inscrire'}</h2>
-
-            <div className="form-group">
-              <label htmlFor="email">Adresse email</label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                aria-label="Adresse email"
-                aria-invalid={error ? 'true' : 'false'}
-                aria-describedby={error ? 'email-error' : undefined}
-                disabled={loading}
-                autoFocus
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="password">Mot de passe</label>
-              {mode === 'signup' ? (
-                <>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginBottom: '8px' }}>
-                    <input
-                      id="password"
-                      type="text"
-                      value={password}
-                      readOnly
-                      placeholder="Générer un mot de passe sécurisé"
-                      aria-label="Mot de passe généré"
-                      disabled={loading}
-                      style={{
-                        flex: 1,
-                        fontFamily: 'monospace',
-                        fontSize: '14px',
-                        backgroundColor: '#f0f8ff',
-                        borderRadius: '4px',
-                        padding: '10px',
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleCopyPassword}
-                      disabled={!password || loading}
-                      aria-label="Copier le mot de passe"
-                      style={{
-                        padding: '8px 12px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        minWidth: '70px',
-                      }}
-                      title="Copier"
-                    >
-                      📋 Copier
-                    </button>
-                  </div>
-                  {!password && (
-                    <button
-                      type="button"
-                      onClick={handleGeneratePassword}
-                      disabled={loading}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        backgroundColor: '#2196F3',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        marginBottom: '8px',
-                      }}
-                      title="Générer un mot de passe sécurisé"
-                    >
-                      🔐 Générer un mot de passe sécurisé
-                    </button>
-                  )}
-                  {password && (
-                    <button
-                      type="button"
-                      onClick={handleGeneratePassword}
-                      disabled={loading}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        backgroundColor: '#FF9800',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        marginBottom: '8px',
-                      }}
-                      title="Générer un nouveau mot de passe"
-                    >
-                      🔄 Générer un autre mot de passe
-                    </button>
-                  )}
-                  <small style={{ display: 'block', marginTop: '8px', color: '#666' }}>
-                    ✅ Min. 16 caractères avec majuscules, minuscules, chiffres et symboles
-                  </small>
-                </>
-              ) : (
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Votre mot de passe"
-                  aria-label="Mot de passe"
-                  aria-invalid={error ? 'true' : 'false'}
-                  aria-describedby={error ? 'password-error' : undefined}
-                  disabled={loading}
-                />
-              )}
-            </div>
-
-            {error && (
-              <div id="email-error" className="error-message" role="alert">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="auth-button"
-              disabled={loading}
-              aria-label={mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
-            >
-              {loading ? '⏳ Chargement...' : mode === 'login' ? 'Se connecter' : 'Continuer'}
-            </button>
+          <>
+            <EmailAuthForm
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              mode={mode}
+              loading={loading}
+              error={error}
+              onGeneratePassword={handleGeneratePassword}
+              onCopyPassword={handleCopyPassword}
+              onSubmit={(submittedEmail, submittedPassword) => {
+                handleEmailSubmit({ preventDefault: () => {} });
+              }}
+              onModeChange={(newMode) => {
+                setMode(newMode);
+                setPassword('');
+                setError('');
+              }}
+            />
 
             <button
               type="button"
               className="auth-link-button"
               onClick={() => setMode('choose')}
               disabled={loading}
+              style={{ marginTop: '12px' }}
             >
               ← Retour
             </button>
-          </form>
+          </>
         )}
 
         {/* Step 2: Phone Number (Signup only) */}
