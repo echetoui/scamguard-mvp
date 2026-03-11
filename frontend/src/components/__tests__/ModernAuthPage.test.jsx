@@ -10,9 +10,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ModernAuthPage from '../ModernAuthPage';
 
-// Mock SMSAuthScreen component
-vi.mock('../SMSAuthScreen', () => ({
-  default: () => <div className="sms-auth-screen">SMS Auth Screen</div>
+// Mock PhoneAuthScreen component
+vi.mock('../PhoneAuthScreen', () => ({
+  default: () => <div className="phone-auth-screen">Phone Auth Screen</div>
 }));
 
 describe('ModernAuthPage Component', () => {
@@ -359,7 +359,7 @@ describe('ModernAuthPage Component', () => {
       const loginBtn = screen.getByText('Se connecter');
       fireEvent.click(loginBtn);
 
-      expect(container.querySelector('.sms-auth-screen')).toBeTruthy();
+      expect(container.querySelector('.phone-auth-screen')).toBeTruthy();
     });
 
     it('should show auth screen when hero CTA clicked', () => {
@@ -368,7 +368,7 @@ describe('ModernAuthPage Component', () => {
       const ctaButtons = screen.getAllByText('Commencer maintenant');
       fireEvent.click(ctaButtons[0]);
 
-      expect(container.querySelector('.sms-auth-screen')).toBeTruthy();
+      expect(container.querySelector('.phone-auth-screen')).toBeTruthy();
     });
 
     it('should show auth screen when final CTA clicked', () => {
@@ -377,7 +377,7 @@ describe('ModernAuthPage Component', () => {
       const finalCtaBtn = screen.getByText(/Créer un Compte Gratuit/);
       fireEvent.click(finalCtaBtn);
 
-      expect(container.querySelector('.sms-auth-screen')).toBeTruthy();
+      expect(container.querySelector('.phone-auth-screen')).toBeTruthy();
     });
 
     it('should hide landing page when showing auth', () => {
@@ -467,16 +467,16 @@ describe('ModernAuthPage Component', () => {
       const { container } = render(<ModernAuthPage />);
 
       expect(container.querySelector('.modern-auth-page')).toBeTruthy();
-      expect(container.querySelector('.sms-auth-screen')).toBeFalsy();
+      expect(container.querySelector('.phone-auth-screen')).toBeFalsy();
     });
 
-    it('should render SMS auth screen when showAuth is true', () => {
+    it('should render Phone auth screen when showAuth is true', () => {
       const { container } = render(<ModernAuthPage />);
 
       const loginBtn = screen.getByText('Se connecter');
       fireEvent.click(loginBtn);
 
-      expect(container.querySelector('.sms-auth-screen')).toBeTruthy();
+      expect(container.querySelector('.phone-auth-screen')).toBeTruthy();
     });
 
     it('should not render landing sections when showing auth', () => {
