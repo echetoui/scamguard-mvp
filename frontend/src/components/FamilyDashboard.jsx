@@ -27,7 +27,7 @@ export default function FamilyDashboard() {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'https://mzkwpdt7m3.execute-api.us-east-1.amazonaws.com/staging/api/v1';
+  const API_URL = 'http://localhost:3001/api/v1';
 
   useEffect(() => {
     const fetchFamilyData = async () => {

@@ -4,7 +4,7 @@ Handles SMS-based one-time password verification for senior users.
 
 Features:
   ✅ OTP generation (6-digit codes)
-  ✅ SMS delivery via AWS Pinpoint
+  ✅ SMS delivery via Firebase Cloud Messaging (FCM)
   ✅ Rate limiting & brute force protection
   ✅ Attempt tracking
   ✅ Code expiration (10 minutes)
@@ -15,6 +15,7 @@ import json
 import os
 import secrets
 import boto3
+import requests
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
 import logging
@@ -25,13 +26,13 @@ logger.setLevel(logging.INFO)
 
 # Initialize AWS clients
 cognito_client = boto3.client("cognito-idp", region_name="us-east-1")
-pinpoint_client = boto3.client("pinpoint", region_name="us-east-1")
 dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
 
 # Environment variables
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID", "us-east-1_L35zaDPJn")
 COGNITO_CLIENT_ID = os.environ.get("COGNITO_CLIENT_ID", "tb4o4jblsbtekhtl9s611j4fg")
-PINPOINT_PROJECT_ID = os.environ.get("PINPOINT_PROJECT_ID", "")
+FIREBASE_API_KEY = os.environ.get("FIREBASE_API_KEY", "")  # Firebase API Key
+FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "")  # Firebase Project ID
 OTP_TABLE = os.environ.get("OTP_TABLE", "ScamGuardOTP-dev")
 AUDIT_TABLE = os.environ.get("AUDIT_TABLE", "ScamGuardAudit-dev")
 
@@ -62,31 +63,46 @@ def generate_otp():
 
 
 def send_sms_otp(phone, otp_code):
-    """Send OTP via SMS using AWS Pinpoint."""
+    """Send OTP via SMS using Firebase Cloud Messaging (FCM)."""
     try:
+        # Firebase Identity Toolkit REST API for sending SMS
+        # This requires Firebase Authentication with phone verification enabled
+        url = f"https://identitytoolkit.googleapis.com/v2/accounts:sendCustomOobCode"
+
         # French SMS template for Quebec seniors
         message = f"ScamGuard - Votre code de vérification: {otp_code} (valide 10 minutes)"
 
-        response = pinpoint_client.send_messages(
-            ApplicationId=PINPOINT_PROJECT_ID,
-            MessageRequest={
-                "Addresses": {
-                    phone: {
-                        "ChannelType": "SMS"
-                    }
-                },
-                "MessageConfiguration": {
-                    "SMSMessage": {
-                        "Body": message,
-                        "MessageType": "TRANSACTIONAL"
-                    }
-                }
-            }
+        payload = {
+            "phoneNumber": phone,
+            "customMessage": message
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        # Use Firebase API Key for authentication
+        params = {
+            "key": FIREBASE_API_KEY
+        }
+
+        response = requests.post(
+            url,
+            json=payload,
+            headers=headers,
+            params=params,
+            timeout=10
         )
 
-        logger.info(f"SMS sent to {phone}: MessageId={response['MessageResponse']['Result'][phone]['MessageId']}")
-        return True
-    except ClientError as e:
+        if response.status_code == 200:
+            logger.info(f"SMS sent to {phone} via Firebase FCM")
+            return True
+        else:
+            error_msg = response.json().get("error", {}).get("message", "Unknown error")
+            logger.error(f"Firebase SMS failed for {phone}: {error_msg}")
+            return False
+
+    except Exception as e:
         logger.error(f"Failed to send SMS to {phone}: {str(e)}")
         return False
 
