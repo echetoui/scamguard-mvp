@@ -18,7 +18,7 @@ export default function EmailBreachChecker() {
   const [emailError, setEmailError] = useState('');
   const [emailStep, setEmailStep] = useState('input'); // 'input' or 'result'
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://mzkwpdt7m3.execute-api.us-east-1.amazonaws.com/staging/api/v1';
+  const API_BASE_URL = 'http://localhost:3001/api/v1';
 
   // Email breach checking function
   const handleCheckEmail = async (e) => {

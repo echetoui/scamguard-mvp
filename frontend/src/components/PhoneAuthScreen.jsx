@@ -29,7 +29,7 @@ export default function PhoneAuthScreen() {
   const [toastMessage, setToastMessage] = useState('');
   const otpRefs = useRef([]);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'https://mzkwpdt7m3.execute-api.us-east-1.amazonaws.com/staging/api/v1';
+  const API_URL = 'http://localhost:3001/api/v1';
 
   // Format phone number to E.164
   const formatPhone = (value) => {

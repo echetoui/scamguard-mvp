@@ -5,7 +5,9 @@
 
 import { getAuthToken, getRefreshToken, setAuth, clearAuth } from '../utils/authStorage';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
+// Development uses localhost, production uses AWS
+// import.meta.env.DEV is true when running `npm start` (dev server)
+const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 /**
  * Attempt to refresh the JWT token using refresh_token
