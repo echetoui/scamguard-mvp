@@ -51,10 +51,15 @@ const server = http.createServer((req, res) => {
 
         console.log(`✅ SMS OTP for ${phone}: ${otp}`);
 
+        // Mask phone number: +14388313122 -> +14****3122
+        const phoneMasked = phone ? `${phone.slice(0, 3)}****${phone.slice(-4)}` : phone;
+
         send(res, 200, {
           success: true,
           data: {
-            message: `Code sent to ${phone}`,
+            message: `Code envoyé à ${phone}`,
+            expires_in: 600,
+            phone_masked: phoneMasked,
             otp // For testing - remove in production!
           }
         });
@@ -85,7 +90,8 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        if (cached.otp !== code) {
+        // Accept the stored OTP or Firebase test code (123456) for testing
+        if (cached.otp !== code && code !== '123456') {
           send(res, 400, { error: { message: 'Invalid OTP code' } });
           return;
         }
