@@ -91,26 +91,32 @@ def send_sms_otp(phone, otp_code):
         return False
 
 
-def store_otp(phone, email, otp_code):
+def store_otp(phone, email, otp_code, password=None):
     """Store OTP in DynamoDB with expiration."""
     try:
         table = dynamodb.Table(OTP_TABLE)
         expiry_time = (datetime.utcnow() + timedelta(minutes=OTP_EXPIRY_MINUTES)).isoformat()
 
+        item = {
+            "PK": f"OTP#{phone}",
+            "SK": f"CODE#{email}",
+            "code": otp_code,
+            "email": email,
+            "phone": phone,
+            "created_at": datetime.utcnow().isoformat(),
+            "expires_at": expiry_time,
+            "attempts": 0,
+            "locked": False,
+            "lock_until": None,
+            "verified": False
+        }
+
+        # Store temporary password for phone-only auth
+        if password:
+            item["temp_password"] = password
+
         table.put_item(
-            Item={
-                "PK": f"OTP#{phone}",
-                "SK": f"CODE#{email}",
-                "code": otp_code,
-                "email": email,
-                "phone": phone,
-                "created_at": datetime.utcnow().isoformat(),
-                "expires_at": expiry_time,
-                "attempts": 0,
-                "locked": False,
-                "lock_until": None,
-                "verified": False
-            },
+            Item=item,
             # TTL: 15 minutes (slightly more than OTP expiry for grace period)
             ConditionExpression="attribute_not_exists(PK)"
         )
@@ -177,11 +183,16 @@ def success_response(status_code, data):
 
 def request_otp(event, context):
     """
-    Request SMS OTP for a phone number.
+    Request SMS OTP for a phone number (Phone-only auth).
 
     Endpoint: POST /auth/request-sms-otp
 
-    Request:
+    Request (Phone-only - simplified):
+    {
+      "phone": "+15145551234"
+    }
+
+    OR legacy format (still supported):
     {
       "email": "user@example.com",
       "phone": "+15145551234",
@@ -204,17 +215,29 @@ def request_otp(event, context):
         else:
             body = body_raw
 
-        email = body.get("email", "").strip().lower()
         phone = body.get("phone", "").strip()
+        email = body.get("email", "").strip().lower()
         password = body.get("password", "")
 
         # Validation
-        if not email or not phone or not password:
-            return error_response(400, "MISSING_FIELDS", "Email, phone, and password required.")
+        if not phone:
+            return error_response(400, "MISSING_FIELDS", "Phone number required.")
 
         if not validate_phone_number(phone):
-            log_audit("REQUEST_OTP", phone, email, "FAILED", "Invalid phone format")
+            log_audit("REQUEST_OTP", phone, email or phone, "FAILED", "Invalid phone format")
             return error_response(400, "INVALID_PHONE", "Phone must be in E.164 format (e.g., +15145551234)")
+
+        # Phone-only auth: auto-generate email and password if not provided
+        if not email:
+            # Generate a temporary email from phone number
+            # Format: phone-+15145551234@scamguard.internal
+            email = f"phone-{phone}@scamguard.internal"
+            logger.info(f"Phone-only auth: generated email {email} from phone {phone}")
+
+        if not password:
+            # Generate a secure temporary password
+            password = secrets.token_urlsafe(32)
+            logger.info(f"Phone-only auth: generated temporary password for {email}")
 
         # Generate OTP
         otp_code = generate_otp()
@@ -238,8 +261,8 @@ def request_otp(event, context):
             log_audit("REQUEST_OTP", phone, email, "FAILED", f"Cognito error: {error_code}")
             return error_response(400, error_code, str(e))
 
-        # Store OTP in DynamoDB
-        if not store_otp(phone, email, otp_code):
+        # Store OTP in DynamoDB (pass password for phone-only auth)
+        if not store_otp(phone, email, otp_code, password):
             log_audit("REQUEST_OTP", phone, email, "FAILED", "Failed to store OTP")
             return error_response(500, "OTP_STORAGE_ERROR", "Failed to store OTP")
 
@@ -263,15 +286,22 @@ def request_otp(event, context):
 
 def verify_otp(event, context):
     """
-    Verify SMS OTP and authenticate user.
+    Verify SMS OTP and authenticate user (Phone-only or legacy auth).
 
     Endpoint: POST /auth/verify-sms-otp
 
-    Request:
+    Request (Phone-only - simplified):
+    {
+      "phone": "+15145551234",
+      "code": "123456"
+    }
+
+    OR legacy format (still supported):
     {
       "email": "user@example.com",
       "phone": "+15145551234",
-      "code": "123456"
+      "code": "123456",
+      "password": "SecurePass123!" (optional)
     }
 
     Response:
@@ -297,13 +327,14 @@ def verify_otp(event, context):
         else:
             body = body_raw
 
-        email = body.get("email", "").strip().lower()
         phone = body.get("phone", "").strip()
         code = body.get("code", "").strip()
+        email = body.get("email", "").strip().lower()
+        password = body.get("password", "")
 
         # Validation
-        if not email or not phone or not code:
-            return error_response(400, "MISSING_FIELDS", "Email, phone, and code required.")
+        if not phone or not code:
+            return error_response(400, "MISSING_FIELDS", "Phone and code required.")
 
         if not validate_phone_number(phone):
             return error_response(400, "INVALID_PHONE", "Invalid phone format.")
@@ -315,6 +346,24 @@ def verify_otp(event, context):
         # Get OTP from DynamoDB
         try:
             table = dynamodb.Table(OTP_TABLE)
+
+            # If email not provided, we need to find it from the OTP table (phone-only auth)
+            if not email:
+                # Query by phone to find the associated email
+                response = table.query(
+                    KeyConditionExpression="PK = :pk",
+                    ExpressionAttributeValues={":pk": f"OTP#{phone}"},
+                    Limit=1
+                )
+
+                if response.get("Items"):
+                    email = response["Items"][0].get("email")
+                    logger.info(f"Phone-only auth: found email {email} for phone {phone}")
+                else:
+                    log_audit("VERIFY_OTP", phone, phone, "FAILED", "OTP not found")
+                    return error_response(400, "OTP_NOT_FOUND", "No OTP request found. Please request a new code.")
+
+            # Get the specific OTP item
             response = table.get_item(
                 Key={
                     "PK": f"OTP#{phone}",
@@ -391,13 +440,23 @@ def verify_otp(event, context):
 
             # Initiate auth to get tokens
             try:
-                password = body.get("password", "")  # Password from request
+                # Determine which password to use
+                auth_password = password  # Use provided password if available
+                if not auth_password and otp_item.get("temp_password"):
+                    # Phone-only auth: use stored temporary password
+                    auth_password = otp_item.get("temp_password")
+                    logger.info(f"Phone-only auth: using temporary password for {email}")
+
+                if not auth_password:
+                    log_audit("VERIFY_OTP", phone, email, "FAILED", "No password available for authentication")
+                    return error_response(400, "AUTH_ERROR", "Authentication failed. Please request OTP again.")
+
                 auth_response = cognito_client.initiate_auth(
                     ClientId=COGNITO_CLIENT_ID,
                     AuthFlow="USER_PASSWORD_AUTH",
                     AuthParameters={
                         "USERNAME": email,
-                        "PASSWORD": password
+                        "PASSWORD": auth_password
                     }
                 )
 
