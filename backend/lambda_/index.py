@@ -4,6 +4,11 @@ def handler(event, context):
     """Route to appropriate handler based on path."""
     path = event.get("path", "")
 
+    # Route SMS OTP endpoints to sms_otp_handler
+    if path.startswith("/api/v1/auth/request-sms-otp") or path.startswith("/api/v1/auth/verify-sms-otp"):
+        from sms_otp_handler import lambda_handler as sms_handler
+        return sms_handler(event, context)
+
     # Route family endpoints to family_handler
     if path.startswith("/api/v1/family"):
         from family_handler import lambda_handler as family_handler

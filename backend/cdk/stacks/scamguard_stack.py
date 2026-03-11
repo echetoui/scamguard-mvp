@@ -27,7 +27,10 @@ class ScamGuardStack(Stack):
             memory_size=256,
             environment={
                 "TABLE_NAME": self.data_table.table_name,
-                "UPLOADS_BUCKET": uploads_bucket.bucket_name
+                "UPLOADS_BUCKET": uploads_bucket.bucket_name,
+                # Firebase SMS Configuration
+                "FIREBASE_API_KEY": "BJ7nqu0Hg7XuR-6riO06tCfzy7JjSpmmjqhjHEgzeGv1Elryv_Gqg6z_1EMQuW0wtQPRMlOE7bBR4JYeXiVCt_k",
+                "FIREBASE_PROJECT_ID": "scamguard-c3e04"
             }
         )
         
