@@ -37,7 +37,8 @@ export default function SMSAuthScreen() {
   const [toastMessage, setToastMessage] = useState('');
   const otpRefs = useRef([]);
 
-  const API_URL = 'http://localhost:3001/api/v1';
+  // Use Lambda endpoint for testing, or mock server for local development
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
 
   // Generate secure password
   const generatePassword = () => {
