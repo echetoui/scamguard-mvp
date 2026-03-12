@@ -1,1 +1,0 @@
-"""ScamGuard Lambda tests package"""

@@ -16,6 +16,8 @@ import os
 import secrets
 import boto3
 import requests
+import uuid
+import base64
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
 import logging
@@ -362,18 +364,37 @@ def verify_otp(event, context):
         # In production, would verify against Firebase SMS delivery and stored OTP
         # Code format already validated above (6 digits, isdigit())
 
-        # Firebase SMS flow: skip Cognito, generate mock tokens
+        # Firebase SMS flow: skip Cognito, generate JWT-like tokens
         # In production, integrate with proper OAuth2/JWT provider
-        import uuid
         user_id = str(uuid.uuid4())
+        now = int(datetime.utcnow().timestamp())
+        exp = now + 3600
+
+        # Simple JWT format: base64(header).base64(payload).base64(sig)
+        header_str = '{"alg":"HS256","typ":"JWT"}'
+        payload_str = json.dumps({
+            "sub": user_id,
+            "email": email,
+            "phone_number": phone,
+            "iat": now,
+            "exp": exp
+        })
+
+        header_b64 = base64.urlsafe_b64encode(header_str.encode()).decode().rstrip('=')
+        payload_b64 = base64.urlsafe_b64encode(payload_str.encode()).decode().rstrip('=')
+        sig_b64 = base64.urlsafe_b64encode(b'mock').decode().rstrip('=')
+
+        id_token = f"{header_b64}.{payload_b64}.{sig_b64}"
+        access_token = id_token
+        refresh_token = str(uuid.uuid4())
 
         log_audit("VERIFY_OTP", phone, email, "SUCCESS", "OTP verified, user authenticated")
 
         return success_response(200, {
             "status": "VERIFIED",
-            "id_token": f"firebase-id-{user_id}",
-            "access_token": f"firebase-access-{user_id}",
-            "refresh_token": f"firebase-refresh-{user_id}",
+            "id_token": id_token,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
             "expires_in": 3600,
             "user": {
                 "sub": user_id,
