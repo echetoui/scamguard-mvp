@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Setup path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # Mock environment variables before importing
 os.environ['DYNAMODB_TABLE'] = 'ScamGuardData-dev'
@@ -32,7 +32,7 @@ class TestThreatSharing:
                 mock_boto_client.return_value = self.mock_ssm
 
                 # Now import handler_llm with mocks active
-                import handler_llm
+                from lambda_ import handler_llm
                 self.handler = handler_llm
 
     # ========================================================================

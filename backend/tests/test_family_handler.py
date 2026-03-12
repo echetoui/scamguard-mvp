@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Setup path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # Mock environment variables before importing
 os.environ['DYNAMODB_TABLE'] = 'ScamGuardData-dev'
@@ -33,7 +33,7 @@ class TestFamilyHandler:
                 mock_boto_client.return_value = self.mock_cognito
 
                 # Now import family_handler with mocks active
-                import family_handler
+                from lambda_ import family_handler
                 self.handler = family_handler
 
     def encode_jwt_payload(self, user_id):
