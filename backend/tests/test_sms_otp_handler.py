@@ -13,9 +13,8 @@ import os
 # Mock AWS clients before importing handler
 with patch('boto3.client') as mock_client:
     with patch('boto3.resource') as mock_resource:
-        # Add lambda directory to path
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lambda'))
-        import sms_otp_handler as handler
+        # Import sms_otp_handler from lambda_ package
+        from lambda_ import sms_otp_handler as handler
 
 
 # ============================================================================
