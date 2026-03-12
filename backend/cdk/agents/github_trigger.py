@@ -91,9 +91,9 @@ def handle_feature_pr(pr, repository):
     """Handle feature PR - trigger UserResearcher."""
 
     pr_number = pr.get('number')
-    title = pr.get('title', '').lower()
+    title = (pr.get('title') or '').lower()
     labels = [label.get('name', '').lower() for label in pr.get('labels', [])]
-    body = pr.get('body', '').lower()
+    body = (pr.get('body') or '').lower()
 
     # Check if this is a feature PR
     is_feature = (
@@ -141,7 +141,7 @@ def handle_feature_issue(issue, repository):
     """Handle feature request issue - trigger UserResearcher."""
 
     issue_number = issue.get('number')
-    title = issue.get('title', '').lower()
+    title = (issue.get('title') or '').lower()
     labels = [label.get('name', '').lower() for label in issue.get('labels', [])]
 
     # Check if this is a feature request
