@@ -46,9 +46,9 @@ def handler(event, context):
         repository = payload.get('repository', {})
 
         # Check if this is a feature PR
-        if pr and action in ['opened', 'synchronize']:
+        if pr and action in ['opened', 'synchronize', 'labeled']:
             result = handle_feature_pr(pr, repository)
-        elif issue and action == 'opened':
+        elif issue and action in ['opened', 'labeled']:
             result = handle_feature_issue(issue, repository)
         else:
             result = {
