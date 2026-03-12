@@ -1,19 +1,24 @@
-from aws_cdk import Stack, Duration, aws_lambda as lambda_, aws_stepfunctions as sfn, aws_stepfunctions_tasks as sfn_tasks, aws_dynamodb as ddb, aws_iam as iam, aws_logs as logs, CfnOutput
+from aws_cdk import Stack, Duration, aws_lambda as lambda_, aws_stepfunctions as sfn, aws_stepfunctions_tasks as sfn_tasks, aws_dynamodb as ddb, aws_iam as iam, aws_logs as logs, aws_apigateway as apigw, CfnOutput
 from constructs import Construct
 
 class AgentsStack(Stack):
     def __init__(self, scope: Construct, id: str, data_table: ddb.Table, **kwargs):
         super().__init__(scope, id, **kwargs)
-        
+
         self.data_table = data_table
         agents = self._create_agents()
         project_wf = self._create_project_workflow(agents)
         product_wf = self._create_product_workflow(agents)
         orchestrator = self._create_orchestrator(project_wf, product_wf)
-        
+
+        # GitHub automation - auto-trigger UserResearcher on feature PRs
+        github_trigger = self._create_github_trigger(agents['UserResearcher'])
+        webhook_api = self._create_webhook_api(github_trigger)
+
         CfnOutput(self, "ProjectWorkflowArn", value=project_wf.state_machine_arn)
         CfnOutput(self, "ProductWorkflowArn", value=product_wf.state_machine_arn)
         CfnOutput(self, "OrchestratorArn", value=orchestrator.function_arn)
+        CfnOutput(self, "WebhookEndpoint", value=webhook_api.url + "webhook/github")
     
     def _create_agents(self):
         agents = {}
@@ -99,6 +104,53 @@ class AgentsStack(Stack):
             actions=['states:StartExecution', 'states:DescribeExecution', 'states:ListExecutions'],
             resources=[project_wf.state_machine_arn, product_wf.state_machine_arn]
         ))
-        
+
         self.data_table.grant_read_write_data(orchestrator)
         return orchestrator
+
+    def _create_github_trigger(self, user_researcher_agent):
+        """Create Lambda function to handle GitHub webhooks."""
+        github_trigger = lambda_.Function(
+            self, "GitHubTriggerLambda",
+            runtime=lambda_.Runtime.PYTHON_3_12,
+            handler="github_trigger.handler",
+            code=lambda_.Code.from_asset("../agents"),
+            timeout=Duration.seconds(30),
+            memory_size=256,
+            environment={
+                'TABLE_NAME': self.data_table.table_name,
+                'GITHUB_WEBHOOK_SECRET': 'changeme',  # Set via console
+                'RESEARCHER_FUNCTION': user_researcher_agent.function_name
+            },
+            tracing=lambda_.Tracing.ACTIVE
+        )
+
+        # Grant permissions
+        self.data_table.grant_read_write_data(github_trigger)
+        user_researcher_agent.grant_invoke(github_trigger)
+
+        return github_trigger
+
+    def _create_webhook_api(self, github_trigger_lambda):
+        """Create API Gateway for GitHub webhooks."""
+        api = apigw.RestApi(
+            self, "WebhookAPI",
+            rest_api_name="scamguard-webhook-api",
+            description="Webhooks for GitHub automation"
+        )
+
+        # Create webhook resource
+        webhook_resource = api.root.add_resource("webhook")
+        github_resource = webhook_resource.add_resource("github")
+
+        # Add POST method
+        github_resource.add_method(
+            "POST",
+            apigw.LambdaIntegration(github_trigger_lambda),
+            api_key_required=False,  # GitHub doesn't need API key
+            request_templates={
+                "application/json": "$input.json('$')"
+            }
+        )
+
+        return api
