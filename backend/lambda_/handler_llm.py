@@ -15,11 +15,11 @@ ssm_client = boto3.client('ssm', region_name='us-east-1')
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 
 # Import anonymization utilities
-from utils.anonymization import anonymize_item, get_anonymization_manager
+from .utils.anonymization import anonymize_item, get_anonymization_manager
 
 # Import Quebec expert prompt
 try:
-    from prompts import get_quebec_expert_prompt
+    from .prompts import get_quebec_expert_prompt
 except ImportError:
     # Fallback if prompt module not available
     def get_quebec_expert_prompt():
