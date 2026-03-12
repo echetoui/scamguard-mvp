@@ -100,14 +100,35 @@ const server = http.createServer((req, res) => {
         users.set(email, { email, phone, password });
         otpCache.delete(phone);
 
+        // Generate JWT tokens for consistency with Lambda
+        const crypto = require('crypto');
+        const now = Math.floor(Date.now() / 1000);
+        const exp = now + 3600;
+        const userId = crypto.randomUUID();
+
+        const payload = {
+          sub: userId,
+          email: email,
+          phone_number: phone,
+          iat: now,
+          exp: exp,
+          aud: 'scamguard-firebase'
+        };
+
+        // Simple JWT encoding (not cryptographically signed, but valid structure)
+        const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64').replace(/=/g, '');
+        const payloadEnc = Buffer.from(JSON.stringify(payload)).toString('base64').replace(/=/g, '');
+        const signature = Buffer.from('mock-signature').toString('base64').replace(/=/g, '');
+        const idToken = `${header}.${payloadEnc}.${signature}`;
+
         send(res, 200, {
           success: true,
           data: {
-            id_token: 'mock-id-token-' + Date.now(),
-            access_token: 'mock-access-token-' + Date.now(),
-            refresh_token: 'mock-refresh-token-' + Date.now(),
+            id_token: idToken,
+            access_token: idToken,
+            refresh_token: crypto.randomUUID(),
             expires_in: 3600,
-            user: { email, phone }
+            user: { email, phone, sub: userId }
           }
         });
       } catch (err) {
@@ -131,14 +152,34 @@ const server = http.createServer((req, res) => {
           return;
         }
 
+        // Generate JWT tokens
+        const crypto = require('crypto');
+        const now = Math.floor(Date.now() / 1000);
+        const exp = now + 3600;
+        const userId = crypto.randomUUID();
+
+        const payload = {
+          sub: userId,
+          email: email,
+          phone_number: user.phone,
+          iat: now,
+          exp: exp,
+          aud: 'scamguard-firebase'
+        };
+
+        const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64').replace(/=/g, '');
+        const payloadEnc = Buffer.from(JSON.stringify(payload)).toString('base64').replace(/=/g, '');
+        const signature = Buffer.from('mock-signature').toString('base64').replace(/=/g, '');
+        const idToken = `${header}.${payloadEnc}.${signature}`;
+
         send(res, 200, {
           success: true,
           data: {
-            id_token: 'mock-id-token-' + Date.now(),
-            access_token: 'mock-access-token-' + Date.now(),
-            refresh_token: 'mock-refresh-token-' + Date.now(),
+            id_token: idToken,
+            access_token: idToken,
+            refresh_token: crypto.randomUUID(),
             expires_in: 3600,
-            user: { email, phone: user.phone }
+            user: { email, phone: user.phone, sub: userId }
           }
         });
       } catch (err) {
@@ -156,12 +197,29 @@ const server = http.createServer((req, res) => {
 
   // Refresh token
   if (pathname === '/api/v1/auth/refresh-token' && req.method === 'POST') {
+    const crypto = require('crypto');
+    const now = Math.floor(Date.now() / 1000);
+    const exp = now + 3600;
+    const userId = crypto.randomUUID();
+
+    const payload = {
+      sub: userId,
+      iat: now,
+      exp: exp,
+      aud: 'scamguard-firebase'
+    };
+
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64').replace(/=/g, '');
+    const payloadEnc = Buffer.from(JSON.stringify(payload)).toString('base64').replace(/=/g, '');
+    const signature = Buffer.from('mock-signature').toString('base64').replace(/=/g, '');
+    const idToken = `${header}.${payloadEnc}.${signature}`;
+
     send(res, 200, {
       success: true,
       data: {
-        id_token: 'mock-id-token-' + Date.now(),
-        access_token: 'mock-access-token-' + Date.now(),
-        refresh_token: 'mock-refresh-token-' + Date.now(),
+        id_token: idToken,
+        access_token: idToken,
+        refresh_token: crypto.randomUUID(),
         expires_in: 3600,
       }
     });
