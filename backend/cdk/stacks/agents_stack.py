@@ -17,7 +17,14 @@ class AgentsStack(Stack):
     
     def _create_agents(self):
         agents = {}
-        for name in ['ProjectOwner', 'Architect', 'Developer', 'QA_Engineer', 'TriageAgent', 'ThreatAnalyst', 'CriticAgent', 'FamilyNotifier']:
+        # Original 8 agents + 3 new agents (UserResearcher, Engineer, Executive)
+        agent_names = [
+            'ProjectOwner', 'Architect', 'Developer', 'QA_Engineer',
+            'TriageAgent', 'ThreatAnalyst', 'CriticAgent', 'FamilyNotifier',
+            'UserResearcher', 'Engineer', 'Executive'  # New agents
+        ]
+
+        for name in agent_names:
             agents[name] = lambda_.Function(
                 self, f"{name}Lambda",
                 runtime=lambda_.Runtime.PYTHON_3_12,
@@ -32,16 +39,45 @@ class AgentsStack(Stack):
         return agents
     
     def _create_project_workflow(self, agents):
+        """
+        Enhanced Project Unit Workflow:
+        ProjectOwner → UserResearcher → Architect → Engineer → Developer → QA → Executive
+        """
         po = sfn_tasks.LambdaInvoke(self, "POTask", lambda_function=agents['ProjectOwner'], output_path="$.Payload")
+        researcher = sfn_tasks.LambdaInvoke(self, "ResearcherTask", lambda_function=agents['UserResearcher'], output_path="$.Payload")
+        architect = sfn_tasks.LambdaInvoke(self, "ArchitectTask", lambda_function=agents['Architect'], output_path="$.Payload")
+        engineer = sfn_tasks.LambdaInvoke(self, "EngineerTask", lambda_function=agents['Engineer'], output_path="$.Payload")
+        dev = sfn_tasks.LambdaInvoke(self, "DevTask", lambda_function=agents['Developer'], output_path="$.Payload")
         qa = sfn_tasks.LambdaInvoke(self, "QATask", lambda_function=agents['QA_Engineer'], output_path="$.Payload")
-        definition = po.next(qa)
-        return sfn.StateMachine(self, "ProjectWorkflow", definition=definition, state_machine_name="project-unit-workflow", timeout=Duration.minutes(30))
+        exec_agent = sfn_tasks.LambdaInvoke(self, "ExecTask", lambda_function=agents['Executive'], output_path="$.Payload")
+
+        definition = po.next(researcher).next(architect).next(engineer).next(dev).next(qa).next(exec_agent)
+
+        return sfn.StateMachine(
+            self, "ProjectWorkflow",
+            definition=definition,
+            state_machine_name="project-unit-workflow",
+            timeout=Duration.minutes(60)  # Increased timeout for more agents
+        )
     
     def _create_product_workflow(self, agents):
+        """
+        Enhanced Product Unit Workflow:
+        TriageAgent → UserResearcher → ThreatAnalyst → CriticAgent
+        """
         triage = sfn_tasks.LambdaInvoke(self, "TriageTask", lambda_function=agents['TriageAgent'], output_path="$.Payload")
+        researcher = sfn_tasks.LambdaInvoke(self, "ProdResearcherTask", lambda_function=agents['UserResearcher'], output_path="$.Payload")
         analyst = sfn_tasks.LambdaInvoke(self, "AnalystTask", lambda_function=agents['ThreatAnalyst'], output_path="$.Payload")
-        definition = triage.next(analyst)
-        return sfn.StateMachine(self, "ProductWorkflow", definition=definition, state_machine_name="product-unit-workflow", timeout=Duration.minutes(5))
+        critic = sfn_tasks.LambdaInvoke(self, "CriticTask", lambda_function=agents['CriticAgent'], output_path="$.Payload")
+
+        definition = triage.next(researcher).next(analyst).next(critic)
+
+        return sfn.StateMachine(
+            self, "ProductWorkflow",
+            definition=definition,
+            state_machine_name="product-unit-workflow",
+            timeout=Duration.minutes(15)  # Increased timeout
+        )
     
     def _create_orchestrator(self, project_wf, product_wf):
         orchestrator = lambda_.Function(
