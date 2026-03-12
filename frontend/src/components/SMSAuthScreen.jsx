@@ -372,10 +372,10 @@ export default function SMSAuthScreen() {
       setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
       setStep('success');
 
-      // Redirect after 2 seconds
+      // Redirect immediately after token save
       setTimeout(() => {
         window.location.href = '/';
-      }, 2000);
+      }, 300);
     } catch (err) {
       setError(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {

@@ -179,10 +179,10 @@ export default function PhoneAuthScreen() {
       setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
       setStep('success');
 
-      // Redirect after 2 seconds
+      // Redirect immediately after token save
       setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 2000);
+        window.location.href = '/';
+      }, 300);
     } catch (err) {
       setError(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {
