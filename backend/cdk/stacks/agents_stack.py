@@ -147,10 +147,7 @@ class AgentsStack(Stack):
         github_resource.add_method(
             "POST",
             apigw.LambdaIntegration(github_trigger_lambda),
-            api_key_required=False,  # GitHub doesn't need API key
-            request_templates={
-                "application/json": "$input.json('$')"
-            }
+            api_key_required=False  # GitHub doesn't need API key
         )
 
         return api
