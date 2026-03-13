@@ -8,13 +8,14 @@ import BottomNavigation, { TabPanel } from './components/BottomNavigation';
 import useAnalysisHistory from './hooks/useAnalysisHistory';
 import AnalysisHistory from './components/AnalysisHistory';
 import DashboardStats from './components/DashboardStats';
-import QuizModule from './components/QuizModule';
+import QuizAcademie from './components/QuizAcademie';
 import useCreditSystem from './hooks/useCreditSystem';
 import useAccountProfile from './hooks/useAccountProfile';
 import useAuth from './hooks/useAuth';
 import ModernAuthPage from './components/ModernAuthPage';
 import useFamilyDashboard from './hooks/useFamilyDashboard';
 import { analysisAPI } from './services/api';
+import { sendNotification, shouldSendDailyNotification, getSecurityTips } from './utils/notificationService';
 
 // Lazy-loaded components (defer loading until tab is activated)
 const ResourcesTab = lazy(() => import('./components/Resources/ResourcesTab'));
@@ -60,6 +61,13 @@ export default function App() {
 
   // Phase 5A: Family protection dashboard
   const { familyData, loading: familyLoading, error: familyError, hasFamily } = useFamilyDashboard();
+
+  // Phase 1 Sprint 3: Check for and send daily reminder notification on app mount
+  React.useEffect(() => {
+    if (shouldSendDailyNotification('QUIZ_REMINDER')) {
+      sendNotification('QUIZ_REMINDER', {});
+    }
+  }, []);
 
   // Phase 4.0.5: Handle quiz completion and award credits
   const handleQuizComplete = useCallback((score, passed) => {
@@ -170,6 +178,10 @@ export default function App() {
 
       // Phase 4.0.4: Earn credits for completing analysis
       earnCredits(10, 'analysis', 'Analyse de message complétée');
+
+      // Phase 1 Sprint 3: Send analysis completion notification
+      const verdict = data.detection.score > 70 ? '✅ Sûr' : data.detection.score > 40 ? '⚠️ Modéré' : '🔴 Dangereux';
+      sendNotification('ANALYSIS_COMPLETE', { verdict });
 
       // Lecture du feedback principal
       setTimeout(() => speak(`Résultat : ${data.detection.score} sur 100. ${data.coaching.feedback}`), 500);
@@ -310,9 +322,9 @@ export default function App() {
           </div>
         </TabPanel>
 
-        {/* Tab 3: Académie - Interactive Learning Quizzes (Phase 4.0.3) */}
+        {/* Tab 3: Académie - Quiz Academy with Progress Tracking (Phase 1 Sprint 3) */}
         <TabPanel tabId="academie" activeTab={activeTab}>
-          <QuizModule onComplete={handleQuizComplete} />
+          <QuizAcademie onQuizComplete={handleQuizComplete} />
         </TabPanel>
 
         {/* Tab 4: Ressources - Blocking Guides & Security Tips (Phase 5E.1) */}
