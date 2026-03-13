@@ -1,0 +1,379 @@
+/**
+ * OnboardingWizard Styles
+ * Phase 1 Sprint 4 - First-Run Onboarding Wizard
+ *
+ * Modal overlay with 4-step wizard for new users:
+ * 1. Welcome - introduce ScamGuard
+ * 2. Profile - set name & avatar
+ * 3. Notifications - request permission
+ * 4. Tour - teach scam warning signs
+ */
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+.onboarding-panel {
+  background: var(--color-background);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  outline: none;
+}
+
+.onboarding-step {
+  animation: slideInUp 300ms var(--ease-out) forwards;
+}
+
+/* ============ PROGRESS DOTS ============ */
+
+.onboarding-progress {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-3xl);
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+  transition: all var(--transition-base);
+}
+
+.progress-dot.active {
+  background: var(--color-primary);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ============ BUTTONS & LINKS ============ */
+
+.onboarding-btn-primary {
+  width: 100%;
+  min-height: 56px;
+  background: var(--color-primary);
+  color: var(--color-background);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-senior-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+}
+
+.onboarding-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.onboarding-btn-primary:disabled {
+  background: var(--color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.onboarding-btn-primary:focus-visible {
+  outline: 3px solid var(--color-focus-outline);
+  outline-offset: 2px;
+}
+
+.onboarding-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  width: 100%;
+  padding: var(--spacing-lg) 0;
+  transition: all var(--transition-base);
+}
+
+.onboarding-link:hover {
+  color: var(--color-primary);
+}
+
+.onboarding-link:focus-visible {
+  outline: 3px solid var(--color-focus-outline);
+  outline-offset: 2px;
+}
+
+/* ============ FORM INPUTS ============ */
+
+.onboarding-input {
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-senior-base);
+  box-sizing: border-box;
+  color: var(--color-text-primary);
+  transition: all var(--transition-base);
+}
+
+.onboarding-input:focus {
+  outline: 3px solid var(--color-focus-outline);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+}
+
+/* ============ AVATAR PICKER ============ */
+
+.onboarding-avatar-picker {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-2xl) 0;
+}
+
+.onboarding-avatar-option {
+  width: 56px;
+  height: 56px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--color-background-secondary);
+  font-size: 28px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-avatar-option:hover {
+  background: var(--color-background-tertiary);
+  transform: scale(1.05);
+}
+
+.onboarding-avatar-option:focus-visible {
+  outline: 3px solid var(--color-focus-outline);
+  outline-offset: 2px;
+}
+
+.onboarding-avatar-option.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg-light);
+}
+
+/* ============ RADIO LABELS ============ */
+
+.onboarding-radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  min-height: 56px;
+  cursor: pointer;
+  font-size: var(--font-size-senior-base);
+  transition: all var(--transition-base);
+  margin-bottom: var(--spacing-md);
+}
+
+.onboarding-radio-label:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-hover-bg);
+}
+
+.onboarding-radio-label:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg-light);
+}
+
+.onboarding-radio-label input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.onboarding-radio-label:focus-within {
+  outline: 3px solid var(--color-focus-outline);
+  outline-offset: 2px;
+}
+
+/* ============ STEP-SPECIFIC STYLES ============ */
+
+.onboarding-icon {
+  font-size: 56px;
+  display: block;
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.onboarding-heading {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  line-height: var(--line-height-tight);
+}
+
+.onboarding-tagline {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+  line-height: var(--line-height-normal);
+}
+
+.onboarding-description {
+  font-size: var(--font-size-senior-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.onboarding-form-group {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.onboarding-form-label {
+  display: block;
+  font-size: var(--font-size-senior-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.onboarding-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-2xl) 0;
+}
+
+.onboarding-list-item {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+  font-size: var(--font-size-senior-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+}
+
+.onboarding-list-item::before {
+  content: '✓';
+  color: var(--color-safe);
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* ============ TOUR CARD ============ */
+
+.onboarding-tour-icon {
+  font-size: 64px;
+  display: block;
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.onboarding-tour-title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.onboarding-tour-description {
+  font-size: var(--font-size-senior-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.onboarding-tour-counter {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* ============ NOTIFICATION STATUS ============ */
+
+.onboarding-notification-status {
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-2xl);
+  font-size: var(--font-size-senior-base);
+  line-height: var(--line-height-normal);
+}
+
+.onboarding-notification-status.granted {
+  background: var(--color-safe-bg-light);
+  color: var(--color-safe-dark);
+  border: 2px solid var(--color-safe);
+}
+
+.onboarding-notification-status.denied {
+  background: var(--color-danger-bg-light);
+  color: var(--color-danger-dark);
+  border: 2px solid var(--color-danger);
+}
+
+/* ============ BUTTON GROUP ============ */
+
+.onboarding-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-2xl);
+}
+
+/* ============ ACCESSIBILITY ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-step,
+  .onboarding-avatar-option,
+  .onboarding-radio-label,
+  .onboarding-btn-primary {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ============ RESPONSIVE ============ */
+
+@media (max-width: 480px) {
+  .onboarding-panel {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl) var(--spacing-lg);
+  }
+
+  .onboarding-heading {
+    font-size: var(--font-size-h3);
+  }
+
+  .onboarding-tour-icon {
+    font-size: 48px;
+  }
+}

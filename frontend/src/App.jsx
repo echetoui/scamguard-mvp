@@ -14,6 +14,7 @@ import useAccountProfile from './hooks/useAccountProfile';
 import useAuth from './hooks/useAuth';
 import ModernAuthPage from './components/ModernAuthPage';
 import useFamilyDashboard from './hooks/useFamilyDashboard';
+import OnboardingWizard from './components/OnboardingWizard';
 import { analysisAPI } from './services/api';
 import { sendNotification, shouldSendDailyNotification, getSecurityTips } from './utils/notificationService';
 
@@ -47,6 +48,11 @@ export default function App() {
   const [image, setImage] = useState(null);
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Phase 1 Sprint 4: Onboarding wizard (first-run experience)
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem('scamguard_onboarding_complete')
+  );
 
   // Phase 4.0: Analysis history and statistics
   const { analyses, addAnalysis, getStatistics } = useAnalysisHistory();
@@ -204,6 +210,19 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+      {showOnboarding && auth.isAuthenticated && (
+        <OnboardingWizard
+          auth={auth}
+          profile={profile}
+          onComplete={(name, avatar) => {
+            updateName(name);
+            updateAvatar(avatar);
+            setActiveTab('academie');
+            setShowOnboarding(false);
+          }}
+          onSkip={() => setShowOnboarding(false)}
+        />
+      )}
       <div className="app-wrapper" style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
       <header className="app-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '20px'}}>
         <h1>🛡️ ScamGuard MVP - Phase 4</h1>
