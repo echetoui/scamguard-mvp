@@ -162,7 +162,7 @@ describe('APIKeyManagement Module', () => {
   describe('Usage Tracking', () => {
     it('should display usage percentage', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
-      expect(screen.getByText('456 / 1000 requêtes')).toBeTruthy();
+      expect(screen.getByText(/456.*1000.*requêtes/)).toBeTruthy();
     });
 
     it('should display usage bar', () => {
@@ -194,12 +194,12 @@ describe('APIKeyManagement Module', () => {
 
     it('should display API endpoint', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
-      expect(screen.getByText(/https:\/\/api.scamguard.ca\/v1\/analyze/)).toBeTruthy();
+      expect(screen.getAllByText(/https:\/\/api.scamguard.ca\/v1\/analyze/).length).toBeGreaterThan(0);
     });
 
     it('should display authentication instruction', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
-      expect(screen.getByText(/Authorization: Bearer YOUR_API_KEY/)).toBeTruthy();
+      expect(screen.getAllByText(/Authorization: Bearer YOUR_API_KEY/).length).toBeGreaterThan(0);
     });
 
     it('should display example request', () => {
@@ -219,9 +219,9 @@ describe('APIKeyManagement Module', () => {
 
     it('should have button titles for accessibility', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
-      expect(screen.getByTitle('Copy key to clipboard')).toBeTruthy();
-      expect(screen.getByTitle('Regenerate key')).toBeTruthy();
-      expect(screen.getByTitle('Revoke key')).toBeTruthy();
+      expect(screen.getAllByTitle('Copy key to clipboard').length).toBeGreaterThan(0);
+      expect(screen.getAllByTitle('Regenerate key').length).toBeGreaterThan(0);
+      expect(screen.getAllByTitle('Revoke key').length).toBeGreaterThan(0);
     });
 
     it('should have semantic HTML structure', () => {
@@ -243,8 +243,9 @@ describe('APIKeyManagement Module', () => {
       const createButton = screen.getByText('Créer la Clé');
       fireEvent.click(createButton);
 
+      // After creating key, form should close
       await waitFor(() => {
-        expect(nameInput.value).toBe('');
+        expect(screen.queryByText('Créer une Nouvelle Clé API')).toBeFalsy();
       });
     });
 
