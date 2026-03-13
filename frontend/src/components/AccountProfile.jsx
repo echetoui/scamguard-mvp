@@ -1,11 +1,13 @@
 /**
  * AccountProfile Component
  * Phase 4.2 - Account management and user profile
+ * Phase 1 Sprint 3 - Integrated Notification Preferences
  *
  * Displays user profile, preferences, statistics, and data management options
  */
 
 import React, { useState } from 'react';
+import NotificationPreferences from './NotificationPreferences';
 import '../styles/AccountProfile.css';
 
 const AVATARS = ['🛡️', '👴', '👵', '🧑', '🦸'];
@@ -131,20 +133,11 @@ export default function AccountProfile({
       {/* Section 3: Preferences */}
       <div className="preferences-section">
         <h3 className="section-title">⚙️ Préférences</h3>
-        <div className="preferences-list">
-          <div className="preference-item">
-            <span className="pref-icon">🔔</span>
-            <span className="pref-label">Notifications</span>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={profile.preferences?.notifications ?? true}
-                onChange={() => onTogglePreference('notifications')}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-          </div>
 
+        {/* Notification Preferences Component */}
+        <NotificationPreferences />
+
+        <div className="preferences-list">
           <div className="preference-item">
             <span className="pref-icon">📅</span>
             <span className="pref-label">Rappel quotidien</span>
