@@ -1,0 +1,14 @@
+{
+  "id": "banking-002",
+  "type": "SMS",
+  "institution": "Desjardins",
+  "threat_level": "low",
+  "message": "Desjardins: Rappel - Votre paiement minimum de $150 est dû le 15 mars. Appelez le 1-800-224-3733 si vous avez des questions.",
+  "is_scam": false,
+  "explanation_fr": "Message LÉGITIME de Desjardins. Les vraies banques incluent: numéro de téléphone officiel, pas de lien suspect, informations personnalisées (montant, date), ton professionnel sans urgence simulée.",
+  "threat_indicators": [],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-10T09:00:00Z",
+  "source": "internal"
+}

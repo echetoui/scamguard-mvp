@@ -1,0 +1,14 @@
+{
+  "id": "banking-006",
+  "type": "SMS",
+  "institution": "BMO",
+  "threat_level": "low",
+  "message": "BMO: Vous avez accumulé 50,000 points de récompense. Consultez votre compte pour plus de détails.",
+  "is_scam": false,
+  "explanation_fr": "Message LÉGITIME de BMO. Les vrais messages de récompense sont informatifs, sans lien suspect, sans urgence, et invitent à consulter directement le compte.",
+  "threat_indicators": [],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-01T10:00:00Z",
+  "source": "internal"
+}

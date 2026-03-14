@@ -1,0 +1,14 @@
+{
+  "id": "banking-005",
+  "type": "SMS",
+  "institution": "BMO",
+  "threat_level": "high",
+  "message": "BMO Alerte: Tentative de retrait de $800 non autorisée. Confirmez ou bloquez: https://bmo-verify.net",
+  "is_scam": true,
+  "explanation_fr": "Arnaque par hameçonnage bancaire. BMO n'envoie jamais de lien SMS pour confirmer des transactions. Le lien mène à une page contrefaite. Vrai conseil: ignorer et appeler BMO au 1-800-267-2266 (numéro sur votre carte).",
+  "threat_indicators": ["URL suspecte (bmo-verify.net)", "montant de retrait spécifique", "urgence de confirmation"],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-06T11:30:00Z",
+  "source": "SQ"
+}

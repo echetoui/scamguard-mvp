@@ -1,0 +1,14 @@
+{
+  "id": "banking-007",
+  "type": "SMS",
+  "institution": "Scotiabank",
+  "threat_level": "high",
+  "message": "Scotiabank: Veuillez confirmer votre identité pour accéder à votre compte: https://secure-scotiabank.ca",
+  "is_scam": true,
+  "explanation_fr": "Arnaque de phishing. Scotiabank n'envoie jamais de liens SMS pour confirmation d'identité. L'URL (secure-scotiabank.ca) ressemble au domaine réel mais n'est pas officiel. Vrai conseil: appeler Scotiabank directement au 1-800-472-6842.",
+  "threat_indicators": ["URL qui imite le domaine officiel", "demande de confirmation d'identité", "urgence implicite"],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-04T13:00:00Z",
+  "source": "SQ"
+}

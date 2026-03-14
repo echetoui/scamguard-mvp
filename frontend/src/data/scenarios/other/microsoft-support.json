@@ -1,0 +1,14 @@
+{
+  "id": "other-003",
+  "type": "SMS",
+  "institution": "Microsoft",
+  "threat_level": "high",
+  "message": "Microsoft Support: Votre appareil a un virus. Appelez immédiatement le 1-866-WINDOWS pour assistance technique",
+  "is_scam": true,
+  "explanation_fr": "Arnaque classique d'appel au faux support technique. Microsoft n'envoie JAMAIS de SMS ou appels non sollicités pour virus. Ce numéro de téléphone est frauduleux. Les arnaqueurs obtiennent accès à votre ordinateur, vos mots de passe, et votre identité. Vrai conseil: ignorer et bloquer le numéro.",
+  "threat_indicators": ["numéro de téléphone suspect (1-866-WINDOWS)", "urgence de virus", "demande d'appel immédiat", "Microsoft n'envoie pas de SMS"],
+  "category": "other",
+  "region": "Quebec",
+  "date_detected": "2026-03-08T10:00:00Z",
+  "source": "SQ"
+}

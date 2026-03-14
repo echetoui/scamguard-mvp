@@ -1,0 +1,14 @@
+{
+  "id": "utility-002",
+  "type": "SMS",
+  "institution": "Hydro-Québec",
+  "threat_level": "low",
+  "message": "Hydro-Québec: Planification de maintenance dans votre région 15-16 mars de 9h à 13h. Pour plus info: 1-800-365-5353",
+  "is_scam": false,
+  "explanation_fr": "Message LÉGITIME. Hydro-Québec envoie des avis de maintenance avec numéro de téléphone officiel, pas de lien dangereux, informations claires et sans urgence.",
+  "threat_indicators": [],
+  "category": "utilities",
+  "region": "Quebec",
+  "date_detected": "2026-03-13T08:00:00Z",
+  "source": "internal"
+}

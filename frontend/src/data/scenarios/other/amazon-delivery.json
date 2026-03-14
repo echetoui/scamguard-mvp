@@ -1,0 +1,14 @@
+{
+  "id": "other-001",
+  "type": "SMS",
+  "institution": "Amazon",
+  "threat_level": "high",
+  "message": "Amazon: Votre colis ne peut pas être livré. Veuillez confirmer l'adresse: https://amz-confirm.xyz/delivery",
+  "is_scam": true,
+  "explanation_fr": "Arnaque type par hameçonnage. Amazon n'envoie jamais de liens SMS pour confirmer les adresses. Ce lien mène à une page contrefaite où vous entrez informations personnelles. Réaction: vérifier le statut de la commande sur Amazon.ca directement ou appeler le service client.",
+  "threat_indicators": ["URL non-officielle (amz-confirm.xyz)", "lien pour confirmer adresse", "urgence de livraison"],
+  "category": "other",
+  "region": "Quebec",
+  "date_detected": "2026-03-10T13:20:00Z",
+  "source": "SQ"
+}

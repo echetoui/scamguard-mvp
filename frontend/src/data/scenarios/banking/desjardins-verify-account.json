@@ -1,0 +1,14 @@
+{
+  "id": "banking-001",
+  "type": "SMS",
+  "institution": "Desjardins",
+  "threat_level": "high",
+  "message": "Desjardins: Activité suspecte détectée. Vérifiez votre compte maintenant: https://desj-secure.ca/verify",
+  "is_scam": true,
+  "explanation_fr": "Les vraies banques ne demandent JAMAIS de vérifier votre compte via un lien SMS. Les liens frauduleux vous mènent à des pages qui volent votre identifiant et mot de passe. Démarche sécuritaire: appelez Desjardins directement au 1-800-224-3733 (numéro sur votre carte).",
+  "threat_indicators": ["lien suspect (desj-secure.ca)", "urgence simulée", "demande de vérification", "URL raccourcie"],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-14T10:00:00Z",
+  "source": "SQ"
+}
