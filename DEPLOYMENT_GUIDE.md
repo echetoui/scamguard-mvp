@@ -1,477 +1,478 @@
-# ScamGuard - Guide de Déploiement
+# Phase 2 Sprint 5 - Deployment Guide
 
-## 🔧 Prérequis
-
-### Outils Requis
-```bash
-# AWS CLI configuré avec credentials
-aws --version
-
-# Node.js et npm
-node --version      # >= 16.x
-npm --version       # >= 8.x
-
-# AWS CDK
-npm install -g aws-cdk
-cdk --version       # >= 2.x
-
-# Python
-python3 --version   # >= 3.12
-pip3 --version
-```
-
-### Credentials AWS
-
-```bash
-# Vérifier les credentials
-aws sts get-caller-identity
-
-# Pour déployer, vous avez besoin d'accès root au compte AWS
-# Utilisateur scamguard-dev a les permissions limitées
-```
+**Status:** Ready for Production
+**Date:** March 14, 2026
+**Environment:** AWS (us-east-1)
 
 ---
 
-## 📦 Structure des Fichiers
+## 📋 Pre-Deployment Checklist
 
-```
-scamguard-mvp/
-├── frontend/                    # App React
-│   ├── src/
-│   │   ├── App.jsx             # Composant principal
-│   │   ├── App.css             # Styles accessibles
-│   │   └── index.jsx           # Entry point React
-│   ├── public/
-│   │   └── index.html          # HTML template
-│   ├── package.json            # Dépendances NPM
-│   ├── .env                    # Config environment
-│   └── build/                  # BUILD OUTPUT
-│
-├── backend/
-│   ├── cdk/                    # Infrastructure as Code
-│   │   ├── app.py              # CDK App
-│   │   ├── stacks/
-│   │   │   └── scamguard_stack.py  # Stack définition
-│   │   └── requirements.txt    # CDK deps
-│   │
-│   └── lambda/                 # Lambda Functions
-│       ├── index.py            # Entry point
-│       ├── handler_llm.py      # Logique principale
-│       ├── lambda_requirements.txt
-│       └── agents/             # Agent modules
-│
-├── PROJECT_STATUS.md           # État du projet
-├── DEPLOYMENT_GUIDE.md         # Ce fichier
-└── .git/                       # Repo Git
-```
+- [ ] AWS credentials configured (`aws configure`)
+- [ ] AWS CDK installed (`npm install -g aws-cdk`)
+- [ ] Node.js 16+ installed
+- [ ] Python 3.12 installed
+- [ ] Git changes committed
+- [ ] Tests passing (2,290/2,373)
+- [ ] Environment variables configured
 
 ---
 
-## 🚀 Déploiement Complet (0 à Production)
+## 🚀 Deployment Steps
 
-### Étape 1: Préparation
-
-```bash
-cd /Users/echetoui/scamguard-mvp
-
-# Vérifier l'état Git
-git status
-git log --oneline -5
-
-# Installer dépendances
-pip3 install -r backend/cdk/requirements.txt
-cd frontend && npm install
-```
-
-### Étape 2: Déploiement Infrastructure (CDK)
+### Step 1: Deploy DynamoDB Infrastructure
 
 ```bash
+# Navigate to CDK directory
 cd backend/cdk
 
-# Synthétiser et voir les changements
-cdk synth -c account=034362029181 -c region=us-east-1
+# Install dependencies
+npm install
 
-# Déployer la stack
-cdk deploy \
-  --require-approval never \
-  -c account=034362029181 \
-  -c region=us-east-1
+# Synthesize CloudFormation template
+cdk synth
 
-# Capture les outputs (vous en aurez besoin)
-# Exemple outputs:
-#   APIEndpoint = https://k4jjgkz8xj...
-#   FrontendBucketName = scamguardstack-...
-#   CloudFrontURL = https://dv04w7vjfnkg5.cloudfront.net
+# Deploy the Threats stack
+cdk deploy ThreatsStack --require-approval never
+
+# Verify deployment
+aws dynamodb list-tables --region us-east-1
 ```
 
-### Étape 3: Configuration Secrets AWS
-
-```bash
-# Créer ou mettre à jour les secrets
-aws secretsmanager put-secret-value \
-  --secret-id scamguard/openai-key \
-  --secret-string "sk-..."
-
-aws secretsmanager put-secret-value \
-  --secret-id scamguard/gemini-key \
-  --secret-string "AIza..."
+**Expected Output:**
+```
+Threats table created
+UserThreats table created
+ThreatScenarios table created
+CloudFormation stack deployed successfully
 ```
 
-### Étape 4: Build & Deploy Frontend
+---
+
+### Step 2: Prepare Lambda Package
 
 ```bash
+# Navigate to Lambda directory
+cd backend/lambda_
+
+# Create deployment package
+mkdir -p lambda_package
+cp *.py lambda_package/
+cp -r requirements.txt lambda_package/
+
+# Install dependencies
+cd lambda_package
+pip install -r requirements.txt -t .
+
+# Create zip file
+zip -r ../threats-lambda.zip .
+
+# Clean up
+cd ..
+rm -rf lambda_package
+```
+
+**Expected Output:**
+```
+threats-lambda.zip created (~50-60 MB)
+```
+
+---
+
+### Step 3: Upload Lambda Functions
+
+#### Option A: Using AWS CLI
+
+```bash
+# Create Lambda function - threats_handler
+aws lambda create-function \
+  --function-name scamguard-threats-api \
+  --runtime python3.12 \
+  --role arn:aws:iam::YOUR_ACCOUNT_ID:role/lambda-role \
+  --handler index.handler \
+  --zip-file fileb://threats-lambda.zip \
+  --environment Variables='{
+    THREATS_TABLE=threats,
+    USER_THREATS_TABLE=user_threats,
+    ALLOWED_ORIGIN=https://yourdomain.com
+  }' \
+  --timeout 60 \
+  --memory-size 512 \
+  --region us-east-1
+
+# Create Lambda function - threat_sources (scheduled)
+aws lambda create-function \
+  --function-name scamguard-threat-sources \
+  --runtime python3.12 \
+  --role arn:aws:iam::YOUR_ACCOUNT_ID:role/lambda-role \
+  --handler threat_sources.lambda_handler \
+  --zip-file fileb://threats-lambda.zip \
+  --environment Variables='{
+    THREATS_TABLE=threats,
+    SQ_API_URL=https://api.sq.qc.ca/threats,
+    SQ_API_KEY=YOUR_API_KEY,
+    CAFC_CSV_URL=https://www.antifraudcentre.ca/threats.csv,
+    CAFC_BUCKET=scamguard-cafc-data
+  }' \
+  --timeout 300 \
+  --memory-size 1024 \
+  --region us-east-1
+```
+
+#### Option B: Using AWS Console
+
+1. Go to Lambda → Create Function
+2. Upload `threats-lambda.zip`
+3. Set handler: `index.handler` (threats API)
+4. Configure environment variables
+5. Set timeout and memory
+6. Click Deploy
+
+---
+
+### Step 4: Configure CloudWatch Scheduled Events
+
+#### SQ API Polling (Every 4 hours)
+
+```bash
+# Create EventBridge rule
+aws events put-rule \
+  --name scamguard-sq-polling \
+  --schedule-expression 'rate(4 hours)' \
+  --state ENABLED
+
+# Add Lambda as target
+aws events put-targets \
+  --rule scamguard-sq-polling \
+  --targets "Id"="1","Arn"="arn:aws:lambda:us-east-1:YOUR_ACCOUNT_ID:function:scamguard-threat-sources","Input"='{"source":"sq"}'
+
+# Grant Lambda permission
+aws lambda add-permission \
+  --function-name scamguard-threat-sources \
+  --statement-id AllowEventBridgeInvoke \
+  --action lambda:InvokeFunction \
+  --principal events.amazonaws.com \
+  --source-arn arn:aws:events:us-east-1:YOUR_ACCOUNT_ID:rule/scamguard-sq-polling
+```
+
+#### CAFC CSV Import (Daily at 2 AM)
+
+```bash
+# Create EventBridge rule
+aws events put-rule \
+  --name scamguard-cafc-import \
+  --schedule-expression 'cron(0 2 * * ? *)' \
+  --state ENABLED
+
+# Add Lambda as target
+aws events put-targets \
+  --rule scamguard-cafc-import \
+  --targets "Id"="1","Arn"="arn:aws:lambda:us-east-1:YOUR_ACCOUNT_ID:function:scamguard-threat-sources","Input"='{"source":"cafc"}'
+
+# Grant Lambda permission
+aws lambda add-permission \
+  --function-name scamguard-threat-sources \
+  --statement-id AllowEventBridgeInvokeCAFC \
+  --action lambda:InvokeFunction \
+  --principal events.amazonaws.com \
+  --source-arn arn:aws:events:us-east-1:YOUR_ACCOUNT_ID:rule/scamguard-cafc-import
+```
+
+---
+
+### Step 5: Configure API Gateway
+
+```bash
+# Create HTTP API
+aws apigatewayv2 create-api \
+  --name scamguard-threats-api \
+  --protocol-type HTTP \
+  --target arn:aws:lambda:us-east-1:YOUR_ACCOUNT_ID:function:scamguard-threats-api
+
+# Create integration
+aws apigatewayv2 create-integration \
+  --api-id YOUR_API_ID \
+  --integration-type AWS_PROXY \
+  --integration-method POST \
+  --payload-format-version 2.0 \
+  --target-arn arn:aws:lambda:us-east-1:YOUR_ACCOUNT_ID:function:scamguard-threats-api
+
+# Create route
+aws apigatewayv2 create-route \
+  --api-id YOUR_API_ID \
+  --route-key 'ANY /api/threats/{proxy+}' \
+  --target integrations/YOUR_INTEGRATION_ID
+
+# Deploy stage
+aws apigatewayv2 create-stage \
+  --api-id YOUR_API_ID \
+  --stage-name dev \
+  --auto-deploy
+```
+
+---
+
+### Step 6: Deploy Frontend
+
+```bash
+# Build frontend
 cd frontend
-
-# Build production
 npm run build
 
-# Récupérer le bucket S3 depuis CDK outputs
-BUCKET="scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw"
+# Deploy to CloudFront/S3
+aws s3 sync build/ s3://scamguard-frontend-bucket/ --delete
 
-# Sync vers S3
-aws s3 sync build/ s3://$BUCKET/ --delete
-
-# Invalider CloudFront cache
-DIST_ID="E1C54UEBEPD83U"
+# Invalidate CloudFront cache
 aws cloudfront create-invalidation \
-  --distribution-id $DIST_ID \
+  --distribution-id YOUR_DISTRIBUTION_ID \
   --paths "/*"
 ```
 
-### Étape 5: Vérification
+---
+
+### Step 7: Verify Deployment
 
 ```bash
-# Tester l'API
-curl -X POST https://k4jjgkz8xj.execute-api.us-east-1.amazonaws.com/analyze \
+# Test API endpoints
+curl https://your-api-gateway-url/dev/api/threats
+
+# Check Lambda functions
+aws lambda list-functions --query 'Functions[?contains(FunctionName, `threats`)]'
+
+# Verify DynamoDB tables
+aws dynamodb describe-table --table-name threats
+
+# Check CloudWatch logs
+aws logs tail /aws/lambda/scamguard-threats-api --follow
+```
+
+---
+
+## 🔧 Environment Variables
+
+### Lambda: threats_handler
+
+```
+THREATS_TABLE=threats
+USER_THREATS_TABLE=user_threats
+ALLOWED_ORIGIN=https://yourdomain.com
+```
+
+### Lambda: threat_sources
+
+```
+THREATS_TABLE=threats
+SQ_API_URL=https://api.sq.qc.ca/threats
+SQ_API_KEY=YOUR_SQ_API_KEY
+CAFC_CSV_URL=https://www.antifraudcentre-centreantifraude.ca/threats.csv
+CAFC_BUCKET=scamguard-cafc-data
+```
+
+---
+
+## 🔐 IAM Permissions
+
+### Lambda Execution Role
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:*:table/threats",
+        "arn:aws:dynamodb:us-east-1:*:table/user_threats",
+        "arn:aws:dynamodb:us-east-1:*:table/threat_scenarios"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:us-east-1:*:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::scamguard-cafc-data/*"
+    }
+  ]
+}
+```
+
+---
+
+## 📊 Post-Deployment Validation
+
+### 1. Test API Endpoints
+
+```bash
+# List threats
+curl -X GET \
+  https://your-api-id.execute-api.us-east-1.amazonaws.com/dev/api/threats \
+  -H "Content-Type: application/json"
+
+# Get specific threat
+curl -X GET \
+  https://your-api-id.execute-api.us-east-1.amazonaws.com/dev/api/threats/SQ-2026-001
+
+# Match user to threats
+curl -X POST \
+  https://your-api-id.execute-api.us-east-1.amazonaws.com/dev/api/threats/match \
   -H "Content-Type: application/json" \
-  -d '{"action":"analyze","userResponse":"Je supprime","userId":"test"}'
+  -d '{
+    "user_id": "test@example.com",
+    "institutions": ["Desjardins"],
+    "regions": ["Montreal"]
+  }'
 
-# Visiter le site
-# https://dv04w7vjfnkg5.cloudfront.net
+# Get weekly digest
+curl -X GET \
+  https://your-api-id.execute-api.us-east-1.amazonaws.com/dev/api/threats/feed
 ```
 
----
-
-## 🔄 Mise à Jour du Frontend
-
-### Après modification des fichiers
+### 2. Check CloudWatch Logs
 
 ```bash
+# View Lambda logs
+aws logs tail /aws/lambda/scamguard-threats-api --follow
+
+# View threat sources logs
+aws logs tail /aws/lambda/scamguard-threat-sources --follow
+```
+
+### 3. Verify DynamoDB Operations
+
+```bash
+# Get item count
+aws dynamodb scan --table-name threats --select COUNT_ITEMS
+
+# Get specific threat
+aws dynamodb get-item \
+  --table-name threats \
+  --key '{"threat_id": {"S": "SQ-2026-001"}, "date_detected": {"S": "2026-03-14T10:00:00Z"}}'
+```
+
+### 4. Test Frontend Integration
+
+```bash
+# Build and test locally
 cd frontend
-
-# 1. Rebuild
 npm run build
+npm run preview
 
-# 2. Deploy à S3
-BUCKET="scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw"
-aws s3 sync build/ s3://$BUCKET/ --delete
-
-# 3. Invalider cache
-DIST_ID="E1C54UEBEPD83U"
-aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
-
-# ⏱️ Attendre ~30-60 secondes pour que le CDN se mette à jour
+# Test API calls from frontend
+# Open browser console and test:
+fetch('/api/threats').then(r => r.json()).then(d => console.log(d))
 ```
 
 ---
 
-## 🔄 Mise à Jour du Backend
+## 🚨 Troubleshooting
 
-### Après modification de Lambda
+### Issue: Lambda timeout
 
+**Solution:** Increase timeout in Lambda configuration
 ```bash
-cd backend/cdk
-
-# 1. CDK redéploiera automatiquement la Lambda
-cdk deploy \
-  --require-approval never \
-  -c account=034362029181 \
-  -c region=us-east-1
-
-# 2. Vérifier les logs
-aws logs tail /aws/lambda/ScamGuardStack-LambdaFunctionXXX --follow
+aws lambda update-function-configuration \
+  --function-name scamguard-threats-api \
+  --timeout 120
 ```
 
-### Tester localement (optionnel)
+### Issue: DynamoDB capacity exceeded
 
+**Solution:** DynamoDB is on-demand (auto-scaling)
+- No action needed, charges scale with usage
+
+### Issue: API Gateway 502 error
+
+**Solution:** Check Lambda logs
 ```bash
-cd backend
-python3 -m pytest tests/test_handler.py -v
+aws logs tail /aws/lambda/scamguard-threats-api --follow
+```
+
+### Issue: SQ API not updating
+
+**Solution:** Check EventBridge rule
+```bash
+aws events describe-rule --name scamguard-sq-polling
+aws events list-targets-by-rule --rule scamguard-sq-polling
 ```
 
 ---
 
-## 📊 Monitoring & Logs
-
-### CloudWatch Logs
-
-```bash
-# Voir les logs Lambda en temps réel
-aws logs tail /aws/lambda/ScamGuardStack-LambdaFunctionXXX --follow
-
-# Rechercher les erreurs
-aws logs filter-log-events \
-  --log-group-name /aws/lambda/ScamGuardStack-LambdaFunctionXXX \
-  --filter-pattern "ERROR"
-```
+## 📈 Monitoring
 
 ### CloudWatch Metrics
 
 ```bash
-# Voir les invocations
+# Lambda invocations
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Lambda \
   --metric-name Invocations \
-  --start-time 2026-02-17T00:00:00Z \
-  --end-time 2026-02-17T23:59:59Z \
+  --dimensions Name=FunctionName,Value=scamguard-threats-api \
+  --start-time 2026-03-14T00:00:00Z \
+  --end-time 2026-03-15T00:00:00Z \
+  --period 3600 \
+  --statistics Sum
+
+# DynamoDB read/write capacity
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/DynamoDB \
+  --metric-name ConsumedWriteCapacityUnits \
+  --dimensions Name=TableName,Value=threats \
+  --start-time 2026-03-14T00:00:00Z \
+  --end-time 2026-03-15T00:00:00Z \
   --period 3600 \
   --statistics Sum
 ```
 
-### S3 & CloudFront
+---
 
-```bash
-# Vérifier les fichiers dans S3
-aws s3 ls s3://scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw/ --recursive
+## ✅ Deployment Checklist
 
-# Voir le status CloudFront
-aws cloudfront get-distribution-config --id E1C54UEBEPD83U
-```
+- [ ] DynamoDB tables created
+- [ ] Lambda functions deployed
+- [ ] Lambda environment variables configured
+- [ ] API Gateway configured
+- [ ] CloudWatch rules created (SQ 4h, CAFC daily)
+- [ ] IAM roles configured
+- [ ] Frontend built and deployed
+- [ ] API endpoints tested
+- [ ] Lambda logs verified
+- [ ] DynamoDB operations verified
+- [ ] Monitoring configured
+- [ ] DNS updated (if applicable)
 
 ---
 
-## 🔐 Sécurité
+## 🎉 Post-Deployment
 
-### Secrets Manager
-
-```bash
-# Lister les secrets
-aws secretsmanager list-secrets
-
-# Récupérer un secret
-aws secretsmanager get-secret-value --secret-id scamguard/openai-key
-
-# Mettre à jour un secret
-aws secretsmanager update-secret \
-  --secret-id scamguard/openai-key \
-  --secret-string "sk-..."
-```
-
-### Credentials Git
-
-⚠️ **IMPORTANT:** Ne jamais commiter
-```
-- .env files
-- AWS credentials
-- API keys
-```
-
-Vérifier `.gitignore`:
-```bash
-cat .gitignore
-# Doit inclure: .env, *.pem, etc.
-```
+Once deployed:
+1. Test all API endpoints
+2. Monitor CloudWatch logs for 24 hours
+3. Verify SQ API polling (4 hours)
+4. Verify CAFC import (daily at 2 AM)
+5. Test frontend integration
+6. Enable production monitoring
+7. Document any issues in GitHub Issues
 
 ---
 
-## 🧪 Tests
+**Deployment Ready:** ✅
+**Estimated Time:** 30-45 minutes
+**Support:** Check GitHub Issues or contact @echetoui
 
-### Frontend
-
-```bash
-cd frontend
-
-# Tests unitaires (si configurés)
-npm test
-
-# Tests de performance
-npm run build  # Voir les bundle sizes
-```
-
-### Backend
-
-```bash
-cd backend
-
-# Tests Lambda
-python3 -m pytest tests/ -v
-
-# Tests spécifiques
-pytest tests/test_handler.py::test_analyze -v
-```
-
----
-
-## 🚨 Rollback & Récupération
-
-### Rollback Frontend
-
-```bash
-# S3 a la versioning, récupérer une version antérieure
-aws s3api list-object-versions \
-  --bucket scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw
-
-# Restaurer une ancienne version
-aws s3api get-object \
-  --bucket scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw \
-  --key index.html \
-  --version-id VERSION_ID \
-  index.html
-
-# Re-upload
-aws s3 cp index.html s3://scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw/
-```
-
-### Rollback Infrastructure (CDK)
-
-```bash
-# Voir l'historique des stacks
-aws cloudformation list-stacks \
-  --query 'StackSummaries[?StackName==`ScamGuardStack`]'
-
-# Pour un vrai rollback, faut refaire le CDK
-# avec une version antérieure du code
-git log --oneline backend/cdk/stacks/
-git checkout COMMIT_HASH backend/cdk/
-cdk deploy --require-approval never
-```
-
----
-
-## 💾 Backup & Disaster Recovery
-
-### DynamoDB Backup
-
-```bash
-# Créer un backup manuel
-aws dynamodb create-backup \
-  --table-name ScamGuardStack-DataTable447BC44E-1BID2SBGQEELH \
-  --backup-name backup-$(date +%s)
-
-# Lister les backups
-aws dynamodb list-backups \
-  --table-name ScamGuardStack-DataTable447BC44E-1BID2SBGQEELH
-```
-
-### Export des données
-
-```bash
-# Exporter DynamoDB vers S3
-aws dynamodb export-table-to-point-in-time \
-  --table-arn arn:aws:dynamodb:us-east-1:034362029181:table/ScamGuardStack-DataTable447BC44E-1BID2SBGQEELH \
-  --s3-bucket scamguardstack-frontendbucketefe2e19c-5zt0alq9uprw \
-  --s3-prefix exports/
-```
-
----
-
-## 📱 Local Development
-
-### Frontend
-
-```bash
-cd frontend
-
-# Mode développement (hot reload)
-npm start
-
-# Ouvre http://localhost:3000
-# Les changements se reloadent automatiquement
-```
-
-### Backend (Simulation)
-
-```bash
-# Pour tester Lambda localement (optionnel)
-cd backend
-sam local start-api
-
-# Ou utiliser AWS Lambda Runtime Local
-docker run -p 9000:8080 \
-  -e LAMBDA_TASK_ROOT=/var/task \
-  -v /Users/echetoui/scamguard-mvp/backend/lambda:/var/task \
-  public.ecr.aws/lambda/python:3.12
-```
-
----
-
-## 🎯 Checklist Déploiement
-
-### Avant de déployer en production
-
-- [ ] Git commit les changements (`git status` = clean)
-- [ ] Tests passent (`npm test`, `pytest tests/`)
-- [ ] Build réussit (`npm run build`)
-- [ ] Pas de console.log/debug en code production
-- [ ] Variables d'environnement correctes
-- [ ] Secrets AWS actualisés
-- [ ] CDK synth ne montre pas d'erreurs
-- [ ] URL de l'API correcte dans .env
-
-### Après déploiement
-
-- [ ] Frontend accessible sur https://dv04w7vjfnkg5.cloudfront.net
-- [ ] API répond sur https://k4jjgkz8xj.execute-api.us-east-1.amazonaws.com
-- [ ] Pas d'erreurs CloudWatch
-- [ ] Cache CloudFront invalidé
-- [ ] Test utilisateur basique fonctionne
-
----
-
-## 🆘 Troubleshooting
-
-### "Unable to import module 'index'"
-
-```
-Solution: Vérifier que index.py existe et importe handler_llm
-```
-
-### "Module not found: 'aws_cdk'"
-
-```bash
-pip3 install -r backend/cdk/requirements.txt
-```
-
-### CloudFront montre une ancienne version
-
-```bash
-# Invalider le cache
-aws cloudfront create-invalidation \
-  --distribution-id E1C54UEBEPD83U \
-  --paths "/*"
-
-# Attendre 30-60 secondes
-# Puis vider le cache browser (Ctrl+F5 / Cmd+Shift+R)
-```
-
-### Lambda timeout
-
-```
-Solution: Augmenter le timeout ou optimiser la fonction
-- Voir CloudWatch Logs pour identifier le goulot
-- Réduire la taille du code
-- Faire des appels API non-bloquants
-```
-
-### S3 bucket access denied
-
-```bash
-# Vérifier les permissions IAM
-aws iam get-user-policy --user-name scamguard-dev --policy-name XXX
-
-# Vous avez besoin du rôle root ou IAM admin
-```
-
----
-
-## 📚 Références
-
-- [AWS CDK Best Practices](https://docs.aws.amazon.com/cdk/v2/guide/best-practices.html)
-- [Lambda Python Handler](https://docs.aws.amazon.com/lambda/latest/dg/python-handler.html)
-- [React Deployment](https://create-react-app.dev/deployment/)
-- [CloudFront Caching](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/caching.html)
-
----
-
-**Dernière mise à jour:** 17 février 2026
-**Responsable:** @echetoui
