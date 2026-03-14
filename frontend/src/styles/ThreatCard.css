@@ -1,0 +1,297 @@
+/**
+ * ThreatCard Styles
+ * Individual threat display component
+ * Uses design tokens only
+ */
+
+.threat-card {
+  background: var(--color-background);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.threat-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+}
+
+.threat-card-danger {
+  border-left: 6px solid var(--color-danger);
+}
+
+.threat-card-warning {
+  border-left: 6px solid var(--color-warning);
+}
+
+.threat-card-success {
+  border-left: 6px solid var(--color-success);
+}
+
+/* Card Header */
+.threat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.threat-card-header-left {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: flex-start;
+}
+
+.threat-card-threat-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  white-space: nowrap;
+  min-width: 56px;
+  justify-content: center;
+}
+
+.threat-card-threat-emoji {
+  font-size: 20px;
+}
+
+.threat-card-threat-level {
+  font-size: var(--font-size-sm);
+}
+
+.threat-card-info {
+  flex: 1;
+}
+
+.threat-card-institution {
+  font-size: var(--font-size-senior-base);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.threat-card-type {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-sm) 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.threat-card-type-emoji {
+  font-size: 16px;
+}
+
+.threat-card-date {
+  font-size: var(--font-size-md);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Message Section */
+.threat-card-message {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-primary);
+}
+
+.threat-card-message-text {
+  font-size: var(--font-size-senior-base);
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+/* Indicators Preview */
+.threat-card-indicators-preview {
+  margin-bottom: var(--spacing-md);
+}
+
+.threat-card-indicators-label {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.threat-card-indicators-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.threat-card-indicator-tag {
+  display: inline-block;
+  background: var(--color-warning-bg-light);
+  color: var(--color-warning);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.threat-card-indicator-more {
+  background: var(--color-primary-bg-light);
+  color: var(--color-primary);
+}
+
+/* Expand Hint */
+.threat-card-expand-hint {
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.threat-card-expand-hint p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Expanded Content */
+.threat-card-expanded {
+  background: var(--color-background-secondary);
+}
+
+.threat-card-expanded-content {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 2px solid var(--color-primary);
+  animation: slideInDown 300ms var(--ease-out) forwards;
+}
+
+.threat-card-expanded-section {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-primary);
+}
+
+.threat-card-expanded-label {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.threat-card-expanded-message {
+  font-size: var(--font-size-senior-base);
+  line-height: 1.6;
+  margin: 0;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: var(--spacing-lg);
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.threat-card-expanded-explanation {
+  font-size: var(--font-size-senior-base);
+  line-height: 1.6;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.threat-card-expanded-indicators {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.threat-card-expanded-indicators li {
+  font-size: var(--font-size-senior-base);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  padding: var(--spacing-sm) 0;
+  margin: 0;
+}
+
+/* Source */
+.threat-card-source {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-background);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-lg);
+}
+
+.threat-card-source-label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.threat-card-source-value {
+  color: var(--color-text-tertiary);
+  font-family: monospace;
+}
+
+/* Animations */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .threat-card {
+    padding: var(--spacing-md);
+  }
+
+  .threat-card-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .threat-card-header-left {
+    width: 100%;
+  }
+
+  .threat-card-date {
+    text-align: left;
+  }
+
+  .threat-card-indicators-list {
+    flex-direction: column;
+  }
+
+  .threat-card-indicator-tag {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
