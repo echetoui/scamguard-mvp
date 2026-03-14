@@ -79,16 +79,35 @@
 
 ## 🔄 PHASE 2 - Advanced Features & Enhancement (Apr-Jul 2026)
 
-### Phase 2.1: Rattrapage (April 2026) 📋
+**Status:** 🚀 **SPRINT 5 STARTING (April 2026)**
+
+### Phase 2.1: Rattrapage (April 2026) 🚀
 **Objective:** Real-world threat simulation & interactive training
 
-#### Sprint 5: SMS Simulation & Real Threats
+#### Sprint 5: SMS Simulation & Real Threats (IN PROGRESS)
 - [ ] Real SMS scam database (integration with SQ + CAFC)
-- [ ] SMS simulation interface
-- [ ] Interactive threat scenarios
-- [ ] User threat matching alerts
-- [ ] Weekly alert digests
-- **Estimated:** 2 weeks
+  - [ ] SQ API polling setup (4h interval)
+  - [ ] CAFC CSV parsing & import
+- [ ] SMS simulation interface (SMSSimulator.jsx)
+  - [ ] Component structure (400+ lines)
+  - [ ] Score tracking
+  - [ ] Threat explanations
+- [ ] Interactive threat scenarios (20+ scenarios)
+  - [ ] Banking scenarios (Desjardins, TD, etc)
+  - [ ] Utilities scenarios (Hydro-Quebec)
+  - [ ] Other scams
+- [ ] User threat matching algorithm
+  - [ ] Profile-based matching
+  - [ ] Accuracy > 90%
+- [ ] Weekly alert digest system
+  - [ ] Scheduled digest generation
+  - [ ] Email/push notifications
+- [ ] Testing (90+ tests)
+  - [ ] 40+ SMS simulator tests
+  - [ ] 30+ threat matching tests
+  - [ ] 20+ API integration tests
+- **Estimated:** 2 weeks (Week 1-2 April 2026)
+- **Status:** PLAN CREATED ✅
 
 #### Sprint 6: Enhanced Quizzes & Gamification
 - [ ] Interactive quiz improvements
