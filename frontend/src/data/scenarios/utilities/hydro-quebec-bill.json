@@ -1,0 +1,14 @@
+{
+  "id": "utility-001",
+  "type": "SMS",
+  "institution": "Hydro-Québec",
+  "threat_level": "high",
+  "message": "Hydro-Québec: Facture impayée $487.52. Payez avant le 17 mars: https://hydro-pay-now.click",
+  "is_scam": true,
+  "explanation_fr": "Arnaque très courante. Hydro-Québec n'envoie jamais de liens SMS pour paiement. Les vrais avis de facture impayée arrivent par courrier ou demandent d'appeler le 1-800-365-5353. Le lien vous mène à une page qui capture vos informations bancaires.",
+  "threat_indicators": ["URL suspecte (hydro-pay-now.click)", "montant spécifique (psychologie: semble réel)", "date limite artificielle"],
+  "category": "utilities",
+  "region": "Quebec",
+  "date_detected": "2026-03-13T16:45:00Z",
+  "source": "CAFC"
+}

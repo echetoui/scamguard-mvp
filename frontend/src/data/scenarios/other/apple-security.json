@@ -1,0 +1,14 @@
+{
+  "id": "other-005",
+  "type": "SMS",
+  "institution": "Apple",
+  "threat_level": "high",
+  "message": "Alerte Apple: Accès non autorisé à votre iCloud. Verrouillez maintenant: https://icloud-security.com/lock",
+  "is_scam": true,
+  "explanation_fr": "Arnaque Apple iCloud. Apple n'envoie jamais de SMS ou d'email avec des liens pour 'verrouiller' votre compte. Ce lien mène à un formulaire qui vole votre Apple ID et mot de passe. Réaction: ignorer le lien et accéder directement à iCloud.com depuis un navigateur de confiance.",
+  "threat_indicators": ["URL non-officielle (icloud-security.com)", "urgence de verrouillage", "lien à cliquer", "menace de sécurité"],
+  "category": "other",
+  "region": "Quebec",
+  "date_detected": "2026-03-07T14:00:00Z",
+  "source": "SQ"
+}

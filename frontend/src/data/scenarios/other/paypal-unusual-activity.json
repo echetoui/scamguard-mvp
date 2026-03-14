@@ -1,0 +1,14 @@
+{
+  "id": "other-002",
+  "type": "SMS",
+  "institution": "PayPal",
+  "threat_level": "high",
+  "message": "PayPal: Activité inhabituellement identifiée sur votre compte. Verrouillage en cours. Accédez: https://paypal-secure.site/auth",
+  "is_scam": true,
+  "explanation_fr": "Arnaque d'imitation PayPal. Signes d'alerte: fautes de français (inhabituellement vs inhabituelle), lien SMS au lieu d'appel, urgence de verrouillage. PayPal n'envoie jamais de lien SMS pour accéder au compte. Toujours accéder directement à PayPal.com ou appeler.",
+  "threat_indicators": ["URL fausse (paypal-secure.site)", "fautes de grammaire", "urgence de verrouillage", "demande d'authentification SMS"],
+  "category": "other",
+  "region": "Quebec",
+  "date_detected": "2026-03-09T15:30:00Z",
+  "source": "CAFC"
+}

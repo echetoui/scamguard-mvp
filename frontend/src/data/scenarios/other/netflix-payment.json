@@ -1,0 +1,14 @@
+{
+  "id": "other-006",
+  "type": "SMS",
+  "institution": "Netflix",
+  "threat_level": "high",
+  "message": "Netflix: Problème de paiement détecté. Mettez à jour vos informations: https://netflix-update.click",
+  "is_scam": true,
+  "explanation_fr": "Arnaque Netflix commune. Netflix n'envoie jamais de SMS pour demander des informations de paiement. Le lien mène à une page contrefaite. Netflix demande les mises à jour uniquement via l'application ou le site officiel Netflix.com.",
+  "threat_indicators": ["URL suspecte (netflix-update.click)", "demande de mise à jour de paiement par SMS", "lien à cliquer"],
+  "category": "other",
+  "region": "Quebec",
+  "date_detected": "2026-03-05T16:20:00Z",
+  "source": "CAFC"
+}

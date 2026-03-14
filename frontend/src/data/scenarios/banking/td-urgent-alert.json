@@ -1,0 +1,14 @@
+{
+  "id": "banking-003",
+  "type": "SMS",
+  "institution": "TD Bank",
+  "threat_level": "high",
+  "message": "URGENT: Tentative de fraude détectée sur votre compte TD. Cliquez ici pour confirmer: https://td-online.secure/auth",
+  "is_scam": true,
+  "explanation_fr": "Arnaque classique. Les vrais emails bancaires ne contiennent pas de liens à cliquer. Le lien pointe vers un site frauduleux. Signes d'alerte: urgence, lien raccourci, domaine suspect. Action: contactez TD directement au 1-866-222-3456.",
+  "threat_indicators": ["URL raccourcie", "urgence exagérée", "demande de confirmation immédiate", "domaine suspect (td-online.secure)"],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-12T14:30:00Z",
+  "source": "CAFC"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "other-004",
+  "type": "SMS",
+  "institution": "Revenu Canada",
+  "threat_level": "high",
+  "message": "Revenu Canada: Remboursement d'impôt en attente $2,345.67. Vérifiez l'statut: https://revenu.gouv.ca.fake.click",
+  "is_scam": true,
+  "explanation_fr": "Arnaque très courante avant la saison d'impôt. Revenu Canada n'envoie JAMAIS de SMS. Les remboursements d'impôt arrivent par chèque ou dépôt direct. Ce lien vous mène à une page de vol d'identité. Vrai conseil: ignorer complètement et signaler à CAFC si reçu.",
+  "threat_indicators": ["URL fausse (revenu.gouv.ca.fake.click)", "montant spécifique de remboursement", "domaine gouvernemental contrefait", "Revenu Canada n'envoie jamais de SMS"],
+  "category": "other",
+  "region": "Quebec",
+  "date_detected": "2026-02-25T09:00:00Z",
+  "source": "CAFC"
+}

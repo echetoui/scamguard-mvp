@@ -1,0 +1,14 @@
+{
+  "id": "banking-004",
+  "type": "SMS",
+  "institution": "RBC",
+  "threat_level": "high",
+  "message": "Votre carte RBC a été bloquée. Veuillez réactiver immédiatement: https://rbc-card.site/activate?id=xyz",
+  "is_scam": true,
+  "explanation_fr": "Arnaque par hameçonnage (phishing). Les vrais appels de sécurité bancaire utilisent des numéros de téléphone vérifiés, pas des liens SMS. Ce message est un vol d'identité. Réaction correcte: ignorer le lien et appeler RBC au numéro sur votre carte.",
+  "threat_indicators": ["URL raccourcie avec paramètres", "urgence (blocage de carte)", "domaine frauduleux (rbc-card.site)"],
+  "category": "banking",
+  "region": "Quebec",
+  "date_detected": "2026-03-11T11:15:00Z",
+  "source": "SQ"
+}
