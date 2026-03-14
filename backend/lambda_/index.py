@@ -21,6 +21,11 @@ def handler(event, context):
             from tools_handler import lambda_handler as tools_handler
             return tools_handler(event, context)
 
+        # Threats endpoints (Phase 2 Sprint 5)
+        if "/threats" in path:
+            from threats_handler import lambda_handler as threats_handler
+            return threats_handler(event, context)
+
         # Default: LLM handler
         from handler_llm import lambda_handler as llm_handler
         return llm_handler(event, context)
