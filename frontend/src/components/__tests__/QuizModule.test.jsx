@@ -19,44 +19,44 @@ describe('QuizModule Component', () => {
 
   describe('Initial Rendering', () => {
     it('should render quiz module container', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       expect(container.querySelector('.quiz-module')).toBeTruthy();
     });
 
     it('should display quiz title', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText(/Quiz Interactif/)).toBeTruthy();
     });
 
     it('should display first question', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText(/Vous recevez un SMS/)).toBeTruthy();
     });
 
     it('should show progress indicator', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      expect(screen.getByText(/Question 1\/5/)).toBeTruthy();
+      expect(screen.getByText(/Question 1\/10/)).toBeTruthy();
     });
 
     it('should display progress bar', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const progressBar = container.querySelector('[role="progressbar"]');
       expect(progressBar).toBeTruthy();
     });
 
     it('should display question category', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText('Phishing Bancaire')).toBeTruthy();
     });
 
     it('should display question difficulty', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText('Facile')).toBeTruthy();
     });
@@ -64,39 +64,39 @@ describe('QuizModule Component', () => {
 
   describe('Answer Options', () => {
     it('should display all three options for first question', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const options = container.querySelectorAll('.option-item');
       expect(options.length).toBe(3);
     });
 
     it('should have radio input for each option', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const radios = container.querySelectorAll('input[type="radio"]');
       expect(radios.length).toBe(3);
     });
 
     it('should display first option text', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText('Je clique le lien immédiatement')).toBeTruthy();
     });
 
     it('should display second option text', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText(/J\'appelle ma banque/)).toBeTruthy();
     });
 
     it('should display third option text', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText('Je partage le message')).toBeTruthy();
     });
 
     it('should have options unchecked initially', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const radios = container.querySelectorAll('input[type="radio"]');
       radios.forEach(radio => {
@@ -107,7 +107,7 @@ describe('QuizModule Component', () => {
 
   describe('Answer Selection', () => {
     it('should select option when clicked', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -116,7 +116,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should deselect previous option when new one selected', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       const secondOption = container.querySelector('input[value="1"]');
@@ -130,7 +130,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should show feedback when answer selected', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -139,7 +139,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should show correct feedback for correct answer', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const correctOption = container.querySelector('input[value="1"]');
       fireEvent.click(correctOption);
@@ -148,7 +148,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should display feedback with alert role', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -158,7 +158,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should have aria-live polite on feedback', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -170,20 +170,20 @@ describe('QuizModule Component', () => {
 
   describe('Navigation - Next Button', () => {
     it('should display next button', () => {
-      render(<QuizModule />);
+      render(<QuizModule moduleId="phishing" />);
 
       expect(screen.getByText(/Suivant/)).toBeTruthy();
     });
 
     it('should disable next button when no answer selected', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const nextButton = container.querySelector('.btn-next');
       expect(nextButton.disabled).toBe(true);
     });
 
     it('should enable next button when answer selected', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -193,7 +193,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should advance to next question on click', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -201,11 +201,11 @@ describe('QuizModule Component', () => {
       const nextButton = container.querySelector('.btn-next');
       fireEvent.click(nextButton);
 
-      expect(screen.getByText(/Question 2\/5/)).toBeTruthy();
+      expect(screen.getByText(/Question 2\/10/)).toBeTruthy();
     });
 
     it('should clear selected answer for next question', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -220,7 +220,7 @@ describe('QuizModule Component', () => {
     });
 
     it('should hide feedback when moving to next question', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -234,10 +234,10 @@ describe('QuizModule Component', () => {
     });
 
     it('should update progress bar on next', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       let progressBar = container.querySelector('[role="progressbar"]');
-      expect(progressBar.getAttribute('aria-valuenow')).toBe('20');
+      expect(progressBar.getAttribute('aria-valuenow')).toBe('10');
 
       const firstOption = container.querySelector('input[value="0"]');
       fireEvent.click(firstOption);
@@ -246,14 +246,14 @@ describe('QuizModule Component', () => {
       fireEvent.click(nextButton);
 
       progressBar = container.querySelector('[role="progressbar"]');
-      expect(progressBar.getAttribute('aria-valuenow')).toBe('40');
+      expect(progressBar.getAttribute('aria-valuenow')).toBe('20');
     });
 
     it('should change button text on last question', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Navigate to last question
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 9; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
@@ -266,10 +266,10 @@ describe('QuizModule Component', () => {
 
   describe('Quiz Completion', () => {
     it('should show results screen after last question', () => {
-      const { container } = render(<QuizModule onComplete={mockOnComplete} />);
+      const { container } = render(<QuizModule moduleId="phishing" onComplete={mockOnComplete} />);
 
-      // Answer all 5 questions (any answers, just to complete)
-      for (let i = 0; i < 5; i++) {
+      // Answer all 10 questions (any answers, just to complete)
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
@@ -280,11 +280,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should call onComplete callback on finish', () => {
-      const { container } = render(<QuizModule onComplete={mockOnComplete} />);
+      const { container } = render(<QuizModule moduleId="phishing" onComplete={mockOnComplete} />);
 
-      // Answer all 5 questions with correct answers: [1, 0, 1, 0, 0]
-      const correctAnswers = [1, 0, 1, 0, 0];
-      for (let i = 0; i < 5; i++) {
+      // Answer all 10 questions (phishing module has 10 questions)
+      // Correct answers for first 10: [1, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+      const correctAnswers = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 10; i++) {
         const option = container.querySelector(`input[value="${correctAnswers[i]}"]`);
         fireEvent.click(option);
         const nextButton = container.querySelector('.btn-next');
@@ -295,11 +296,11 @@ describe('QuizModule Component', () => {
     });
 
     it('should pass score to onComplete callback', () => {
-      const { container } = render(<QuizModule onComplete={mockOnComplete} />);
+      const { container } = render(<QuizModule moduleId="phishing" onComplete={mockOnComplete} />);
 
-      // Answer all questions correctly: [1, 0, 1, 0, 0] = 100%
-      const correctAnswers = [1, 0, 1, 0, 0];
-      for (let i = 0; i < 5; i++) {
+      // Answer all questions correctly: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0] = 100%
+      const correctAnswers = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 10; i++) {
         const option = container.querySelector(`input[value="${correctAnswers[i]}"]`);
         fireEvent.click(option);
         const nextButton = container.querySelector('.btn-next');
@@ -310,11 +311,11 @@ describe('QuizModule Component', () => {
     });
 
     it('should pass passed status to onComplete callback', () => {
-      const { container } = render(<QuizModule onComplete={mockOnComplete} />);
+      const { container } = render(<QuizModule moduleId="phishing" onComplete={mockOnComplete} />);
 
-      // Answer correctly (score >= 70): [1, 0, 1, 0, 0] = 100%
-      const correctAnswers = [1, 0, 1, 0, 0];
-      for (let i = 0; i < 5; i++) {
+      // Answer correctly (score >= 70): [1, 0, 1, 0, 1, 0, 0, 0, 0, 0] = 100%
+      const correctAnswers = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 10; i++) {
         const option = container.querySelector(`input[value="${correctAnswers[i]}"]`);
         fireEvent.click(option);
         const nextButton = container.querySelector('.btn-next');
@@ -327,10 +328,10 @@ describe('QuizModule Component', () => {
 
   describe('Results Screen', () => {
     it('should display results title', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Complete quiz
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
@@ -341,10 +342,10 @@ describe('QuizModule Component', () => {
     });
 
     it('should display score circle', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Complete quiz with 0% (all wrong answers)
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
@@ -356,11 +357,11 @@ describe('QuizModule Component', () => {
     });
 
     it('should display score percentage', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Complete quiz with 100% (all correct): [1, 0, 1, 0, 0]
-      const correctAnswers = [1, 0, 1, 0, 0];
-      for (let i = 0; i < 5; i++) {
+      // Complete quiz with 100% (all correct): [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+      const correctAnswers = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 10; i++) {
         const option = container.querySelector(`input[value="${correctAnswers[i]}"]`);
         fireEvent.click(option);
         const nextButton = container.querySelector('.btn-next');
@@ -372,12 +373,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should show success message when passed', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Answer enough correctly to pass (70%+)
-      // Correct: [1, 0, 1, 0, 0], Answer: [1, 0, 1, 0, 1] = 4/5 = 80%
-      const answers = [1, 0, 1, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0], Answer: [1, 0, 1, 0, 1, 0, 0, 0, 1, 1] = 8/10 = 80%
+      const answers = [1, 0, 1, 0, 1, 0, 0, 0, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -388,12 +389,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should show improvement message when failed', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Answer all questions incorrectly (0%)
-      // Correct: [1, 0, 1, 0, 0], Answer: [0, 1, 0, 1, 1] = 0/5 = 0%
-      const answers = [0, 1, 0, 1, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0], Answer: [0, 1, 0, 1, 0, 1, 1, 1, 1, 1] = 0/10 = 0%
+      const answers = [0, 1, 0, 1, 0, 1, 1, 1, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -404,12 +405,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should display correct count', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Answer 4 out of 5 correctly
-      // Correct: [1, 0, 1, 0, 0], Answer: [1, 0, 1, 0, 1] = 4/5
-      const correctIndices = [1, 0, 1, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0], Answer: [1, 0, 1, 0, 1, 0, 0, 0, 1, 1] = 8/10
+      const correctIndices = [1, 0, 1, 0, 1, 0, 0, 0, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${correctIndices[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -417,16 +418,18 @@ describe('QuizModule Component', () => {
       }
 
       const statsDiv = container.querySelector('.results-stats');
-      expect(statsDiv.textContent).toContain('4');
-      expect(statsDiv.textContent).toContain('5');
+      expect(statsDiv.textContent).toContain('8');
+      expect(statsDiv.textContent).toContain('10');
     });
 
     it('should display XP earned', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Complete quiz with 40% score
-      const answers = [1, 0, 0, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Complete quiz with 50% score (5/10 correct)
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+      // Answer: [1, 0, 0, 1, 1, 1, 1, 1, 1, 1] = 5/10 = 50%
+      const answers = [1, 0, 0, 1, 1, 1, 1, 1, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -438,11 +441,13 @@ describe('QuizModule Component', () => {
     });
 
     it('should display credits earned badge', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Complete quiz with any score
-      const answers = [1, 0, 0, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Complete quiz with 50% score (5/10 correct)
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+      // Answer: [1, 0, 0, 1, 1, 1, 1, 1, 1, 1] = 5/10 = 50%
+      const answers = [1, 0, 0, 1, 1, 1, 1, 1, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -455,12 +460,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should award 20 credits when passed', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Answer 4/5 correctly to pass (80%)
-      // Correct: [1, 0, 1, 0, 0], Answer: [1, 0, 1, 0, 1] = 4/5
-      const answers = [1, 0, 1, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0], Answer: [1, 0, 1, 0, 1, 0, 0, 0, 1, 1] = 8/10
+      const answers = [1, 0, 1, 0, 1, 0, 0, 0, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -472,12 +477,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should award 5 credits when failed', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Answer incorrectly to score below 70%
-      // Correct: [1, 0, 1, 0, 0], Answer: [0, 1, 0, 1, 1] = 0/5 = 0%
-      const answers = [0, 1, 0, 1, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0], Answer: [0, 1, 0, 1, 0, 1, 1, 1, 1, 1] = 0/10 = 0%
+      const answers = [0, 1, 0, 1, 0, 1, 1, 1, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -489,10 +494,10 @@ describe('QuizModule Component', () => {
     });
 
     it('should have role="alert" on results screen', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Complete quiz
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
@@ -504,10 +509,10 @@ describe('QuizModule Component', () => {
     });
 
     it('should have aria-live assertive on results', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       // Complete quiz
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
@@ -519,106 +524,94 @@ describe('QuizModule Component', () => {
     });
   });
 
-  describe('Restart Functionality', () => {
-    it('should display restart button on results', () => {
-      const { container } = render(<QuizModule />);
+  describe('Back to Academy Functionality', () => {
+    it('should display back to academy button on results', () => {
+      const mockOnBack = vi.fn();
+      const { container } = render(<QuizModule moduleId="phishing" onBack={mockOnBack} />);
 
       // Complete quiz
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
         fireEvent.click(nextButton);
       }
 
-      expect(screen.getByText(/Recommencer/)).toBeTruthy();
+      expect(screen.getByText(/Retour à l'Académie/)).toBeTruthy();
     });
 
-    it('should reset to first question on restart', () => {
-      const { container } = render(<QuizModule />);
+    it('should call onBack callback when return button clicked', () => {
+      const mockOnBack = vi.fn();
+      const { container } = render(<QuizModule moduleId="phishing" onBack={mockOnBack} />);
 
       // Complete quiz
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
         fireEvent.click(nextButton);
       }
 
-      const restartButton = screen.getByText(/Recommencer/);
-      fireEvent.click(restartButton);
+      const backButton = screen.getByText(/Retour à l'Académie/);
+      fireEvent.click(backButton);
 
-      expect(screen.getByText(/Question 1\/5/)).toBeTruthy();
+      expect(mockOnBack).toHaveBeenCalled();
     });
 
-    it('should return to quiz screen after restart', () => {
-      const { container } = render(<QuizModule />);
+    it('should show back button with proper styling on results', () => {
+      const mockOnBack = vi.fn();
+      const { container } = render(<QuizModule moduleId="phishing" onBack={mockOnBack} />);
 
       // Complete quiz
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const firstOption = container.querySelector('input[value="0"]');
         fireEvent.click(firstOption);
         const nextButton = container.querySelector('.btn-next');
         fireEvent.click(nextButton);
       }
 
-      const restartButton = screen.getByText(/Recommencer/);
-      fireEvent.click(restartButton);
-
-      expect(screen.getByText(/Quiz Interactif/)).toBeTruthy();
-      expect(container.querySelector('.quiz-module')).toBeTruthy();
+      const backButton = screen.getByText(/Retour à l'Académie/);
+      expect(backButton).toBeTruthy();
+      expect(backButton.className).toContain('btn-restart');
     });
 
-    it('should clear answers on restart', () => {
-      const { container } = render(<QuizModule />);
+    it('should render results with passed status when score >= 70', () => {
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Complete quiz
-      for (let i = 0; i < 5; i++) {
-        const firstOption = container.querySelector('input[value="0"]');
-        fireEvent.click(firstOption);
+      // Complete quiz with 7+ correct answers to pass (70% = 7/10)
+      // Phishing correct answers: [1, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+      const answers = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 10; i++) {
+        const option = container.querySelector(`input[value="${answers[i]}"]`);
+        fireEvent.click(option);
         const nextButton = container.querySelector('.btn-next');
         fireEvent.click(nextButton);
       }
 
-      const restartButton = screen.getByText(/Recommencer/);
-      fireEvent.click(restartButton);
-
-      // Check that submit button is disabled (no answer selected)
-      const nextButton = container.querySelector('.btn-next');
-      expect(nextButton.disabled).toBe(true);
+      const scoreCircle = container.querySelector('.score-circle');
+      expect(scoreCircle.className).toContain('passed');
     });
 
-    it('should allow retaking quiz after restart', () => {
-      const { container } = render(<QuizModule />);
+    it('should show failed results with proper styling when score < 70', () => {
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Complete first quiz with wrong answers
-      for (let i = 0; i < 5; i++) {
-        const firstOption = container.querySelector('input[value="0"]');
-        fireEvent.click(firstOption);
-        const nextButton = container.querySelector('.btn-next');
-        fireEvent.click(nextButton);
-      }
-
-      const restartButton = screen.getByText(/Recommencer/);
-      fireEvent.click(restartButton);
-
-      // Take quiz again with correct answers: [1, 0, 1, 0, 0]
-      const correctAnswers = [1, 0, 1, 0, 0];
-      for (let i = 0; i < 5; i++) {
-        const selected = container.querySelector(`input[value="${correctAnswers[i]}"]`);
+      // Complete quiz with all wrong answers (0%)
+      const wrongAnswers = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1];
+      for (let i = 0; i < 10; i++) {
+        const selected = container.querySelector(`input[value="${wrongAnswers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
         fireEvent.click(nextButton);
       }
 
       const scoreCircle = container.querySelector('.score-circle');
-      expect(scoreCircle.textContent).toContain('100');
+      expect(scoreCircle.className).toContain('failed');
     });
   });
 
   describe('Accessibility', () => {
     it('should have proper heading hierarchy', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const h2 = container.querySelector('h2');
       const h3 = container.querySelector('h3');
@@ -627,35 +620,35 @@ describe('QuizModule Component', () => {
     });
 
     it('should have aria-label on progress bar', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const progressBar = container.querySelector('[role="progressbar"]');
       expect(progressBar.getAttribute('aria-label')).toBeTruthy();
     });
 
     it('should have aria-valuenow on progress bar', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const progressBar = container.querySelector('[role="progressbar"]');
       expect(progressBar.getAttribute('aria-valuenow')).toBeTruthy();
     });
 
     it('should have aria-valuemin on progress bar', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const progressBar = container.querySelector('[role="progressbar"]');
       expect(progressBar.getAttribute('aria-valuemin')).toBe('0');
     });
 
     it('should have aria-valuemax on progress bar', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const progressBar = container.querySelector('[role="progressbar"]');
       expect(progressBar.getAttribute('aria-valuemax')).toBe('100');
     });
 
     it('should have proper label associations for radio buttons', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       const labels = container.querySelectorAll('label');
       expect(labels.length).toBe(3);
@@ -668,17 +661,17 @@ describe('QuizModule Component', () => {
 
   describe('Edge Cases', () => {
     it('should render without onComplete prop', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
       expect(container.querySelector('.quiz-module')).toBeTruthy();
     });
 
     it('should calculate 0% score correctly', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Answer all incorrectly: correct [1, 0, 1, 0, 0], answer [0, 1, 0, 1, 1]
-      const answers = [0, 1, 0, 1, 1];
-      for (let i = 0; i < 5; i++) {
+      // Answer all incorrectly: correct [1, 0, 1, 0, 1, 0, 0, 0, 0, 0], answer [0, 1, 0, 1, 0, 1, 1, 1, 1, 1]
+      const answers = [0, 1, 0, 1, 0, 1, 1, 1, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -690,11 +683,11 @@ describe('QuizModule Component', () => {
     });
 
     it('should calculate 100% score correctly', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Answer all correctly: [1, 0, 1, 0, 0]
-      const correctAnswers = [1, 0, 1, 0, 0];
-      for (let i = 0; i < 5; i++) {
+      // Answer all correctly: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0] = 10/10 = 100%
+      const correctAnswers = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${correctAnswers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -706,12 +699,12 @@ describe('QuizModule Component', () => {
     });
 
     it('should calculate partial score correctly', () => {
-      const { container } = render(<QuizModule />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      // Correct answers are at indices: [1, 0, 1, 0, 0]
-      // Answer: [1, 0, 0, 0, 1] = Q1✓ Q2✓ Q3✗ Q4✓ Q5✗ = 3/5 = 60%
-      const answers = [1, 0, 0, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct answers: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+      // Answer: [1, 0, 1, 0, 1, 0, 0, 0, 0, 1] = 9 correct out of 10 = 90%
+      const answers = [1, 0, 1, 0, 1, 0, 0, 0, 0, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
@@ -719,17 +712,17 @@ describe('QuizModule Component', () => {
       }
 
       const scoreCircle = container.querySelector('.score-circle');
-      expect(scoreCircle.textContent).toContain('60');
+      expect(scoreCircle.textContent).toContain('90');
     });
 
-    it('should show passed status with 4/5 correct (80%)', () => {
+    it('should show passed status with 8/10 correct (80%)', () => {
       const mockOnComplete = vi.fn();
-      const { container } = render(<QuizModule onComplete={mockOnComplete} />);
+      const { container } = render(<QuizModule moduleId="phishing" onComplete={mockOnComplete} />);
 
-      // Correct answers: [1, 0, 1, 0, 0]
-      // Answer: [1, 0, 1, 0, 1] = 4 correct out of 5 = 80% (passes)
-      const answers = [1, 0, 1, 0, 1];
-      for (let i = 0; i < 5; i++) {
+      // Correct answers: [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]
+      // Answer: [1, 0, 1, 0, 1, 0, 0, 0, 1, 1] = 8 correct out of 10 = 80% (passes)
+      const answers = [1, 0, 1, 0, 1, 0, 0, 0, 1, 1];
+      for (let i = 0; i < 10; i++) {
         const selected = container.querySelector(`input[value="${answers[i]}"]`);
         fireEvent.click(selected);
         const nextButton = container.querySelector('.btn-next');
