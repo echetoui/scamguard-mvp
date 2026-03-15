@@ -159,9 +159,9 @@ describe('ThreatsSection Component', () => {
 
   describe('Filter Info', () => {
     it('should show filtered results info when filtering', () => {
-      render(<ThreatsSection threats={mockThreats} filterLevel="high" />);
+      render(<ThreatsSection threats={mockThreats} searchTerm="Desjardins" />);
       // When filtering, should show "Affichage X sur Y"
-      // This depends on implementation
+      expect(screen.getByText(/Affichage 1 sur 3/)).toBeInTheDocument();
     });
   });
 
