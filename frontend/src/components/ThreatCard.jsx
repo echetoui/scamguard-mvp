@@ -41,13 +41,25 @@ const ThreatCard = ({ threat, onSelect = null, expandable = true }) => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && expandable) {
+      e.preventDefault();
+      setIsExpanded(!isExpanded);
+      if (onSelect) {
+        onSelect(threat);
+      }
+    }
+  };
+
   return (
     <div
       className={`threat-card threat-card-${threatColor[threat.threat_level]} ${isExpanded ? 'threat-card-expanded' : ''}`}
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       role="article"
       aria-expanded={isExpanded}
       aria-label={`Menace ${threat.threat_level}: ${threat.institution}`}
+      tabIndex={expandable ? 0 : -1}
     >
       {/* Card Header */}
       <div className="threat-card-header">

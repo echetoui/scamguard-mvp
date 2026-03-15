@@ -20,8 +20,6 @@ const ThreatsSection = ({
   searchTerm = '',
   emptyMessage = 'Aucune menace détectée pour votre profil',
 }) => {
-  const [expandedThreatId, setExpandedThreatId] = useState(null);
-
   // Filter threats based on threat level and search term
   const filteredThreats = useMemo(() => {
     return threats.filter((threat) => {
@@ -52,7 +50,6 @@ const ThreatsSection = ({
   }, [threats]);
 
   const handleThreatSelect = (threat) => {
-    setExpandedThreatId(threat.id === expandedThreatId ? null : threat.id);
     if (onThreatSelect) {
       onThreatSelect(threat);
     }

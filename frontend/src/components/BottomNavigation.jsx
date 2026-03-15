@@ -65,6 +65,13 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange, hasFamily = fal
       description: 'Vérifier courriel ou conseiller',
       route: '/tools'
     },
+    {
+      id: 'menaces',
+      label: 'Menaces',
+      icon: '🚨',
+      description: 'Menaces actuelles et alertes',
+      route: '/threats'
+    },
     ...(hasFamily ? [{
       id: 'famille',
       label: 'Famille',

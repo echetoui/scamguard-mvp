@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import QuizModule from './QuizModule';
+import SMSSimulator from './SMSSimulator';
 import {
   getModuleHighScore,
   isModulePassed,
@@ -25,6 +26,7 @@ const MODULES = [
     icon: '🛡️',
     description: 'Apprenez à identifier les tentatives de phishing et les arnaques numériques',
     difficulty: 'Facile à Moyen',
+    type: 'quiz',
   },
   {
     id: 'telephone',
@@ -32,6 +34,7 @@ const MODULES = [
     icon: '📞',
     description: 'Découvrez comment reconnaître et éviter les appels d\'arnaqueurs',
     difficulty: 'Facile à Moyen',
+    type: 'quiz',
   },
   {
     id: 'online',
@@ -39,10 +42,19 @@ const MODULES = [
     icon: '🛒',
     description: 'Protégez-vous lors de vos achats et interactions en ligne',
     difficulty: 'Facile à Moyen',
+    type: 'quiz',
+  },
+  {
+    id: 'simulator',
+    title: 'Simulateur SMS',
+    icon: '📱',
+    description: 'Entraînez-vous à détecter les arnaques par SMS en temps réel',
+    difficulty: 'Facile à Moyen',
+    type: 'simulator',
   },
 ];
 
-export default function QuizAcademie({ onQuizComplete }) {
+export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEnabled }) {
   const [activeModule, setActiveModule] = useState(null);
   const [badgeAnimation, setBadgeAnimation] = useState(null);
   const [earnedBadges, setEarnedBadges] = useState([]);
@@ -77,19 +89,79 @@ export default function QuizAcademie({ onQuizComplete }) {
     [activeModule, onQuizComplete]
   );
 
+  // Handle simulator completion
+  const handleSimulatorComplete = useCallback(
+    (result) => {
+      if (activeModule) {
+        // Determine if passed (>= 70% is a pass)
+        const passed = result.percentage >= 70;
+
+        // Save result to localStorage
+        saveModuleResult(activeModule, result.percentage, passed);
+
+        // Trigger badge animation if newly earned
+        if (passed) {
+          setBadgeAnimation(activeModule);
+          setTimeout(() => setBadgeAnimation(null), 3000);
+        }
+
+        // Update badges list
+        setEarnedBadges(getEarnedBadges());
+
+        // Call parent onComplete callback if provided (for credit system)
+        if (onQuizComplete) {
+          onQuizComplete(result.percentage, passed);
+        }
+      }
+    },
+    [activeModule, onQuizComplete]
+  );
+
   // Handle back from quiz
   const handleBackFromQuiz = useCallback(() => {
     setActiveModule(null);
   }, []);
 
-  // Render quiz screen if a module is selected
+  // Render quiz or simulator screen if a module is selected
   if (activeModule) {
+    const currentModule = MODULES.find(m => m.id === activeModule);
+
+    if (currentModule && currentModule.type === 'simulator') {
+      return (
+        <div className="quiz-module-wrapper">
+          <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+            <button
+              onClick={handleBackFromQuiz}
+              style={{
+                marginBottom: '20px',
+                padding: '8px 16px',
+                backgroundColor: '#f0f0f0',
+                border: '2px solid #ddd',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              ← Retour
+            </button>
+            <SMSSimulator
+              onComplete={handleSimulatorComplete}
+              scenarioCount={10}
+            />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="quiz-module-wrapper">
         <QuizModule
           moduleId={activeModule}
           onComplete={handleQuizComplete}
           onBack={handleBackFromQuiz}
+          speak={speak}
+          isVoiceGuidanceEnabled={isVoiceGuidanceEnabled}
         />
       </div>
     );
@@ -187,9 +259,9 @@ export default function QuizAcademie({ onQuizComplete }) {
       {/* Completion Summary */}
       <div className="completion-summary">
         <p>
-          Modules complétés: <strong>{earnedBadges.length}/3</strong>
+          Modules complétés: <strong>{earnedBadges.length}/{MODULES.length}</strong>
         </p>
-        {earnedBadges.length === 3 && (
+        {earnedBadges.length === MODULES.length && (
           <p className="completion-message">🏆 Félicitations! Vous avez complété tous les modules!</p>
         )}
       </div>

@@ -1,4 +1,6 @@
-import { useState, useCallback, lazy, Suspense } from 'react';
+import { useState, useCallback, lazy, Suspense, useEffect } from 'react';
+import { useTheme } from './hooks/useTheme';
+import { useVoiceGuidance } from './hooks/useVoiceGuidance';
 import './App.css';
 import './styles/design-tokens.css';
 import './styles/animations.css';
@@ -17,6 +19,9 @@ import useFamilyDashboard from './hooks/useFamilyDashboard';
 import OnboardingWizard from './components/OnboardingWizard';
 import { analysisAPI } from './services/api';
 import { sendNotification, shouldSendDailyNotification, getSecurityTips } from './utils/notificationService';
+import ThreatsSection from './components/ThreatsSection';
+import WeeklyDigest from './components/WeeklyDigest';
+import useThreatData from './hooks/useThreatData';
 
 // Lazy-loaded components (defer loading until tab is activated)
 const ResourcesTab = lazy(() => import('./components/Resources/ResourcesTab'));
@@ -68,12 +73,41 @@ export default function App() {
   // Phase 5A: Family protection dashboard
   const { familyData, loading: familyLoading, error: familyError, hasFamily } = useFamilyDashboard();
 
+  // Phase 2 Sprint 5: Threat data
+  const { threats, matchedThreats } = useThreatData(profile);
+
+  const { theme, toggleTheme } = useTheme();
+  const { isVoiceGuidanceEnabled, toggleVoiceGuidance } = useVoiceGuidance();
+
   // Phase 1 Sprint 3: Check for and send daily reminder notification on app mount
   React.useEffect(() => {
     if (shouldSendDailyNotification('QUIZ_REMINDER')) {
       sendNotification('QUIZ_REMINDER', {});
     }
   }, []);
+
+  useEffect(() => {
+    // a map of tab id to tab name
+    const tabNames = {
+      'verifier': 'Vérifier',
+      'securite': 'Sécurité',
+      'academie': 'Académie',
+      'ressources': 'Ressources',
+      'outils': 'Outils',
+      'famille': 'Famille',
+      'parametres': 'Paramètres'
+    };
+    if (isVoiceGuidanceEnabled) {
+      speak(`Onglet ${tabNames[activeTab]}`);
+    }
+  }, [activeTab, isVoiceGuidanceEnabled]);
+
+  useEffect(() => {
+    if (activeTab === 'verifier' && view === 'home' && isVoiceGuidanceEnabled) {
+      const instructions = "Collez le texte d'un courriel ou d'un SMS ci-dessous. Notre intelligence artificielle vous aidera à déterminer s'il s'agit d'une arnaque.";
+      speak(instructions);
+    }
+  }, [activeTab, view, isVoiceGuidanceEnabled]);
 
   // Phase 4.0.5: Handle quiz completion and award credits
   const handleQuizComplete = useCallback((score, passed) => {
@@ -112,7 +146,7 @@ export default function App() {
 
   // Synthèse vocale (Le téléphone lit le texte)
   const speak = (text) => {
-    if ('speechSynthesis' in window) {
+    if (isVoiceGuidanceEnabled && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel(); // Arrêter la lecture précédente
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'fr-FR';
@@ -343,7 +377,7 @@ export default function App() {
 
         {/* Tab 3: Académie - Quiz Academy with Progress Tracking (Phase 1 Sprint 3) */}
         <TabPanel tabId="academie" activeTab={activeTab}>
-          <QuizAcademie onQuizComplete={handleQuizComplete} />
+          <QuizAcademie onQuizComplete={handleQuizComplete} speak={speak} isVoiceGuidanceEnabled={isVoiceGuidanceEnabled} />
         </TabPanel>
 
         {/* Tab 4: Ressources - Blocking Guides & Security Tips (Phase 5E.1) */}
@@ -369,6 +403,21 @@ export default function App() {
           </TabPanel>
         )}
 
+        {/* Tab 6b: Menaces - Threat Dashboard (Phase 2 Sprint 5) */}
+        <TabPanel tabId="menaces" activeTab={activeTab}>
+          <div style={{padding: '0 0 40px 0'}}>
+            <WeeklyDigest
+              threats={threats}
+              matchedThreats={matchedThreats}
+              onViewThreat={(threat) => {/* TODO: show threat detail modal */}}
+            />
+            <ThreatsSection
+              threats={threats}
+              filterLevel="all"
+            />
+          </div>
+        </TabPanel>
+
         {/* Tab 7: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
         <TabPanel tabId="parametres" activeTab={activeTab}>
           {/* Phase 4.2: Account Profile Section */}
@@ -383,6 +432,10 @@ export default function App() {
               joinDate={getJoinDateFormatted()}
               onExportData={handleExportData}
               onLogout={auth.logout}
+              theme={theme}
+              onToggleTheme={toggleTheme}
+              isVoiceGuidanceEnabled={isVoiceGuidanceEnabled}
+              onToggleVoiceGuidance={toggleVoiceGuidance}
             />
           </Suspense>
           {/* Phase 4.0.4: Credit System Section */}
