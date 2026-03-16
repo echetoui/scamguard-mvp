@@ -197,7 +197,7 @@ Scenario:
   2. Génère scénario réaliste
   3. Senior essaie de détecter arnaque
   4. Feedback: "Excellent! Tu as reconnu..."
-  5. XP gagnés (+10)
+  5. Points gagnés (+10)
   6. Motivation: "Je peux le refaire!"
 ```
 
@@ -650,7 +650,7 @@ Customers:
 **Phase 2 (Mois 2-3):**
 - "Invite your family" feature
 - Family dashboard unlocked with invitation
-- Incentive: "Senior gets bonus XP"
+- Incentive: "Senior gets bonus points"
 
 **Avantage:**
 - Not invasive (Senior initiates)

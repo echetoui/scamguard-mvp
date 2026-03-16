@@ -104,7 +104,7 @@
   border-bottom: 4px solid transparent;
   margin-bottom: -3px;
   transition: all var(--transition-base);
-  min-height: 48px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -194,7 +194,7 @@
   color: var(--text-dark);
   transition: all var(--transition-base);
   box-sizing: border-box;
-  min-height: 48px;
+  min-height: 60px;
 }
 
 .form-input:focus {
@@ -227,7 +227,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all var(--transition-base);
-  min-height: 48px;
+  min-height: 60px;
   width: 100%;
   margin-top: 12px;
 }
@@ -268,7 +268,7 @@
 }
 
 .large-touch {
-  min-height: 56px;
+  min-height: 60px;
   font-size: var(--font-size-lg);
 }
 
@@ -456,7 +456,7 @@
 .registry-item {
   padding: 20px 12px;
   border-bottom: 1px solid var(--warm-secondary);
-  min-height: 56px;
+  min-height: 60px;
   display: flex;
   align-items: center;
 }

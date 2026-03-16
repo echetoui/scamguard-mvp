@@ -397,7 +397,7 @@ B) Appelez votre banque avec le numéro officiel ✅
 C) Donnez votre numéro de compte ❌
 D) Partagez sur les réseaux sociaux ❌
 
-✅ Bonne réponse! +5 XP"
+✅ Bonne réponse! +5 Points"
 ```
 
 ### D. Dashboard de Progression

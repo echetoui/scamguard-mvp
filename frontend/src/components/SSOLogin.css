@@ -48,8 +48,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 52px;
-}
+  min-height: 
 
 .sso-button:hover {
   transform: translateY(-1px);

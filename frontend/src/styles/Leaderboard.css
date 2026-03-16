@@ -1,0 +1,139 @@
+/**
+ * Leaderboard Styles
+ * Phase 2 Sprint 6 - Enhanced Quizzes & Gamification
+ */
+
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-secondary);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.leaderboard-title {
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.leaderboard-empty {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: var(--spacing-lg);
+  margin: 0;
+  font-style: italic;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  min-height: 48px;
+  transition: all var(--transition-base);
+}
+
+.leaderboard-entry:hover {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.entry-rank {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  line-height: 1;
+}
+
+.entry-details {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.entry-score {
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  min-width: 50px;
+}
+
+.entry-difficulty {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.entry-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.entry-date {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.entry-duration {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .leaderboard {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .leaderboard-entry {
+    grid-template-columns: 28px 1fr;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    min-height: 44px;
+  }
+
+  .entry-meta {
+    display: none;
+  }
+
+  .entry-details {
+    gap: var(--spacing-sm);
+  }
+
+  .entry-score {
+    font-size: 16px;
+    min-width: 45px;
+  }
+
+  .entry-difficulty {
+    font-size: 11px;
+    padding: var(--spacing-xs) var(--spacing-xs);
+  }
+}
