@@ -169,6 +169,62 @@ Resources:
         - Key: Purpose
           Value: SMS OTP Tracking
 
+  ThreatsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'ScamGuardThreats-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: ttl
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: Threat Scenario Library
+
+  ThreatInteractionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'ScamGuardThreatInteractions-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: ttl
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: User Threat Interactions
+
   # ============================================================================
   # CloudWatch Log Groups with 3-day retention
   # ============================================================================
@@ -189,6 +245,12 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/lambda/scamguard-sms-otp-${Environment}'
+      RetentionInDays: 3
+
+  ThreatsHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-threats-${Environment}'
       RetentionInDays: 3
 
   # ============================================================================
@@ -507,7 +569,136 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
               Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-      Events: {}
+      Events:
+        PostRequestSmsOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/request-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsRequestSmsOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/request-sms-otp
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        PostVerifySmsOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsVerifySmsOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-sms-otp
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  ThreatsHandler:
+    Type: AWS::Serverless::Function
+    DependsOn: ThreatsHandlerLogGroup
+    Properties:
+      FunctionName: !Sub 'scamguard-threats-${Environment}'
+      CodeUri: lambda_/
+      Handler: threats_handler.lambda_handler
+      Runtime: python3.12
+      MemorySize: 512
+      Timeout: 60
+      Environment:
+        Variables:
+          THREATS_TABLE: !Ref ThreatsTable
+          USER_THREATS_TABLE: !Ref ThreatInteractionsTable
+          ENVIRONMENT: !Ref Environment
+          ALLOWED_ORIGIN: '*'
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ThreatsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ThreatInteractionsTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        GetThreats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        GetThreatsOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        GetThreatDetail:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats/{threat_id}
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        GetThreatDetailOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats/{threat_id}
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        PostThreatsMatch:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats/match
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostThreatsMatchOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats/match
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        GetThreatsFeed:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats/feed
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        GetThreatsFeedOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/threats/feed
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
       Layers:
         - !Ref PythonDependenciesLayer
 

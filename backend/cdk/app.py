@@ -34,7 +34,7 @@ def main():
         description="ScamGuard Agent Orchestration - Step Functions + Lambda Agents"
     )
 
-    # Add dependency
+    # Add dependencies
     agents_stack.add_dependency(scamguard_stack)
 
     app.synth()
