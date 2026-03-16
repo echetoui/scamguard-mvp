@@ -1,0 +1,54 @@
+/*
+ * New Design System - Input Styles
+ * Phase 3 Design System Refresh
+ */
+
+.ds-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-lg); /* 16px */
+}
+
+.ds-input-label {
+  font-size: var(--font-size-base); /* 16px */
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-sm); /* 8px */
+  color: var(--color-text-secondary);
+}
+
+.ds-input {
+  padding: 0 var(--spacing-lg); /* 16px horizontal */
+  font-size: var(--font-size-senior-base); /* 18px */
+  border-radius: var(--radius-md); /* 8px */
+  border: 2px solid var(--color-border);
+  transition: border-color var(--transition-fast);
+  min-height: var(--spacing-6xl); /* 56px */
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.ds-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.ds-input:focus-visible {
+   outline: 3px solid var(--color-focus-outline);
+   outline-offset: 2px;
+   border-color: transparent;
+}
+
+.ds-input.ds-input--error {
+  border-color: var(--color-danger);
+}
+
+.ds-input:disabled {
+  background-color: var(--color-background-tertiary);
+  cursor: not-allowed;
+}
+
+.ds-input-error-message {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm); /* 14px */
+  margin-top: var(--spacing-xs); /* 4px */
+}

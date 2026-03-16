@@ -12,7 +12,7 @@ export default defineConfig({
   build: {
     outDir: 'build',
     sourcemap: false,
-    minify: 'terser',
+    minify: false,
     target: 'es2020',
   },
   resolve: {

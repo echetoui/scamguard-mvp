@@ -1,11 +1,104 @@
 /**
  * AuthScreen Component - Modern Authentication Interface
  * Signup, email verification, and login with clean design
+ *
+ * Refactored to use inline styles based on design tokens, removing the
+ * dependency on AuthScreen.css.
  */
-
 import React, { useState } from 'react';
 import useAuth from '../hooks/useAuth';
-import './AuthScreen.css';
+import Button from '../design-system/Button';
+import Input from '../design-system/Input';
+import Card from '../design-system/Card';
+
+// --- Style Definitions based on design-tokens.css ---
+
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    padding: '20px',
+  },
+  card: {
+    maxWidth: '460px',
+    width: '100%',
+    padding: '48px',
+  },
+  header: {
+    fontSize: 'var(--font-size-h1)',
+    fontWeight: 'var(--font-weight-bold)',
+    marginBottom: 'var(--spacing-sm)',
+    textAlign: 'center',
+    color: 'var(--color-text-primary)',
+  },
+  subheader: {
+    fontSize: 'var(--font-size-base)',
+    color: 'var(--color-text-secondary)',
+    textAlign: 'center',
+    marginBottom: 'var(--spacing-3xl)',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'var(--spacing-xl)',
+  },
+  formHint: {
+    fontSize: 'var(--font-size-xs)',
+    color: 'var(--color-text-secondary)',
+    marginTop: `calc(-1 * var(--spacing-md))`,
+    paddingLeft: 'var(--spacing-xs)',
+  },
+  message: {
+    padding: 'var(--spacing-lg)',
+    borderRadius: 'var(--radius-md)',
+    fontSize: 'var(--font-size-sm)',
+    marginBottom: 'var(--spacing-lg)',
+    borderLeft: '4px solid',
+  },
+  messageError: {
+    background: 'var(--color-danger-bg-light)',
+    color: 'var(--color-danger-dark)',
+    borderLeftColor: 'var(--color-danger)',
+  },
+  messageSuccess: {
+    background: 'var(--color-success-bg-light)',
+    color: 'var(--color-success-dark)',
+    borderLeftColor: 'var(--color-success)',
+  },
+  dividerContainer: {
+    textAlign: 'center',
+    margin: 'var(--spacing-2xl) 0',
+    fontSize: 'var(--font-size-sm)',
+    color: 'var(--color-text-secondary)',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  dividerLine: {
+    flex: 1,
+    height: '1px',
+    background: 'var(--color-border)',
+  },
+  dividerText: {
+    background: 'var(--color-background)',
+    padding: '0 var(--spacing-md)',
+  }
+};
+
+// --- Helper Component for the Divider ---
+
+const Divider = ({ children }) => (
+  <div style={styles.dividerContainer}>
+    <div style={styles.dividerLine} />
+    <span style={styles.dividerText}>{children}</span>
+    <div style={styles.dividerLine} />
+  </div>
+);
+
 
 export default function AuthScreen() {
   const auth = useAuth();
@@ -107,181 +200,174 @@ export default function AuthScreen() {
     }
   };
 
+  const renderMessage = () => {
+    if (localError) {
+      return <div style={{...styles.message, ...styles.messageError}}>{localError}</div>;
+    }
+    if (successMessage) {
+      return <div style={{...styles.message, ...styles.messageSuccess}}>{successMessage}</div>;
+    }
+    return null;
+  };
+
 
   if (authState === 'login') {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <h1 className="auth-header">🛡️ ScamGuard</h1>
-          <p className="auth-subheader">Connexion à votre compte</p>
+      <div style={styles.container}>
+        <Card>
+          <div style={styles.card}>
+            <h1 style={styles.header}>🛡️ ScamGuard</h1>
+            <p style={styles.subheader}>Connexion à votre compte</p>
 
-          {localError && <div className="message message-error">{localError}</div>}
-          {successMessage && <div className="message message-success">{successMessage}</div>}
+            {renderMessage()}
 
-          <form onSubmit={handleLoginSubmit} className="auth-form">
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">Adresse email</label>
-              <input
-                id="email"
+            <form onSubmit={handleLoginSubmit} style={styles.form}>
+              <Input
+                label="Adresse email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="exemple@email.com"
-                className="form-input"
-                required
+                error={localError.includes('Email') ? localError : null}
               />
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">Mot de passe</label>
-              <input
-                id="password"
+              <Input
+                label="Mot de passe"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Entrez votre mot de passe"
-                className="form-input"
-                required
+                error={localError.includes('passe') ? localError : null}
               />
-            </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={auth.isLoading}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={auth.isLoading}
+              >
+                {auth.isLoading ? '⏳ Connexion...' : '✅ Se connecter'}
+              </Button>
+            </form>
+
+            <Divider>ou</Divider>
+
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setAuthState('signup');
+                setLocalError('');
+                setSuccessMessage('');
+              }}
             >
-              {auth.isLoading ? '⏳ Connexion...' : '✅ Se connecter'}
-            </button>
-          </form>
-
-          <div className="divider"><span>ou</span></div>
-
-          <button
-            className="btn btn-link"
-            onClick={() => {
-              setAuthState('signup');
-              setLocalError('');
-              setSuccessMessage('');
-            }}
-          >
-            Pas encore de compte? <strong>S'inscrire</strong>
-          </button>
-        </div>
+              Pas encore de compte? <strong>S'inscrire</strong>
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   if (authState === 'signup') {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <h1 className="auth-header">🛡️ S'inscrire</h1>
-          <p className="auth-subheader">Créez votre compte ScamGuard</p>
+      <div style={styles.container}>
+        <Card>
+          <div style={styles.card}>
+            <h1 style={styles.header}>🛡️ S'inscrire</h1>
+            <p style={styles.subheader}>Créez votre compte ScamGuard</p>
 
-          {localError && <div className="message message-error">{localError}</div>}
-          {successMessage && <div className="message message-success">{successMessage}</div>}
+            {renderMessage()}
 
-          <form onSubmit={handleSignupSubmit} className="auth-form">
-            <div className="form-group">
-              <label htmlFor="signup-email" className="form-label">Adresse email</label>
-              <input
-                id="signup-email"
+            <form onSubmit={handleSignupSubmit} style={styles.form}>
+              <Input
+                label="Adresse email"
                 type="email"
                 value={signupEmail}
                 onChange={(e) => setSignupEmail(e.target.value)}
                 placeholder="exemple@email.com"
-                className="form-input"
-                required
+                error={localError.includes('email') ? localError : null}
               />
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="signup-password" className="form-label">Mot de passe</label>
-              <input
-                id="signup-password"
+              <Input
+                label="Mot de passe"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 12 caractères"
-                className="form-input"
-                required
+                error={localError.includes('passe') ? localError : null}
               />
-              <p className="form-hint">
-                Minimum 12 caractères, avec au moins une majuscule, un chiffre et un symbole (!@#$%^&*)
-              </p>
-            </div>
+              <p style={styles.formHint}>
+                  Minimum 12 caractères, avec au moins une majuscule, un chiffre et un symbole (!@#$%^&*)
+                </p>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={auth.isLoading}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={auth.isLoading}
+              >
+                {auth.isLoading ? '⏳ Inscription...' : '✅ S\'inscrire'}
+              </Button>
+            </form>
+
+            <Divider>ou</Divider>
+
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setAuthState('login');
+                setLocalError('');
+                setSuccessMessage('');
+              }}
             >
-              {auth.isLoading ? '⏳ Inscription...' : '✅ S\'inscrire'}
-            </button>
-          </form>
-
-          <div className="divider"><span>ou</span></div>
-
-          <button
-            className="btn btn-link"
-            onClick={() => {
-              setAuthState('login');
-              setLocalError('');
-              setSuccessMessage('');
-            }}
-          >
-            Vous avez un compte? <strong>Se connecter</strong>
-          </button>
-        </div>
+              Vous avez un compte? <strong>Se connecter</strong>
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   if (authState === 'verify') {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <h1 className="auth-header">📧 Vérifier votre email</h1>
-          <p className="auth-subheader">
-            Un code de vérification a été envoyé à <strong>{email}</strong>
-          </p>
+      <div style={styles.container}>
+        <Card>
+          <div style={styles.card}>
+            <h1 style={styles.header}>📧 Vérifier votre email</h1>
+            <p style={styles.subheader}>
+              Un code de vérification a été envoyé à <strong>{email}</strong>
+            </p>
 
-          {localError && <div className="message message-error">{localError}</div>}
-          {successMessage && <div className="message message-success">{successMessage}</div>}
+            {renderMessage()}
 
-          <form onSubmit={handleVerifySubmit} className="auth-form">
-            <div className="form-group">
-              <label htmlFor="code" className="form-label">Code de vérification (6 chiffres)</label>
-              <input
-                id="code"
+            <form onSubmit={handleVerifySubmit} style={styles.form}>
+              <Input
+                label="Code de vérification (6 chiffres)"
                 type="text"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="000000"
-                className="form-input"
-                required
                 maxLength="6"
                 inputMode="numeric"
+                error={localError.includes('code') ? localError : null}
               />
-            </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={auth.isLoading || verificationCode.length < 6}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={auth.isLoading || verificationCode.length < 6}
+              >
+                {auth.isLoading ? '⏳ Vérification...' : '✅ Vérifier mon email'}
+              </Button>
+            </form>
+
+            <Button
+              variant="secondary"
+              onClick={handleResendCode}
+              disabled={auth.isLoading}
             >
-              {auth.isLoading ? '⏳ Vérification...' : '✅ Vérifier mon email'}
-            </button>
-          </form>
-
-          <button
-            className="btn btn-link"
-            onClick={handleResendCode}
-            disabled={auth.isLoading}
-          >
-            Vous n'avez pas reçu le code? <strong>Renvoyer</strong>
-          </button>
-        </div>
+              Vous n'avez pas reçu le code? <strong>Renvoyer</strong>
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
