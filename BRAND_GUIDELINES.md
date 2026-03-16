@@ -50,6 +50,16 @@ La palette est conçue pour respecter les normes **WCAG AAA** (contraste maximal
 | !#e8f5e9 | `#e8f5e9` | **Vert Menthe** | Fonds des zones de succès/coaching. |
 | !#ffebee | `#ffebee` | **Rouge Pâle** | Fonds des zones d'alerte. |
 
+### Thème "Automne Québécois" (Interface Chaleureuse Seniors)
+
+| Couleur | Hex | Nom | Usage |
+|---------|-----|-----|-------|
+| !#C85A2A | `#C85A2A` | **Terracotta** | Boutons secondaires, Accents chaleureux |
+| !#1a0f0a | `#1a0f0a` | **Brun Foncé** | Textes sur fonds clairs/terracotta (Contraste 9.5:1 AAA) |
+| !#D4A574 | `#D4A574` | **Or** | Éléments de gamification, Badges |
+| !#7A9B7F | `#7A9B7F` | **Sauge** | Accents de nature, Éléments secondaires apaisants |
+| !#FFF9F3 | `#FFF9F3` | **Crème** | Fonds de cartes ou sections douces |
+
 ---
 
 ## 3. Typographie (Typography)
@@ -98,6 +108,7 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
 ### Feedback Visuel & Sonore
 *   Chaque action doit avoir une réaction immédiate.
 *   Utiliser la double validation : Couleur + Icône + Texte (ex: Ne pas utiliser juste du rouge, mais Rouge + Icône Croix + Texte "Erreur").
+*   **Focus Clavier (Accessibilité) :** Tout élément interactif doit avoir un contour visible au focus (`outline: 3px solid var(--color-focus)`).
 
 ---
 
@@ -119,6 +130,8 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
 | Sign up | **M'inscrire** |
 | Phishing | **Hameçonnage** ou **Fraude** |
 | Scam | **Arnaque** |
+| Dashboard | **Mon Suivi** ou **Mon Tableau de bord** |
+| XP (Experience Points) | **Points** ou **Points de vigilance** |
 
 ---
 
@@ -136,6 +149,14 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
   --color-surface: #ffffff;
   --color-text-main: #1a1a1a;
   --color-text-secondary: #555555;
+
+  /* Thème Automne Québécois */
+  --color-terracotta: #C85A2A;
+  --color-dark-brown: #1a0f0a;
+  --color-gold: #D4A574;
+  --color-sage: #7A9B7F;
+  --color-creme: #FFF9F3;
+  --color-focus: #0066cc; /* ou #1a0f0a selon le contraste du fond */
 
   /* Typographie */
   --font-family-base: 'Inter', 'Roboto', sans-serif;

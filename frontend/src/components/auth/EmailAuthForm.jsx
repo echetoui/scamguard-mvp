@@ -4,9 +4,12 @@
  *
  * Handles email/password signup and login flows
  * Extracted from SMSAuthScreen for testability
+ * REFACTORED to use Design System components
  */
 
 import React, { useState } from 'react';
+import Input from '../../design-system/Input';
+import Button from '../../design-system/Button';
 import '../SMSAuthScreen.css';
 
 export default function EmailAuthForm({
@@ -36,70 +39,63 @@ export default function EmailAuthForm({
         {isSignup ? 'Créer un compte' : 'Se connecter'}
       </h2>
 
-      {/* Email field */}
-      <div className="form-group">
-        <label htmlFor="email">Adresse email</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="votre@email.com"
-          required
-          disabled={loading}
-          aria-label="Adresse email"
-          aria-describedby="email-error"
-        />
-      </div>
+      <Input
+        label="Adresse email"
+        type="email"
+        id="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="votre@email.com"
+        disabled={loading}
+        error={error && error.toLowerCase().includes('email') ? error : null}
+      />
 
-      {/* Password field */}
       {isSignup && (
         <div className="form-group password-group">
           <div className="password-header">
             <label htmlFor="password">Mot de passe</label>
-            <button
+            <Button
               type="button"
               onClick={onGeneratePassword}
               disabled={loading}
-              className="btn-generate"
-              aria-label="Générer un mot de passe sécurisé"
+              variant="secondary"
             >
               🔐 Générer
-            </button>
+            </Button>
           </div>
 
           <div className="password-input-wrapper">
-            <input
-              id="password"
-              type={passwordVisible ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Votre mot de passe"
-              disabled={loading}
-              aria-label="Mot de passe"
-              aria-describedby="password-hint"
-            />
-            <button
+             <Input
+                label=""
+                id="password"
+                type={passwordVisible ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Votre mot de passe"
+                disabled={loading}
+                error={error && error.toLowerCase().includes('passe') ? error : null}
+             />
+            <Button
               type="button"
               onClick={() => setPasswordVisible(!passwordVisible)}
               disabled={loading}
+              variant="secondary"
               className="btn-toggle-password"
-              aria-label={passwordVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
             >
               {passwordVisible ? '👁️' : '👁️‍🗨️'}
-            </button>
+            </Button>
           </div>
 
           {password && (
-            <button
+            <Button
               type="button"
               onClick={onCopyPassword}
               disabled={loading}
+              variant="secondary"
               className="btn-copy-password"
-              aria-label="Copier le mot de passe"
             >
               📋 Copier
-            </button>
+            </Button>
           )}
 
           <small id="password-hint" className="password-hint">
@@ -108,48 +104,43 @@ export default function EmailAuthForm({
         </div>
       )}
 
-      {/* Error message */}
       {error && (
-        <div id="email-error" className="error-message" role="alert">
+        <div className="error-message" role="alert">
           {error}
         </div>
       )}
 
-      {/* Submit button */}
-      <button
+      <Button
         type="submit"
+        variant="primary"
         disabled={loading || !email || (isSignup && !password)}
-        className="btn-submit"
         aria-busy={loading}
       >
         {loading ? '⏳ Traitement...' : (isSignup ? 'Créer un compte' : 'Se connecter')}
-      </button>
+      </Button>
 
-      {/* Toggle mode */}
       <div className="auth-mode-toggle">
         {isSignup ? (
           <>
             <span>Vous avez déjà un compte? </span>
-            <button
+            <Button
               type="button"
               onClick={() => onModeChange('login')}
-              className="btn-toggle-mode"
-              aria-label="Accéder à la page de connexion"
+              variant="secondary"
             >
               Se connecter
-            </button>
+            </Button>
           </>
         ) : (
           <>
             <span>Pas de compte? </span>
-            <button
+            <Button
               type="button"
               onClick={() => onModeChange('signup')}
-              className="btn-toggle-mode"
-              aria-label="Accéder à la page d'inscription"
+              variant="secondary"
             >
               Créer un compte
-            </button>
+            </Button>
           </>
         )}
       </div>

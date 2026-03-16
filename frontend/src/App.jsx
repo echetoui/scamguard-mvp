@@ -80,7 +80,7 @@ export default function App() {
   const { isVoiceGuidanceEnabled, toggleVoiceGuidance } = useVoiceGuidance();
 
   // Phase 1 Sprint 3: Check for and send daily reminder notification on app mount
-  React.useEffect(() => {
+  useEffect(() => {
     if (shouldSendDailyNotification('QUIZ_REMINDER')) {
       sendNotification('QUIZ_REMINDER', {});
     }
@@ -110,11 +110,20 @@ export default function App() {
   }, [activeTab, view, isVoiceGuidanceEnabled]);
 
   // Phase 4.0.5: Handle quiz completion and award credits
-  const handleQuizComplete = useCallback((score, passed) => {
-    const creditsEarned = passed ? 20 : 5;
-    const description = passed
-      ? 'Quiz réussi - félicitations!'
-      : 'Quiz tenté - continuez votre apprentissage!';
+  const handleQuizComplete = useCallback((score, passed, difficulty = 'intermediaire') => {
+    let creditsEarned = 5; // Default for failed attempts
+    let description = 'Quiz tenté - continuez votre apprentissage!';
+
+    if (passed) {
+      if (difficulty === 'expert') {
+        creditsEarned = 30; // Expert bonus
+        description = 'Quiz Expert réussi - excellent travail!';
+      } else {
+        creditsEarned = 20; // Standard pass
+        description = 'Quiz réussi - félicitations!';
+      }
+    }
+
     earnCredits(creditsEarned, 'quiz', description);
   }, [earnCredits]);
 
