@@ -543,8 +543,11 @@ class TestHandleThreatFeed:
             assert 'threats' in body
             assert 'statistics' in body
 
-    def test_feed_statistics(self, mock_dynamodb):
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_statistics(self, mock_get_qc_alerts, mock_dynamodb):
         """Calculate threat statistics for feed"""
+        mock_get_qc_alerts.return_value = []  # No Quebec alerts for this test
+
         threats = [
             {'threat_level': 'high', 'type': 'phishing', 'date_detected': datetime.utcnow().isoformat()},
             {'threat_level': 'medium', 'type': 'phishing', 'date_detected': datetime.utcnow().isoformat()},
@@ -600,9 +603,12 @@ class TestHandleThreatFeed:
             call_kwargs = mock_table.scan.call_args[1]
             assert 'FilterExpression' in call_kwargs
 
-    def test_feed_limit_results(self, mock_dynamodb):
-        """Limit feed to top 10 results"""
-        threats = [{'threat_id': f'threat_{i}'} for i in range(20)]
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_limit_results(self, mock_get_qc_alerts, mock_dynamodb):
+        """Limit feed to top 15 results (8 Quebec alerts + 7 database threats)"""
+        mock_get_qc_alerts.return_value = []  # No Quebec alerts for this test
+
+        threats = [{'threat_id': f'threat_{i}', 'threat_level': 'high', 'type': 'test', 'date_detected': '2026-03-15'} for i in range(20)]
 
         mock_table = MagicMock()
         mock_table.scan.return_value = {'Items': threats}
@@ -612,7 +618,7 @@ class TestHandleThreatFeed:
             result = handle_threat_feed(event)
 
             body = json.loads(result['body'])
-            assert len(body['threats']) <= 10
+            assert len(body['threats']) <= 15
 
 
 # ============================================================================
@@ -697,6 +703,148 @@ class TestUtilityFunctions:
 
         assert result['items'][0]['score'] == 85.5
         assert result['items'][1]['score'] == 90
+
+
+# ============================================================================
+# Tests: Quebec Fraud Alerts Integration
+# ============================================================================
+
+class TestQuebecAlertsIntegration:
+    """Test Quebec fraud alerts integration in threats feed"""
+
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_includes_quebec_alerts(self, mock_get_qc_alerts, mock_dynamodb):
+        """Test that feed includes Quebec fraud alerts by default"""
+        mock_table = MagicMock()
+        mock_table.scan.return_value = {'Items': []}
+
+        # Mock Quebec alerts
+        qc_alerts = [
+            {
+                'threat_id': 'QC_FRAUD_001',
+                'title': 'Test Fraud Alert',
+                'threat_level': 'high',
+                'type': 'SMS',
+                'date_detected': '2026-03-15'
+            }
+        ]
+        mock_get_qc_alerts.return_value = qc_alerts
+
+        with patch('threats_handler.threats_table', mock_table):
+            event = {
+                'httpMethod': 'GET',
+                'path': '/api/v1/threats/feed',
+                'queryStringParameters': {}
+            }
+            result = handle_threat_feed(event)
+
+            assert result['statusCode'] == 200
+            body = json.loads(result['body'])
+            assert 'threats' in body
+            assert 'quebec_alerts_count' in body
+
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_quebec_alerts_count(self, mock_get_qc_alerts, mock_dynamodb):
+        """Test that Quebec alerts count is tracked"""
+        mock_table = MagicMock()
+        mock_table.scan.return_value = {'Items': []}
+
+        qc_alerts = [
+            {'threat_id': 'QC_FRAUD_001', 'threat_level': 'high', 'type': 'SMS', 'date_detected': '2026-03-15'},
+            {'threat_id': 'QC_FRAUD_002', 'threat_level': 'medium', 'type': 'Phone', 'date_detected': '2026-03-14'},
+        ]
+        mock_get_qc_alerts.return_value = qc_alerts
+
+        with patch('threats_handler.threats_table', mock_table):
+            event = {
+                'httpMethod': 'GET',
+                'path': '/api/v1/threats/feed',
+                'queryStringParameters': {}
+            }
+            result = handle_threat_feed(event)
+            body = json.loads(result['body'])
+
+            assert body['quebec_alerts_count'] == 2
+
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_can_exclude_quebec_alerts(self, mock_get_qc_alerts, mock_dynamodb):
+        """Test that Quebec alerts can be excluded with parameter"""
+        mock_table = MagicMock()
+        mock_table.scan.return_value = {'Items': []}
+
+        with patch('threats_handler.threats_table', mock_table):
+            event = {
+                'httpMethod': 'GET',
+                'path': '/api/v1/threats/feed',
+                'queryStringParameters': {'include_quebec': 'false'}
+            }
+            result = handle_threat_feed(event)
+
+            # Quebec alerts should not be fetched when parameter is false
+            mock_get_qc_alerts.assert_not_called()
+
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_combines_database_and_quebec_alerts(self, mock_get_qc_alerts, mock_dynamodb):
+        """Test that database threats and Quebec alerts are combined"""
+        mock_table = MagicMock()
+
+        # Database threat
+        db_threat = {
+            'threat_id': 'DB_001',
+            'threat_level': 'medium',
+            'type': 'Email',
+            'date_detected': '2026-03-10'
+        }
+        mock_table.scan.return_value = {'Items': [db_threat]}
+
+        # Quebec alert
+        qc_alert = {
+            'threat_id': 'QC_FRAUD_001',
+            'threat_level': 'high',
+            'type': 'SMS',
+            'date_detected': '2026-03-15'
+        }
+        mock_get_qc_alerts.return_value = [qc_alert]
+
+        with patch('threats_handler.threats_table', mock_table):
+            event = {
+                'httpMethod': 'GET',
+                'path': '/api/v1/threats/feed',
+                'queryStringParameters': {}
+            }
+            result = handle_threat_feed(event)
+            body = json.loads(result['body'])
+
+            # Should have both threats
+            assert body['total_count'] == 2
+            assert body['quebec_alerts_count'] == 1
+
+    @patch('threats_handler.get_recent_quebec_alerts')
+    def test_feed_statistics_include_quebec_alerts(self, mock_get_qc_alerts, mock_dynamodb):
+        """Test that statistics include Quebec alerts"""
+        mock_table = MagicMock()
+        mock_table.scan.return_value = {'Items': []}
+
+        qc_alerts = [
+            {'threat_id': 'QC_FRAUD_001', 'threat_level': 'high', 'type': 'SMS', 'date_detected': '2026-03-15'},
+            {'threat_id': 'QC_FRAUD_002', 'threat_level': 'high', 'type': 'Phone', 'date_detected': '2026-03-14'},
+            {'threat_id': 'QC_FRAUD_003', 'threat_level': 'medium', 'type': 'Email', 'date_detected': '2026-03-13'},
+        ]
+        mock_get_qc_alerts.return_value = qc_alerts
+
+        with patch('threats_handler.threats_table', mock_table):
+            event = {
+                'httpMethod': 'GET',
+                'path': '/api/v1/threats/feed',
+                'queryStringParameters': {}
+            }
+            result = handle_threat_feed(event)
+            body = json.loads(result['body'])
+
+            # Statistics should reflect Quebec alerts
+            assert body['statistics']['by_level']['high'] == 2
+            assert body['statistics']['by_level']['medium'] == 1
+            assert 'SMS' in body['statistics']['by_type']
 
 
 # ============================================================================
