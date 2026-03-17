@@ -20,7 +20,14 @@ import boto3
 from botocore.exceptions import ClientError
 
 # Import Quebec fraud alerts
-from quebec_fraud_alerts import get_recent_quebec_alerts, get_quebec_alerts_by_level
+try:
+    from quebec_fraud_alerts import get_recent_quebec_alerts, get_quebec_alerts_by_level
+except ImportError:
+    # Fallback for local testing
+    def get_recent_quebec_alerts(days: int = 7):
+        return []
+    def get_quebec_alerts_by_level(level: str = None):
+        return []
 
 # Configure logging
 logger = logging.getLogger()
