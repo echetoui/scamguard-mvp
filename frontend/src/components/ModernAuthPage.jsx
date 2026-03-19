@@ -5,7 +5,7 @@
 
 import React, { useState, useRef } from 'react';
 import './ModernAuthPage.css';
-import PhoneAuthScreen from './PhoneAuthScreen';
+import SMSAuthScreen from './SMSAuthScreen';
 // import SSOLogin from './SSOLogin'; // TODO: Implement SSO features
 
 export default function ModernAuthPage() {
@@ -17,7 +17,7 @@ export default function ModernAuthPage() {
   };
 
   if (showAuth) {
-    return <PhoneAuthScreen />;
+    return <SMSAuthScreen />;
   }
 
   return (

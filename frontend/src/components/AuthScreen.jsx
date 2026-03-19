@@ -7,97 +7,7 @@
  */
 import React, { useState } from 'react';
 import useAuth from '../hooks/useAuth';
-import Button from '../design-system/Button';
-import Input from '../design-system/Input';
-import Card from '../design-system/Card';
-
-// --- Style Definitions based on design-tokens.css ---
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-    padding: '20px',
-  },
-  card: {
-    maxWidth: '460px',
-    width: '100%',
-    padding: '48px',
-  },
-  header: {
-    fontSize: 'var(--font-size-h1)',
-    fontWeight: 'var(--font-weight-bold)',
-    marginBottom: 'var(--spacing-sm)',
-    textAlign: 'center',
-    color: 'var(--color-text-primary)',
-  },
-  subheader: {
-    fontSize: 'var(--font-size-base)',
-    color: 'var(--color-text-secondary)',
-    textAlign: 'center',
-    marginBottom: 'var(--spacing-3xl)',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 'var(--spacing-xl)',
-  },
-  formHint: {
-    fontSize: 'var(--font-size-xs)',
-    color: 'var(--color-text-secondary)',
-    marginTop: `calc(-1 * var(--spacing-md))`,
-    paddingLeft: 'var(--spacing-xs)',
-  },
-  message: {
-    padding: 'var(--spacing-lg)',
-    borderRadius: 'var(--radius-md)',
-    fontSize: 'var(--font-size-sm)',
-    marginBottom: 'var(--spacing-lg)',
-    borderLeft: '4px solid',
-  },
-  messageError: {
-    background: 'var(--color-danger-bg-light)',
-    color: 'var(--color-danger-dark)',
-    borderLeftColor: 'var(--color-danger)',
-  },
-  messageSuccess: {
-    background: 'var(--color-success-bg-light)',
-    color: 'var(--color-success-dark)',
-    borderLeftColor: 'var(--color-success)',
-  },
-  dividerContainer: {
-    textAlign: 'center',
-    margin: 'var(--spacing-2xl) 0',
-    fontSize: 'var(--font-size-sm)',
-    color: 'var(--color-text-secondary)',
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  dividerLine: {
-    flex: 1,
-    height: '1px',
-    background: 'var(--color-border)',
-  },
-  dividerText: {
-    background: 'var(--color-background)',
-    padding: '0 var(--spacing-md)',
-  }
-};
-
-// --- Helper Component for the Divider ---
-
-const Divider = ({ children }) => (
-  <div style={styles.dividerContainer}>
-    <div style={styles.dividerLine} />
-    <span style={styles.dividerText}>{children}</span>
-    <div style={styles.dividerLine} />
-  </div>
-);
+import './SMSAuthScreen.css';
 
 
 export default function AuthScreen() {
@@ -123,14 +33,14 @@ export default function AuthScreen() {
     const result = await auth.signup(signupEmail, password);
 
     if (result.success) {
-      setSuccessMessage(result.message || 'Inscription réussie! Vérifiez votre email.');
+      setSuccessMessage(result.message || 'Inscription réussie! Vérifiez votre courriel.');
       setAuthState('verify');
       setEmail(signupEmail);
     } else {
       const errorMessage = {
-        INVALID_EMAIL: 'Adresse email invalide.',
+        INVALID_EMAIL: 'Adresse courriel invalide.',
         WEAK_PASSWORD: 'Le mot de passe doit contenir au moins 12 caractères avec des majuscules, minuscules, chiffres et symboles.',
-        EMAIL_EXISTS: 'Cet email est déjà enregistré.',
+        EMAIL_EXISTS: 'Ce courriel est déjà enregistré.',
       };
       setLocalError(errorMessage[result.code] || result.error || 'Erreur lors de l\'inscription.');
     }
@@ -153,9 +63,9 @@ export default function AuthScreen() {
       // App.jsx will automatically detect isAuthenticated change
     } else {
       const errorMessage = {
-        INVALID_CREDENTIALS: 'Email ou mot de passe incorrect.',
-        COGNITO_EMAIL_NOT_VERIFIED: 'Veuillez vérifier votre email d\'abord.',
-        USER_NOT_FOUND: 'Cet email n\'existe pas.',
+        INVALID_CREDENTIALS: 'Courriel ou mot de passe incorrect.',
+        COGNITO_EMAIL_NOT_VERIFIED: 'Veuillez vérifier votre courriel d\'abord.',
+        USER_NOT_FOUND: 'Ce courriel n\'existe pas.',
       };
       setLocalError(errorMessage[result.code] || result.error || 'Erreur lors de la connexion.');
     }
@@ -174,7 +84,7 @@ export default function AuthScreen() {
     const result = await auth.verifyEmail(email, verificationCode);
 
     if (result.success) {
-      setSuccessMessage('Email vérifié avec succès! Veuillez vous connecter.');
+      setSuccessMessage('Courriel vérifié avec succès! Veuillez vous connecter.');
       setAuthState('login');
       setPassword('');
       setVerificationCode('');
@@ -194,7 +104,7 @@ export default function AuthScreen() {
     const result = await auth.resendCode(email);
 
     if (result.success) {
-      setSuccessMessage('Code de vérification renvoyé! Vérifiez votre email.');
+      setSuccessMessage('Code de vérification renvoyé! Vérifiez votre courriel.');
     } else {
       setLocalError(result.error || 'Erreur lors de l\'envoi du code.');
     }
@@ -202,175 +112,196 @@ export default function AuthScreen() {
 
   const renderMessage = () => {
     if (localError) {
-      return <div style={{...styles.message, ...styles.messageError}}>{localError}</div>;
+      return <div className="error-message" role="alert">⚠️ {localError}</div>;
     }
     if (successMessage) {
-      return <div style={{...styles.message, ...styles.messageSuccess}}>{successMessage}</div>;
+      return (
+        <div style={{
+          padding: '15px', backgroundColor: '#E8F5E9', color: '#2E7D32',
+          border: '1px solid #C8E6C9', borderRadius: '8px', marginBottom: '20px',
+          fontSize: '15px', textAlign: 'center', borderLeft: '4px solid #2E7D32'
+        }}>
+          ✅ {successMessage}
+        </div>
+      );
     }
     return null;
   };
 
+  return (
+    <main className="sms-auth-screen" role="main">
+      <div className="auth-container">
+        {/* Header */}
+        <div className="auth-header">
+          <h1>🛡️ ScamGuard</h1>
+          <p>La sécurité, simplement.</p>
+        </div>
 
-  if (authState === 'login') {
-    return (
-      <div style={styles.container}>
-        <Card>
-          <div style={styles.card}>
-            <h1 style={styles.header}>🛡️ ScamGuard</h1>
-            <p style={styles.subheader}>Connexion à votre compte</p>
-
+        {/* Login State */}
+        {authState === 'login' && (
+          <div className="auth-form">
+            <h2>Connexion à votre compte</h2>
+            
             {renderMessage()}
 
-            <form onSubmit={handleLoginSubmit} style={styles.form}>
-              <Input
-                label="Adresse email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="exemple@email.com"
-                error={localError.includes('Email') ? localError : null}
-              />
+            <form onSubmit={handleLoginSubmit}>
+              <div className="form-group">
+                <label htmlFor="login-email">Adresse courriel</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="exemple@courriel.com"
+                  aria-invalid={localError.toLowerCase().includes('courriel')}
+                />
+              </div>
 
-              <Input
-                label="Mot de passe"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Entrez votre mot de passe"
-                error={localError.includes('passe') ? localError : null}
-              />
+              <div className="form-group">
+                <label htmlFor="login-password">Mot de passe</label>
+                <input
+                  id="login-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Entrez votre mot de passe"
+                  aria-invalid={localError.toLowerCase().includes('passe')}
+                />
+              </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={auth.isLoading}
-              >
+              <button type="submit" className="auth-button" disabled={auth.isLoading}>
                 {auth.isLoading ? '⏳ Connexion...' : '✅ Se connecter'}
-              </Button>
+              </button>
             </form>
 
-            <Divider>ou</Divider>
+            <div style={{ textAlign: 'center', margin: '24px 0', color: 'var(--text-light)', position: 'relative' }}>
+              <span style={{ background: 'white', padding: '0 10px', position: 'relative', zIndex: 1 }}>ou</span>
+              <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: '#e0e0e0', zIndex: 0 }}></div>
+            </div>
 
-            <Button
-              variant="secondary"
+            <button
+              type="button"
+              className="auth-link-button"
               onClick={() => {
                 setAuthState('signup');
                 setLocalError('');
                 setSuccessMessage('');
               }}
             >
-              Pas encore de compte? <strong>S'inscrire</strong>
-            </Button>
+              Pas encore de compte? M'inscrire
+            </button>
           </div>
-        </Card>
-      </div>
-    );
-  }
+        )}
 
-  if (authState === 'signup') {
-    return (
-      <div style={styles.container}>
-        <Card>
-          <div style={styles.card}>
-            <h1 style={styles.header}>🛡️ S'inscrire</h1>
-            <p style={styles.subheader}>Créez votre compte ScamGuard</p>
-
+        {/* Signup State */}
+        {authState === 'signup' && (
+          <div className="auth-form">
+            <h2>Créer votre compte</h2>
+            <p className="step-description">Rejoignez ScamGuard pour protéger votre navigation.</p>
+            
             {renderMessage()}
 
-            <form onSubmit={handleSignupSubmit} style={styles.form}>
-              <Input
-                label="Adresse email"
-                type="email"
-                value={signupEmail}
-                onChange={(e) => setSignupEmail(e.target.value)}
-                placeholder="exemple@email.com"
-                error={localError.includes('email') ? localError : null}
-              />
+            <form onSubmit={handleSignupSubmit}>
+              <div className="form-group">
+                <label htmlFor="signup-email">Adresse courriel</label>
+                <input
+                  id="signup-email"
+                  type="email"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  placeholder="exemple@courriel.com"
+                  aria-invalid={localError.toLowerCase().includes('courriel')}
+                />
+              </div>
 
-              <Input
-                label="Mot de passe"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 12 caractères"
-                error={localError.includes('passe') ? localError : null}
-              />
-              <p style={styles.formHint}>
-                  Minimum 12 caractères, avec au moins une majuscule, un chiffre et un symbole (!@#$%^&*)
-                </p>
+              <div className="form-group">
+                <label htmlFor="signup-password">Mot de passe</label>
+                <input
+                  id="signup-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Minimum 12 caractères"
+                  aria-invalid={localError.toLowerCase().includes('passe')}
+                />
+                <small>Minimum 12 caractères, avec au moins une majuscule, un chiffre et un symbole (!@#$%^&*)</small>
+              </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={auth.isLoading}
-              >
-                {auth.isLoading ? '⏳ Inscription...' : '✅ S\'inscrire'}
-              </Button>
+              <button type="submit" className="auth-button" disabled={auth.isLoading}>
+                {auth.isLoading ? '⏳ Inscription...' : '✅ M\'inscrire'}
+              </button>
             </form>
 
-            <Divider>ou</Divider>
+            <div style={{ textAlign: 'center', margin: '24px 0', color: 'var(--text-light)', position: 'relative' }}>
+              <span style={{ background: 'white', padding: '0 10px', position: 'relative', zIndex: 1 }}>ou</span>
+              <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: '#e0e0e0', zIndex: 0 }}></div>
+            </div>
 
-            <Button
-              variant="secondary"
+            <button
+              type="button"
+              className="auth-link-button"
               onClick={() => {
                 setAuthState('login');
                 setLocalError('');
                 setSuccessMessage('');
               }}
             >
-              Vous avez un compte? <strong>Se connecter</strong>
-            </Button>
+              Vous avez un compte? Se connecter
+            </button>
           </div>
-        </Card>
-      </div>
-    );
-  }
+        )}
 
-  if (authState === 'verify') {
-    return (
-      <div style={styles.container}>
-        <Card>
-          <div style={styles.card}>
-            <h1 style={styles.header}>📧 Vérifier votre email</h1>
-            <p style={styles.subheader}>
-              Un code de vérification a été envoyé à <strong>{email}</strong>
+        {/* Verify State */}
+        {authState === 'verify' && (
+          <div className="auth-form">
+            <h2>📧 Vérifier votre courriel</h2>
+            <p className="step-description">
+              Un code de vérification a été envoyé à <br/><strong>{email}</strong>
             </p>
 
             {renderMessage()}
 
-            <form onSubmit={handleVerifySubmit} style={styles.form}>
-              <Input
-                label="Code de vérification (6 chiffres)"
-                type="text"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="000000"
-                maxLength="6"
-                inputMode="numeric"
-                error={localError.includes('code') ? localError : null}
-              />
+            <form onSubmit={handleVerifySubmit}>
+              <div className="form-group">
+                <label htmlFor="verify-code">Code de vérification (6 chiffres)</label>
+                <input
+                  id="verify-code"
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  maxLength="6"
+                  inputMode="numeric"
+                  style={{ textAlign: 'center', fontSize: '28px', letterSpacing: '12px', fontWeight: 'bold' }}
+                  aria-invalid={localError.toLowerCase().includes('code')}
+                />
+              </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={auth.isLoading || verificationCode.length < 6}
-              >
-                {auth.isLoading ? '⏳ Vérification...' : '✅ Vérifier mon email'}
-              </Button>
+              <button type="submit" className="auth-button" disabled={auth.isLoading || verificationCode.length < 6}>
+                {auth.isLoading ? '⏳ Vérification...' : '✅ Vérifier mon courriel'}
+              </button>
             </form>
 
-            <Button
-              variant="secondary"
+            <button
+              type="button"
+              className="auth-link-button"
               onClick={handleResendCode}
               disabled={auth.isLoading}
+              style={{ marginTop: '16px' }}
             >
-              Vous n'avez pas reçu le code? <strong>Renvoyer</strong>
-            </Button>
+              Vous n'avez pas reçu le code? Renvoyer
+            </button>
           </div>
-        </Card>
+        )}
       </div>
-    );
-  }
 
-  return null;
+      {/* Footer conforming to SMSAuthScreen footer styles */}
+      <footer className="auth-footer">
+        <p className="privacy">
+          En continuant, vous acceptez nos conditions d'utilisation.<br/>
+          Protégez-vous contre les arnaques par courriel.
+        </p>
+      </footer>
+    </main>
+  );
 }

@@ -480,7 +480,13 @@ export default function SMSAuthScreen() {
             <button
               type="button"
               className="auth-link-button"
-              onClick={() => setMode('choose')}
+              onClick={() => {
+                if (mode === 'signup') {
+                  setStep('role');
+                } else {
+                  setMode('choose');
+                }
+              }}
               disabled={loading}
               style={{ marginTop: '12px' }}
             >

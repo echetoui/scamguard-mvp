@@ -1,21 +1,22 @@
 /* Modern Auth Page - Professional UX/UI Standards */
 
 :root {
-  --primary: #0066cc;
-  --primary-dark: #0052a3;
-  --primary-light: #e6f0ff;
-  --secondary: #ff6b35;
-  --success: #2e7d32;
-  --error: #c62828;
-  --text-primary: #1a1a1a;
-  --text-secondary: #666;
-  --bg-light: #f8f9fa;
-  --bg-white: #ffffff;
-  --border: #e0e0e0;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* Automne Québécois Tokens from DESIGN.md */
+  --primary: #C85A2A; /* Terracotta */
+  --primary-dark: #8B4513; /* Brown Depth */
+  --primary-light: #FFF9F3; /* Cream */
+  --secondary: #D4A574; /* Gold */
+  --success: #2E7D32; /* Safe Green */
+  --error: #D32F2F; /* Danger Red */
+  --text-primary: #1a0f0a; /* Dark Brown */
+  --text-secondary: #6B5344;
+  --bg-light: #FFF9F3; /* Cream */
+  --bg-white: #FFFFFF;
+  --border: #D4A574; /* Gold as border */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.15);
-  --gradient: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 * {
@@ -25,8 +26,8 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'Lora', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -58,6 +59,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--primary);
@@ -75,7 +77,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 16px;
+  font-size: 18px;
   min-height: 60px;
   display: flex;
   align-items: center;
@@ -113,15 +115,16 @@ body {
   color: var(--primary);
   padding: 12px 20px;
   border-radius: 50px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 24px;
   letter-spacing: 0.5px;
 }
 
 .hero-title {
+  font-family: 'Cormorant Garamond', serif;
   font-size: 48px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.2;
   margin-bottom: 24px;
   color: var(--text-primary);
@@ -155,11 +158,11 @@ body {
   padding: 16px 32px;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
-  align-items: center;
+  align-items: center; 
   gap: 8px;
   transition: all 0.3s ease;
   min-height: 60px;
@@ -181,7 +184,7 @@ body {
   padding: 16px 32px;
   border: 2px solid var(--border);
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   min-height: 60px;
   cursor: pointer;
@@ -215,7 +218,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -267,13 +270,13 @@ body {
 }
 
 .visual-card h3 {
-  font-size: 18px;
+  font-size: 20px;
   margin-bottom: 8px;
   color: var(--text-primary);
 }
 
 .visual-card p {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -289,6 +292,7 @@ body {
 }
 
 .section-title {
+  font-family: 'Cormorant Garamond', serif;
   font-size: 36px;
   font-weight: 700;
   text-align: center;
@@ -336,14 +340,14 @@ body {
 }
 
 .feature-card h3 {
-  font-size: 18px;
+  font-size: 22px;
   margin-bottom: 12px;
   color: var(--text-primary);
   font-weight: 600;
 }
 
 .feature-card p {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   line-height: 1.6;
 }
@@ -370,13 +374,13 @@ body {
 
 .stat-number {
   font-size: 40px;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 8px;
   letter-spacing: -1px;
 }
 
 .stat-label {
-  font-size: 15px;
+  font-size: 16px;
   opacity: 0.9;
   font-weight: 500;
 }
@@ -394,6 +398,7 @@ body {
 }
 
 .final-cta-section h2 {
+  font-family: 'Cormorant Garamond', serif;
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 16px;
@@ -429,13 +434,14 @@ body {
 }
 
 .footer-col h4 {
-  font-size: 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
   margin-bottom: 16px;
   font-weight: 600;
 }
 
 .footer-col p {
-  font-size: 14px;
+  font-size: 16px;
   opacity: 0.7;
   line-height: 1.6;
 }
@@ -451,7 +457,7 @@ body {
 .footer-col a {
   color: white;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 16px;
   opacity: 0.7;
   transition: opacity 0.2s ease;
 }
@@ -464,7 +470,7 @@ body {
   text-align: center;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 13px;
+  font-size: 16px;
   opacity: 0.6;
 }
 
@@ -516,11 +522,11 @@ body {
 
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 24px;
+    font-size: 32px;
   }
 
   .hero-badge {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .trust-badges {

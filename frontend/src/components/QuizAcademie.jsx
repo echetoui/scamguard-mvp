@@ -162,7 +162,8 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
                 border: '2px solid #4CAF50',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                minHeight: '56px',
+                minHeight: '60px',
+                fontFamily: 'var(--font-body, "Lora", serif)'
               }}
             >
               🟢 Débutant - Questions faciles
@@ -177,7 +178,8 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
                 border: '2px solid #F57C00',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                minHeight: '56px',
+                minHeight: '60px',
+                fontFamily: 'var(--font-body, "Lora", serif)'
               }}
             >
               🟡 Intermédiaire (Recommandé) - Questions mixtes
@@ -192,7 +194,8 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
                 border: '2px solid #D32F2F',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                minHeight: '56px',
+                minHeight: '60px',
+                fontFamily: 'var(--font-body, "Lora", serif)'
               }}
             >
               🔴 Expert - Questions difficiles
@@ -201,13 +204,14 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
               onClick={handleDifficultyCancel}
               style={{
                 padding: '16px',
-                fontSize: '16px',
-                fontWeight: '500',
-                backgroundColor: '#F5F5F5',
-                border: '2px solid #999',
+                fontSize: '18px',
+                fontWeight: '600',
+                backgroundColor: '#FFF9F3',
+                color: '#C85A2A',
+                border: '2px solid #C85A2A',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                minHeight: '48px',
+                minHeight: '60px',
               }}
             >
               ← Annuler
@@ -230,13 +234,15 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
               onClick={handleBackFromQuiz}
               style={{
                 marginBottom: '20px',
-                padding: '8px 16px',
-                backgroundColor: '#f0f0f0',
-                border: '2px solid #ddd',
-                borderRadius: '6px',
+                padding: '16px 24px',
+                backgroundColor: '#FFF9F3',
+                color: '#C85A2A',
+                border: '2px solid #C85A2A',
+                borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
+                fontSize: '18px',
+                fontWeight: '600',
+                minHeight: '60px'
               }}
             >
               ← Retour
