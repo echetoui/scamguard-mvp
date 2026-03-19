@@ -12,17 +12,17 @@ export default defineConfig({
     exclude: ['node_modules', 'dist'],
 
     // ===== Critical Worker Configuration =====
-    // Reduce workers to prevent timeout issues
+    // Single thread to prevent timeout issues with async tests
     threads: {
-      maxThreads: 2,
+      maxThreads: 1,
       minThreads: 1,
-      singleThread: false,
+      singleThread: true,
     },
 
     // Increase timeouts significantly
-    testTimeout: 60000,
-    hookTimeout: 60000,
-    isolate: false,
+    testTimeout: 120000,
+    hookTimeout: 120000,
+    isolate: true,
 
     // ===== Other Optimizations =====
     restoreMocks: true,

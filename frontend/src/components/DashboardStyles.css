@@ -10,11 +10,25 @@
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--bg-light, #FFF9F3); /* Cream background */
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-body, 'Lora', serif);
+}
+
+/* Define Automne Québécois tokens locally for this component */
+.dashboard {
+  --primary: #C85A2A;
+  --secondary: #D4A574;
+  --accent: #7A9B7F;
+  --bg-light: #FFF9F3;
+  --bg-card: #FFFFFF;
+  --text-primary: #1a0f0a;
+  --text-secondary: #6B5344;
+  --status-safe: #2E7D32;
+  --status-warning: #F57C00;
+  --status-danger: #D32F2F;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Lora', serif;
 }
 
 /* Loading State */
@@ -31,7 +45,7 @@
 
 .spinner {
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #2196F3;
+  border-top: 4px solid var(--primary);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -45,7 +59,7 @@
    ============================================ */
 
 .dashboard__header {
-  background: var(--color-background);
+  background: var(--bg-card);
   padding: var(--spacing-3xl);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -62,14 +76,14 @@
 .dashboard__title {
   font-size: var(--font-size-h1);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   margin: 0;
   line-height: var(--line-height-tight);
 }
 
 .dashboard__subtitle {
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin: var(--spacing-sm) 0 0 0;
 }
 
@@ -88,13 +102,13 @@
 }
 
 .status-badge--active {
-  background-color: var(--color-safe-bg-light);
-  color: var(--color-safe-dark);
+  background-color: #E8F5E9;
+  color: var(--status-safe);
 }
 
 .status-badge--inactive {
-  background-color: var(--color-danger-bg-light);
-  color: var(--color-danger-dark);
+  background-color: #FFEBEE;
+  color: var(--status-danger);
 }
 
 .status-dot {
@@ -118,7 +132,7 @@
 }
 
 .stat-card {
-  background: var(--color-background);
+  background: var(--bg-card);
   padding: var(--spacing-xl);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -144,7 +158,7 @@
 
 .stat-label {
   font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wider);
@@ -154,7 +168,7 @@
 .stat-value {
   font-size: var(--font-size-h2);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
 /* ============================================
@@ -171,7 +185,7 @@
 .dashboard__section-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0 0 1.5rem 0;
 }
 
@@ -191,7 +205,7 @@
    ============================================ */
 
 .progress-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark, #8B4513) 100%);
   padding: 1.5rem;
   border-radius: 12px;
   color: white;
@@ -224,7 +238,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+  background: var(--accent, #7A9B7F);
   border-radius: 10px;
   transition: width 0.3s ease;
 }
@@ -240,7 +254,7 @@
 .badges-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
@@ -254,9 +268,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 60px;
+  background: var(--bg-light);
   border-radius: 12px;
   text-align: center;
   cursor: pointer;
@@ -267,7 +283,7 @@
 .badge:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-color: #667eea;
+  border-color: var(--primary);
 }
 
 .badge-icon {
@@ -278,7 +294,7 @@
 .badge-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* ============================================
@@ -293,26 +309,27 @@
 
 .analysis-card {
   background: #f9f9f9;
-  border-left: 4px solid #2196F3;
+  border-left: 4px solid var(--secondary);
   padding: 1.5rem;
   border-radius: 8px;
+  min-height: 60px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .analysis-card--high-risk,
 .analysis-card--blocked {
-  border-left-color: #d32f2f;
+  border-left-color: var(--status-danger);
   background: rgba(211, 47, 47, 0.05);
 }
 
 .analysis-card--suspicious {
-  border-left-color: #f57c00;
+  border-left-color: var(--status-warning);
   background: rgba(245, 124, 0, 0.05);
 }
 
 .analysis-card--low-risk {
-  border-left-color: #388e3c;
+  border-left-color: var(--status-safe);
   background: rgba(56, 142, 60, 0.05);
 }
 
@@ -335,13 +352,13 @@
 .analysis-type {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .analysis-date {
   font-size: 0.85rem;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .analysis-risk {
@@ -367,7 +384,7 @@
 .risk-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .analysis-details {
@@ -386,12 +403,12 @@
 
 .detail-label {
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
   min-width: 120px;
 }
 
 .detail-value {
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .detail-advice {
@@ -399,7 +416,7 @@
   padding: 1rem;
   border-radius: 8px;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.5;
   margin: 0;
 }
@@ -408,7 +425,7 @@
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .empty-state-text {
@@ -430,9 +447,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 60px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark, #8B4513) 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -443,7 +462,7 @@
 
 .action-button:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(200, 90, 42, 0.3);
 }
 
 .action-icon {
@@ -460,7 +479,7 @@
    ============================================ */
 
 .dashboard__section--privacy {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--bg-light);
 }
 
 .privacy-info {
@@ -487,12 +506,12 @@
 
 .privacy-title {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
 .privacy-description {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.4;
@@ -510,7 +529,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -520,7 +539,7 @@
 }
 
 .footer-link {
-  color: #667eea;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   margin: 0 0.25rem;
