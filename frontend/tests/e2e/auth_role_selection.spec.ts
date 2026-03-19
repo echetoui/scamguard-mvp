@@ -37,7 +37,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        */
 
       // Click signup button
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Check that all 3 role cards are visible
@@ -55,7 +55,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Role cards display appropriate icons
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Verify icons are present (emojis in text)
@@ -70,7 +70,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Role cards display descriptions
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Check descriptions exist
@@ -88,7 +88,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Senior role selection navigates to email form
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Click senior card
@@ -104,7 +104,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Family role selection navigates to email form
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Click family card
@@ -120,7 +120,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Individual role selection navigates to email form
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Click individual card
@@ -136,7 +136,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Back button from email step returns to role selection
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Select role
@@ -144,7 +144,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
       await page.waitForLoadState('networkidle');
 
       // Click back button
-      await page.click('button:has-text("← Retour")');
+      await page.locator('button:has-text("← Retour")').first().click();
       await page.waitForLoadState('networkidle');
 
       // Should return to role selection
@@ -160,7 +160,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Selected role card shows visual feedback
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       const familyCard = page.locator('.role-card').nth(1);
@@ -173,7 +173,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
       await page.waitForLoadState('networkidle');
 
       // Navigate back to see selection
-      await page.click('button:has-text("← Retour")');
+      await page.locator('button:has-text("← Retour")').first().click();
       await page.waitForLoadState('networkidle');
 
       // Family card should have selected class
@@ -193,7 +193,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Complete signup flow for senior role
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Select senior role
@@ -226,7 +226,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Complete signup flow for family role
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Select family role
@@ -253,7 +253,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Role cards can be selected with Tab + Enter
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Tab to first role card
@@ -271,7 +271,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Role cards have accessibility labels
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       const seniorCard = page.locator('.role-card').nth(0);
@@ -322,7 +322,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Clear heading for role selection
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Check for heading
@@ -339,7 +339,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: All role cards have consistent appearance
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       const cards = page.locator('.role-card');
@@ -366,7 +366,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Role cards show visual feedback on hover
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       const card = page.locator('.role-card').nth(0);
@@ -399,14 +399,14 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Clicking role cards rapidly doesn't break the app
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       // Rapidly click different cards
       await page.locator('.role-card').nth(0).click();
-      await page.click('button:has-text("← Retour")');
+      await page.locator('button:has-text("← Retour")').first().click();
       await page.locator('.role-card').nth(1).click();
-      await page.click('button:has-text("← Retour")');
+      await page.locator('button:has-text("← Retour")').first().click();
       await page.locator('.role-card').nth(2).click();
 
       // App should still be functional
@@ -418,7 +418,7 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
        * Feature: Prevent double submission
        */
 
-      await page.click('button:has-text("➕ S\'inscrire")');
+      await page.locator('button.auth-button').first().click();
       await page.waitForLoadState('networkidle');
 
       const card = page.locator('.role-card').nth(0);
