@@ -24,6 +24,9 @@ test.describe('Phase 5A - Family Protection Role Selection', () => {
     } catch (e) {
       // Le bouton n'est pas là, on est déjà sur l'écran d'authentification, on continue
     }
+
+    // Wait for auth buttons to appear
+    await page.locator('button.auth-button').first().waitFor({ state: 'visible', timeout: 15000 });
   });
 
   test.describe('Role Card Visibility', () => {

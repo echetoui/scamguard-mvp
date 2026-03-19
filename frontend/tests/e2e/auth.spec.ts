@@ -27,6 +27,9 @@ test.describe('Authentication E2E Tests', () => {
       // Ignore si on est déjà sur l'écran de choix
     }
 
+    // Wait for auth buttons to appear
+    await page.locator('button.auth-button').first().waitFor({ state: 'visible', timeout: 15000 });
+
     // Wait a bit for React to render
     await page.waitForTimeout(1500);
   });
