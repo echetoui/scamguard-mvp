@@ -29,6 +29,7 @@ const ToolsTab = lazy(() => import('./components/ToolsTab'));
 const FamilyDashboard = lazy(() => import('./components/FamilyDashboard'));
 const AccountProfile = lazy(() => import('./components/AccountProfile'));
 const CreditSystem = lazy(() => import('./components/CreditSystem'));
+const ScamReportingSystem = lazy(() => import('./components/ScamReportingSystem'));
 
 // Loading placeholder component
 const LoadingPlaceholder = () => (
@@ -95,7 +96,8 @@ export default function App() {
       'ressources': 'Ressources',
       'outils': 'Outils',
       'famille': 'Famille',
-      'parametres': 'Paramètres'
+      'parametres': 'Paramètres',
+      'signaler': 'Signaler'
     };
     if (isVoiceGuidanceEnabled) {
       speak(`Onglet ${tabNames[activeTab]}`);
@@ -278,16 +280,19 @@ export default function App() {
           <button
             onClick={auth.logout}
             style={{
-              padding: '8px 16px',
-              backgroundColor: '#f0f0f0',
-              border: '2px solid #ddd',
-              borderRadius: '6px',
+              padding: '12px 20px',
+              backgroundColor: '#FFF9F3',
+              color: '#C85A2A',
+              border: '2px solid #C85A2A',
+              borderRadius: '8px',
               cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500'
+              fontSize: '16px',
+              fontWeight: '600',
+              minHeight: '60px',
+              fontFamily: 'var(--font-body, "Lora", serif)'
             }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#e0e0e0'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#f0f0f0'}
+            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(200, 90, 42, 0.08)'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#FFF9F3'}
           >
             🚪 Déconnexion
           </button>
@@ -425,6 +430,13 @@ export default function App() {
               filterLevel="all"
             />
           </div>
+        </TabPanel>
+
+        {/* Tab 8: Signaler - Scam Reporting System (Phase 5B) */}
+        <TabPanel tabId="signaler" activeTab={activeTab}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <ScamReportingSystem />
+          </Suspense>
         </TabPanel>
 
         {/* Tab 7: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
