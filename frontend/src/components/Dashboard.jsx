@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../design-system/Button';
+import QuebecFraudAlerts from './QuebecFraudAlerts';
 import './DashboardStyles.css';
 
 /**
@@ -300,6 +301,11 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
             <span className="action-text">Help & FAQ</span>
           </button>
         </div>
+      </section>
+
+      {/* Quebec Fraud Alerts Section */}
+      <section className="dashboard__section dashboard__section--alerts">
+        <QuebecFraudAlerts />
       </section>
 
       {/* Privacy & Data Control Section */}
