@@ -78,20 +78,20 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A4: Should allow mode switching (signup -> login)', async ({ page }) => {
     // Wait for button to be visible
-    await page.locator('button:has-text("➕ S\'inscrire")').first().waitFor({ state: 'visible', timeout: 15000 });
+    await page.locator('button.auth-button').first().waitFor({ state: 'visible', timeout: 15000 });
 
     // Start on signup
-    await page.locator('button:has-text("➕ S\'inscrire")').first().click();
+    await page.locator('button.auth-button').first().click();
     await expect(page.locator('.role-card').first()).toBeVisible({ timeout: 15000 });
 
     // Click back button
     await page.locator('button:has-text("← Retour")').first().click();
 
     // Should be back on mode selection
-    await expect(page.locator('button:has-text("➕ S\'inscrire")')).toBeVisible();
+    await expect(page.locator('button.auth-button').first()).toBeVisible();
 
     // Switch to login
-    await page.locator('button.auth-button.nth(1)').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     await expect(page.locator('input[type="password"]')).toBeVisible();
   });
 
@@ -101,7 +101,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B1: Signup form should show validation error for empty fields', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("➕ S\'inscrire")').first().click();
+    await page.locator('button.auth-button').first().click();
     await page.locator('.role-card').first().click(); // Passer l'étape du rôle
     
     // Try to continue without entering anything
@@ -116,7 +116,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B2: Should accept valid email format in signup', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("➕ S\'inscrire")').first().click();
+    await page.locator('button.auth-button').first().click();
     await page.locator('.role-card').first().click(); // Passer l'étape du rôle
     
     const emailInput = page.locator('input[type="email"]');
@@ -143,7 +143,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C1: Login form should show empty state validation', async ({ page }) => {
     // Navigate to login
-    await page.locator('button.auth-button.nth(1)').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     
     // Try to sign in without entering anything
     const signInBtn = page.locator('button.auth-button').first();
@@ -157,7 +157,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C2: Should accept email in login form', async ({ page }) => {
     // Navigate to login
-    await page.locator('button.auth-button.nth(1)').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     
     const emailInput = page.locator('input[type="email"]');
     
@@ -171,7 +171,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C3: Should accept password in login form', async ({ page }) => {
     // Navigate to login
-    await page.locator('button.auth-button.nth(1)').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     
     const passwordInput = page.locator('input[type="password"]');
     
@@ -189,7 +189,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('D1: Signup buttons should meet touch target size requirement', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("➕ S\'inscrire")').first().click();
+    await page.locator('button.auth-button').first().click();
     await page.locator('.role-card').first().click();
     
     const button = page.locator('button.auth-button').first();
@@ -203,7 +203,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('D2: Inputs should have associated labels', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("➕ S\'inscrire")').first().click();
+    await page.locator('button.auth-button').first().click();
     await page.locator('.role-card').first().click();
     
     const emailInput = page.locator('input[type="email"]');
@@ -219,9 +219,9 @@ test.describe('Authentication E2E Tests', () => {
   test('D3: Should support dark mode', async ({ page }) => {
     // Emulate dark color scheme
     await page.emulateMedia({ colorScheme: 'dark' });
-    
+
     // Page should still be visible and functional
-    const createBtn = page.locator('button:has-text("➕ S\'inscrire")').first();
+    const createBtn = page.locator('button.auth-button').first();
     await expect(createBtn).toBeVisible();
   });
 
@@ -233,7 +233,7 @@ test.describe('Authentication E2E Tests', () => {
     await page.goto(BASE_URL);
     
     // Bypass landing page
-    const startBtn = page.locator('button:has-text("Commencer maintenant")').first();
+    const startBtn = page.locator('button.cta-primary').first();
     try {
       await startBtn.waitFor({ state: 'visible', timeout: 5000 });
       await startBtn.click();
@@ -241,7 +241,7 @@ test.describe('Authentication E2E Tests', () => {
     } catch (e) {}
 
     // Mode buttons should be visible
-    const createBtn = page.locator('button:has-text("➕ S\'inscrire")').first();
+    const createBtn = page.locator('button.auth-button').first();
     await expect(createBtn).toBeVisible();
     
     // Should be scrollable/readable without horizontal scroll
@@ -252,12 +252,12 @@ test.describe('Authentication E2E Tests', () => {
   test('D5: Should be responsive on tablet viewport (768px)', async ({ page }) => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
-    
+
     // Reload to get proper viewport
     await page.goto(BASE_URL);
-    
+
     // Bypass landing page
-    const startBtn = page.locator('button:has-text("Commencer maintenant")').first();
+    const startBtn = page.locator('button.cta-primary').first();
     try {
       await startBtn.waitFor({ state: 'visible', timeout: 5000 });
       await startBtn.click();
@@ -265,7 +265,7 @@ test.describe('Authentication E2E Tests', () => {
     } catch (e) {}
 
     // Form should be visible and centered
-    const createBtn = page.locator('button:has-text("➕ S\'inscrire")').first();
+    const createBtn = page.locator('button.auth-button').first();
     await expect(createBtn).toBeVisible();
   });
 
@@ -279,7 +279,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('E2: Error messages should be clearly visible', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("➕ S\'inscrire")').first().click();
+    await page.locator('button.auth-button').first().click();
     await page.locator('.role-card').first().click();
     
     // Try to continue without data

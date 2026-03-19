@@ -282,7 +282,7 @@ export default function App() {
             style={{
               padding: '12px 20px',
               backgroundColor: '#FFF9F3',
-              color: '#C85A2A',
+              color: '#1a0f0a',
               border: '2px solid #C85A2A',
               borderRadius: '8px',
               cursor: 'pointer',
