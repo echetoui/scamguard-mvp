@@ -1,8 +1,21 @@
 # 🛡️ ScamGuard - Charte Graphique & Identité de Marque
 
-**Version:** 1.0
-**Date:** 22 février 2026
-**Statut:** Officiel
+**Version:** 2.0 (Material Design 3 System)
+**Date:** 4 avril 2026
+**Statut:** Officiel — Complete MD3 Refactor
+
+## 📖 Complete Brand Documentation
+
+This file is a summary. **For detailed specifications, see:**
+
+| Document | Purpose | Location |
+|----------|---------|----------|
+| **Brand Identity** | Mission, vision, values, positioning | `docs/brand/brand-identity.md` |
+| **Design Principles** | 5 non-negotiable principles + decision hierarchy | `docs/brand/design-principles.md` |
+| **Voice & Tone** | How ScamGuard speaks in different contexts | `docs/brand/voice-tone.md` |
+| **Terminology** | 30+ standard terms + Quebec French glossary | `docs/brand/terminology.md` |
+| **Brand Assets** | Logo, colors, typography, icons, patterns | `docs/brand/brand-assets.md` |
+| **Design Tokens (MD3)** | Complete CSS variable system | `frontend/src/styles/design-tokens-m3.css` |
 
 ---
 
