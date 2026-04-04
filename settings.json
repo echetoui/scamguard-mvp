@@ -71,6 +71,40 @@
       "1. Consult DECISIONS.md",
       "2. Check if decision affects other systems",
       "3. Verify no contradictions with ACTIVE_RULES"
+    ],
+    "beforeStartingTask": [
+      "1. Read task file (scope, files, success criteria)",
+      "2. Consult RAG_INDEX.md for file locations",
+      "3. Load only 2-5 files listed (not entire codebase)",
+      "4. Estimate tokens based on files affected",
+      "5. Execute within token budget"
+    ],
+    "whenCompleteTask": [
+      "1. Verify all success criteria are met",
+      "2. Record actual tokens used (vs estimate)",
+      "3. Move task from IN_PROGRESS to DONE",
+      "4. Check BLOCKED.md for newly unblocked tasks",
+      "5. Propose next task from BACKLOG"
     ]
+  },
+  "taskSystem": {
+    "enabled": true,
+    "baseDir": "tasks/",
+    "files": {
+      "backlog": "tasks/BACKLOG.md",
+      "inProgress": "tasks/IN_PROGRESS.md",
+      "done": "tasks/DONE.md",
+      "blocked": "tasks/BLOCKED.md"
+    },
+    "constraints": {
+      "maxFilesPerTask": 5,
+      "minFilesPerTask": 1,
+      "tokenBudgetTarget": "3-8K",
+      "tokenBudgetMax": 15000,
+      "singleConcern": true,
+      "noCompoundTasks": true
+    },
+    "estimationTracking": true,
+    "successCriteriaRequired": true
   }
 }
