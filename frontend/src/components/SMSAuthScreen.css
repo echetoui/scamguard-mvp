@@ -84,6 +84,10 @@
   outline-offset: 2px;
 }
 
+.link-text.mt-md {
+  margin-top: var(--spacing-md);
+}
+
 .sms-auth-screen {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
