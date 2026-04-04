@@ -145,18 +145,25 @@ Unstarted tasks, ordered by dependency. Start with top item.
   - ✅ SMSAuthScreen.jsx refactored (partial)
   - ✅ Documentation guide created
 
-**Phase 2 (In Progress 🔄):**
-  - 🔄 Refactor 10 priority components:
-    1. Dashboard.jsx
-    2. DashboardStats.jsx
-    3. ThreatCard.jsx
-    4. AccountProfile.jsx
-    5. OnboardingWizard.jsx
-    6. FamilyDashboard.jsx
-    7. WeeklyDigest.jsx
-    8. AnalysisHistory.jsx
-    9. ModernAuthPage.jsx
-    10. SecurityHeartDashboard.jsx
+**Phase 2 (Mostly Complete ✅):**
+  - ✅ Refactored 10 priority components:
+    1. ✅ Dashboard.jsx (2 inline styles → CSS custom properties + risk classes)
+    2. ✅ DashboardStats.jsx (3 inline styles → CSS custom properties + MD3 gradients)
+    3. ✅ ThreatCard.jsx (already clean - no inline styles)
+    4. ✅ AccountProfile.jsx (already clean - no inline styles)
+    5. ✅ OnboardingWizard.jsx (already clean - no inline styles)
+    6. ✅ FamilyDashboard.jsx (already clean - no inline styles)
+    7. ✅ WeeklyDigest.jsx (already clean - no inline styles)
+    8. ✅ AnalysisHistory.jsx (2 inline styles → risk-level classes)
+    9. ✅ ModernAuthPage.jsx (already clean - no inline styles)
+    10. ✅ SecurityHeartDashboard.jsx (3 inline styles → scoreStatus classes)
+  - ✅ Additional components refactored:
+    - QuizAcademie.jsx (9 inline styles)
+    - QuizModule.jsx (1 inline style → CSS custom property)
+    - SMSSimulator.jsx (1 inline style → CSS custom property)
+    - Leaderboard.jsx (1 inline style → difficulty-level classes)
+    - VideosSection.jsx (2 inline styles → utility classes)
+  - Total: 24 inline styles eliminated across 9 components
 
 **Phase 3 (Upcoming ⬜):**
   - ⬜ Refactor remaining 37 components
