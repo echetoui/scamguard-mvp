@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './SecurityHeartDashboard.css';
 import {
   getScoreStatus,
-  getScoreColor,
   getScoreEmoji,
   getStatusMessage,
   getStatusText,
@@ -87,15 +86,14 @@ const SecurityHeartDashboard = ({ userId }) => {
           ) : (
             <>
               <div
-                className="heart-icon"
-                style={{ color: getScoreColor(securityScore) }}
+                className={`heart-icon score-${scoreStatus}`}
                 aria-label={`Cœur de Sécurité: ${securityScore} sur 100`}
               >
                 ❤️
               </div>
 
               <div className="score-display">
-                <div className="score-number" style={{ color: getScoreColor(securityScore) }}>
+                <div className={`score-number score-${scoreStatus}`}>
                   {securityScore}
                 </div>
                 <div className="score-max">/100</div>
@@ -111,8 +109,7 @@ const SecurityHeartDashboard = ({ userId }) => {
         {/* Status Text */}
         <div className="status-section">
           <div
-            className="status-badge"
-            style={{ borderColor: getScoreColor(securityScore) }}
+            className={`status-badge score-${scoreStatus}`}
             role="status"
             aria-live="polite"
           >

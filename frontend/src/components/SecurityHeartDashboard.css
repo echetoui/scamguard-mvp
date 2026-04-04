@@ -46,6 +46,19 @@
   font-size: 120px;
   animation: pulse 2s ease-in-out infinite;
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
+  color: var(--color-on-background);
+}
+
+.heart-icon.score-safe {
+  color: var(--color-secondary);
+}
+
+.heart-icon.score-moderate {
+  color: var(--color-tertiary);
+}
+
+.heart-icon.score-warning {
+  color: var(--color-error);
 }
 
 
@@ -83,6 +96,19 @@
   font-weight: bold;
   line-height: 1;
   font-family: 'Segoe UI', sans-serif;
+  color: var(--color-on-background);
+}
+
+.score-number.score-safe {
+  color: var(--color-secondary);
+}
+
+.score-number.score-moderate {
+  color: var(--color-tertiary);
+}
+
+.score-number.score-warning {
+  color: var(--color-error);
 }
 
 .score-max {
@@ -115,6 +141,19 @@
   color: var(--color-on-background);
   background-color: var(--color-surface);
   margin-bottom: 15px;
+  border-color: var(--color-outline);
+}
+
+.status-badge.score-safe {
+  border-color: var(--color-secondary);
+}
+
+.status-badge.score-moderate {
+  border-color: var(--color-tertiary);
+}
+
+.status-badge.score-warning {
+  border-color: var(--color-error);
 }
 
 .status-message {
