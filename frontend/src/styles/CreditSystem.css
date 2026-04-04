@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Credit System Styles
  * Phase 4.0.4 - Credit management and subscription display
@@ -61,7 +63,7 @@
 .section-title {
   font-size: 20px;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin-bottom: 16px;
   margin-top: 24px;
 }
@@ -79,7 +81,7 @@
 
 .plan-card {
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-outline);
   border-radius: 12px;
   padding: 20px;
   transition: all var(--transition-base);
@@ -117,7 +119,7 @@
 .plan-name {
   font-size: 18px;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin: 0;
 }
 
@@ -135,16 +137,16 @@
 
 .price-label {
   font-size: 12px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   font-weight: 500;
 }
 
 .plan-credits {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   padding: 8px;
-  background-color: var(--color-background-tertiary);
+  background-color: var(--color-surface-variant);
   border-radius: 6px;
   text-align: center;
 }
@@ -161,11 +163,11 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
 }
 
 .checkmark {
-  color: var(--color-safe);
+  color: var(--color-secondary);
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -192,11 +194,11 @@
 .plan-button:disabled {
   opacity: 0.6;
   cursor: default;
-  background-color: var(--color-text-tertiary);
+  background-color: var(--color-on-surface-variant);
 }
 
 .plan-button.current-plan {
-  background-color: var(--color-text-tertiary);
+  background-color: var(--color-on-surface-variant);
 }
 
 /* How to Earn Section */
@@ -204,7 +206,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
   border-radius: 12px;
   padding: 24px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
   margin-bottom: 32px;
 }
 
@@ -220,13 +222,13 @@
   gap: 12px;
   align-items: center;
   padding: 12px;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-surface);
   border-radius: 8px;
   transition: all var(--transition-base);
 }
 
 .earn-item:hover {
-  background-color: var(--color-hover-bg);
+  background-color: var(--color-surface-variant);
   transform: translateX(4px);
 }
 
@@ -236,14 +238,14 @@
 
 .earn-label {
   font-size: 14px;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   font-weight: 500;
 }
 
 .earn-amount {
   font-size: 14px;
   font-weight: 700;
-  color: var(--color-safe);
+  color: var(--color-secondary);
   padding: 4px 8px;
   background-color: var(--color-safe-bg-light);
   border-radius: 6px;
@@ -254,7 +256,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
   border-radius: 12px;
   padding: 24px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
   margin-bottom: 32px;
 }
 
@@ -270,9 +272,9 @@
   gap: 12px;
   align-items: center;
   padding: 12px;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-surface);
   border-radius: 8px;
-  border-left: 4px solid var(--color-border);
+  border-left: 4px solid var(--color-outline);
   transition: all var(--transition-base);
 }
 
@@ -297,7 +299,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-safe-bg-light);
-  color: var(--color-safe);
+  color: var(--color-secondary);
   font-size: 20px;
   font-weight: 700;
   border-radius: 50%;
@@ -310,7 +312,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-danger-bg-light);
-  color: var(--color-danger);
+  color: var(--color-error);
   font-size: 20px;
   font-weight: 700;
   border-radius: 50%;
@@ -323,13 +325,13 @@
 .transaction-description {
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin-bottom: 4px;
 }
 
 .transaction-time {
   font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: var(--color-on-surface-variant);
 }
 
 .transaction-amount {
@@ -340,21 +342,21 @@
 }
 
 .transaction-amount.earn {
-  color: var(--color-safe);
+  color: var(--color-secondary);
 }
 
 .transaction-amount.spend {
-  color: var(--color-danger);
+  color: var(--color-error);
 }
 
 /* Empty State */
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: var(--color-text-secondary);
-  background-color: var(--color-background-secondary);
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface);
   border-radius: 12px;
-  border: 1px dashed var(--color-border);
+  border: 1px dashed var(--color-outline);
 }
 
 .empty-state p {
@@ -364,7 +366,7 @@
 
 .empty-hint {
   font-size: 14px;
-  color: var(--color-text-tertiary);
+  color: var(--color-on-surface-variant);
 }
 
 /* Dark Mode */
@@ -375,7 +377,7 @@
 
   .plan-card {
     background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
-    border-color: var(--color-border);
+    border-color: var(--color-outline);
   }
 
   .plan-card.current {
@@ -389,7 +391,7 @@
   .earn-section,
   .history-section {
     background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
-    border-color: var(--color-border);
+    border-color: var(--color-outline);
   }
 
   .earn-item,
@@ -413,7 +415,7 @@
 
   .empty-state {
     background-color: rgba(255, 255, 255, 0.05);
-    border-color: var(--color-border);
+    border-color: var(--color-outline);
   }
 }
 

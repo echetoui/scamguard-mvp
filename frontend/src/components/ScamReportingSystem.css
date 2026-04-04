@@ -1,16 +1,18 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * ScamReportingSystem.css
  * Design System: Bleu Gardien
  */
 
 :root {
-  --primary: #1E40AF;
+  --primary: var(--color-primary);
   --primary-dark: #1e3a8a;
-  --secondary: #e0e0e0;
+  --secondary: var(--color-outline);
   --bg-light: #F3F4F6;
   --text-main: #111827;
   --text-muted: #555555;
-  --focus-ring: #1E40AF;
+  --focus-ring: var(--color-primary);
 }
 
 .reporting-main {
@@ -26,7 +28,7 @@
 .reporting-container {
   width: 100%;
   max-width: 600px;
-  background: #FFFFFF;
+  background: var(--color-surface);
   border: 2px solid var(--secondary);
   border-radius: 16px;
   padding: 32px;
@@ -274,7 +276,7 @@
 }
 
 .btn-primary:disabled {
-  background-color: #e0e0e0;
+  background-color: var(--color-outline);
   color: #999;
   cursor: not-allowed;
 }

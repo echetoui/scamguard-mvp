@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * ToolsTab Styles
  * Phase 5C - Verification Tools
@@ -6,21 +8,21 @@
  *
  * Color Palette:
  *  🟠 Bleu Royal (var(--color-primary)) - Primary, action
- *  🟡 Gold (var(--color-warning)) - Secondary, guidance
- *  🟢 Sage (var(--color-success)) - Accent, positive
+ *  🟡 Gold (var(--color-tertiary)) - Secondary, guidance
+ *  🟢 Sage (var(--color-secondary)) - Accent, positive
  *  🟤 Cream (var(--color-background)) - Background
  */
 
 :root {
   /* Warm color palette */
   --warm-primary: var(--color-primary);
-  --warm-secondary: var(--color-warning);
+  --warm-secondary: var(--color-tertiary);
   --warm-accent: #E67E3C;
   --warm-depth: #8B4513;
 
   /* Accent colors */
   --accent-red: #C1440D;
-  --accent-green: var(--color-success);
+  --accent-green: var(--color-secondary);
   --accent-gold: #F0D9A8;
 
   /* Backgrounds & text */

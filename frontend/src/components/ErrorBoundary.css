@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Error Boundary Styles
  * Senior-friendly error recovery UI
@@ -187,7 +189,7 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: var(--color-success);
+  color: var(--color-secondary);
   font-weight: bold;
 }
 
@@ -269,8 +271,8 @@
 
   .btn-reload {
     background: #322b26;
-    color: var(--color-warning);
-    border-color: var(--color-warning);
+    color: var(--color-tertiary);
+    border-color: var(--color-tertiary);
   }
 
   .btn-reload:hover {

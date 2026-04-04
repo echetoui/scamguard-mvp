@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * QuizAcademie Styles
  * Phase 1 Sprint 3 - Quiz Academy with Progress Tracking
@@ -22,14 +24,14 @@
 
 .academy-title {
   font-size: 28px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin-bottom: var(--spacing-sm);
 }
 
 .academy-subtitle {
   font-size: 16px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   line-height: 1.5;
 }
 
@@ -46,8 +48,8 @@
 
 .badges-title {
   font-size: 18px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0;
 }
 
@@ -95,8 +97,8 @@
 
 .badge-name {
   font-size: 14px;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-on-background);
 }
 
 /* Modules Grid */
@@ -160,15 +162,15 @@
 /* Module Title */
 .module-title {
   font-size: 18px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0;
 }
 
 /* Module Description */
 .module-description {
   font-size: 14px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin: 0;
   line-height: 1.5;
   flex-grow: 1;
@@ -177,8 +179,8 @@
 /* Difficulty */
 .module-difficulty {
   font-size: 13px;
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
   padding: var(--spacing-sm);
   background: var(--color-bg-primary);
   border-radius: var(--radius-sm);
@@ -195,13 +197,13 @@
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-sm);
   font-size: 13px;
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .state-badge.not-started {
   background: var(--color-bg-secondary);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
 }
 
 .state-badge.in-progress {
@@ -217,13 +219,13 @@
 /* High Score */
 .high-score {
   font-size: 13px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   text-align: center;
 }
 
 .score-value {
   font-size: 16px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   color: var(--color-accent-success);
 }
 
@@ -235,7 +237,7 @@
   border: none;
   border-radius: var(--radius-md);
   font-size: 14px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -264,17 +266,17 @@
 .completion-summary p {
   margin: 0;
   font-size: 14px;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .completion-summary strong {
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   color: var(--color-accent-primary);
 }
 
 .completion-message {
   font-size: 16px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   color: var(--color-accent-success);
   margin-top: var(--spacing-sm);
 }

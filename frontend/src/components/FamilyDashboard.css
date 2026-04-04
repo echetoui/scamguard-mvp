@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * FamilyDashboard Styles
  * Phase 5A - Family Protection Dashboard
@@ -6,8 +8,8 @@
  *
  * Color Palette:
  *  🟠 Bleu Royal (var(--color-primary)) - Primary, family protection
- *  🟡 Gold (var(--color-warning)) - Wisdom, member status
- *  🟢 Sage (var(--color-success)) - Balance, active status
+ *  🟡 Gold (var(--color-tertiary)) - Wisdom, member status
+ *  🟢 Sage (var(--color-secondary)) - Balance, active status
  *  🟤 Cream (var(--color-background)) - Background
  */
 
@@ -17,12 +19,12 @@
 
 :root {
   --warm-primary: var(--color-primary);
-  --warm-secondary: var(--color-warning);
+  --warm-secondary: var(--color-tertiary);
   --warm-accent: #E67E3C;
   --warm-depth: #8B4513;
 
   --accent-red: #C1440D;
-  --accent-green: var(--color-success);
+  --accent-green: var(--color-secondary);
   --accent-gold: #F0D9A8;
 
   --bg-light: var(--color-background);
