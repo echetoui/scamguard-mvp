@@ -148,65 +148,32 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
     const currentModule = MODULES.find(m => m.id === pendingModule);
     return (
       <div className="quiz-module-wrapper">
-        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
+        <div className="p-lg max-w-md mx-auto">
+          <h3 className="text-xl font-bold mb-xl text-center">
             Choisissez votre niveau
           </h3>
           <div className="flex-col gap-sm">
             <button
               onClick={() => handleDifficultySelect('debutant')}
-              style={{
-                padding: '16px',
-                fontSize: '18px',
-                fontWeight: '500',
-                backgroundColor: '#E8F5E9',
-                border: '2px solid #4CAF50',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                minHeight: '60px',
-                fontFamily: 'var(--font-body, "Lora", serif)'
-              }}
+              className="p-lg text-lg font-medium bg-success-light border-success rounded-sm min-h-60"
             >
               🟢 Débutant - Questions faciles
             </button>
             <button
               onClick={() => handleDifficultySelect('intermediaire')}
-              style={{
-                padding: '16px',
-                fontSize: '18px',
-                fontWeight: '500',
-                backgroundColor: '#FFF3E0',
-                border: '2px solid #F57C00',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                minHeight: '60px',
-                fontFamily: 'var(--font-body, "Lora", serif)'
-              }}
+              className="p-lg text-lg font-medium bg-warning-light border-warning rounded-sm min-h-60"
             >
               🟡 Intermédiaire (Recommandé) - Questions mixtes
             </button>
             <button
               onClick={() => handleDifficultySelect('expert')}
-              style={{
-                padding: '16px',
-                fontSize: '18px',
-                fontWeight: '500',
-                backgroundColor: '#FFEBEE',
-                border: '2px solid #D32F2F',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                minHeight: '60px',
-                fontFamily: 'var(--font-body, "Lora", serif)'
-              }}
+              className="p-lg text-lg font-medium bg-error-light border-error rounded-sm min-h-60"
             >
               🔴 Expert - Questions difficiles
             </button>
             <button
               onClick={handleDifficultyCancel}
-              style={{
-                padding: '16px',
-                fontSize: '18px',
-                fontWeight: '600',
+              className="p-lg text-lg font-semibold bg-light border-primary rounded-sm min-h-60"
                 backgroundColor: '#F3F4F6',
                 color: '#1E40AF',
                 border: '2px solid #1E40AF',
@@ -230,21 +197,10 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
     if (currentModule && currentModule.type === 'simulator') {
       return (
         <div className="quiz-module-wrapper">
-          <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+          <div className="p-lg max-w-xl mx-auto">
             <button
               onClick={handleBackFromQuiz}
-              style={{
-                marginBottom: '20px',
-                padding: '16px 24px',
-                backgroundColor: '#F3F4F6',
-                color: '#1E40AF',
-                border: '2px solid #1E40AF',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '18px',
-                fontWeight: '600',
-                minHeight: '60px'
-              }}
+              className="mb-xl px-lg py-md bg-light text-primary border-primary rounded-sm text-lg font-semibold min-h-60"
             >
               ← Retour
             </button>
@@ -284,16 +240,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
 
       {/* Streak Indicator */}
       {streakData.currentStreak > 0 && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '16px',
-          padding: '12px 16px',
-          backgroundColor: '#FFF3E0',
-          borderRadius: '8px',
-          fontSize: '18px',
-          fontWeight: '600',
-        }}>
+        <div className="flex justify-center mb-lg p-md bg-warning-light rounded-sm text-lg font-semibold">
           🔥 Série: {streakData.currentStreak} jour{streakData.currentStreak > 1 ? 's' : ''} consécutif{streakData.currentStreak > 1 ? 's' : ''}
         </div>
       )}

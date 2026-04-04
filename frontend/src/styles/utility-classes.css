@@ -109,6 +109,11 @@
 .max-w-md { max-width: 480px; }
 .max-w-lg { max-width: 600px; }
 .max-w-xl { max-width: 800px; }
+.min-h-30 { min-height: 30px; }
+.min-h-40 { min-height: 40px; }
+.min-h-48 { min-height: 48px; }
+.min-h-56 { min-height: 56px; }
+.min-h-60 { min-height: 60px; }
 
 /* ================================
    BORDERS & RADIUS
@@ -123,8 +128,9 @@
 .border { border: 1px solid var(--color-outline); }
 .border-2 { border: 2px solid var(--color-outline); }
 .border-primary { border: 2px solid var(--color-primary); }
-.border-error { border: 2px solid var(--color-error); }
 .border-success { border: 2px solid var(--color-secondary); }
+.border-error { border: 2px solid var(--color-error); }
+.border-warning { border: 2px solid var(--color-tertiary); }
 .border-t { border-top: 1px solid var(--color-outline); }
 .border-b { border-bottom: 1px solid var(--color-outline); }
 .border-l { border-left: 1px solid var(--color-outline); }
