@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, Platform } from 'react-native';
 import PhoneInputScreen from './PhoneInputScreen';
 import OTPVerificationScreen from './OTPVerificationScreen';
 
@@ -31,9 +30,6 @@ export default function AuthFlow({ onLoginSuccess }) {
     } catch (error) {
       console.error("Erreur API:", error);
       setErrorMsg("Impossible d'envoyer le code. Le serveur backend est-il démarré ?");
-      if (Platform.OS !== 'web') {
-        Alert.alert('Erreur', "Impossible d'envoyer le code. Veuillez réessayer.");
-      }
     }
   };
 
@@ -64,27 +60,20 @@ export default function AuthFlow({ onLoginSuccess }) {
     } catch (error) {
       console.error("Erreur API:", error);
       setErrorMsg("Le code saisi n'est pas valide ou a expiré.");
-      if (Platform.OS !== 'web') {
-        Alert.alert('Code incorrect', "Le code saisi n'est pas valide ou a expiré.");
-      }
     }
   };
 
   return (
-    <View style={styles.container}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       {step === 'PHONE_INPUT' ? (
         <PhoneInputScreen onRequestCode={handleRequestCode} errorMsg={errorMsg} />
       ) : (
-        <OTPVerificationScreen 
-          phoneNumber={phoneNumber} 
-          onVerifySuccess={handleVerifyCode} 
+        <OTPVerificationScreen
+          phoneNumber={phoneNumber}
+          onVerifySuccess={handleVerifyCode}
           errorMsg={errorMsg}
         />
       )}
-    </View>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 }
-});
