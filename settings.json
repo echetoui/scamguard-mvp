@@ -106,5 +106,24 @@
     },
     "estimationTracking": true,
     "successCriteriaRequired": true
+  },
+  "guardrails": {
+    "enabled": true,
+    "configFile": ".guardrailsrc.json",
+    "strictMode": true,
+    "failOnFirstViolation": true,
+    "categories": {
+      "immutableFiles": { "enabled": true, "severity": "CRITICAL" },
+      "secrets": { "enabled": true, "severity": "CRITICAL" },
+      "codeQuality": { "enabled": true, "severity": "MODERATE" },
+      "architecture": { "enabled": true, "severity": "MODERATE" },
+      "scamguardSpecific": { "enabled": true, "severity": "MODERATE" },
+      "tokenBudget": { "enabled": true, "severity": "CRITICAL" }
+    },
+    "hooks": {
+      "beforeEdit": true,
+      "beforeCommit": true,
+      "beforeLoadContext": true
+    }
   }
 }
