@@ -1,30 +1,32 @@
 /*
- * New Design System - Input Styles
- * Phase 3 Design System Refresh
+ * Design System - Input Styles (Material Design 3)
+ * MD3 Implementation
  */
+
+@import '../styles/design-tokens-m3.css';
 
 .ds-input-wrapper {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--spacing-lg); /* 16px */
+  margin-bottom: var(--spacing-md);
 }
 
 .ds-input-label {
-  font-size: var(--font-size-base); /* 16px */
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--spacing-sm); /* 8px */
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-md);
+  font-weight: var(--font-weight-label-md);
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-on-surface);
 }
 
 .ds-input {
-  padding: 0 var(--spacing-lg); /* 16px horizontal */
-  font-size: var(--font-size-senior-base); /* 18px */
-  border-radius: var(--radius-md); /* 8px */
-  border: 2px solid var(--color-border);
-  transition: border-color var(--transition-fast);
-  min-height: var(--spacing-6xl); /* 56px */
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
+  padding: 0 var(--spacing-md);
+  font-size: var(--font-size-body-lg);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-outline);
+  transition: border-color 0.3s ease;
+  min-height: var(--spacing-6xl);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
 }
 
 .ds-input:focus {
@@ -33,22 +35,23 @@
 }
 
 .ds-input:focus-visible {
-   outline: 3px solid var(--color-focus-outline);
-   outline-offset: 2px;
-   border-color: transparent;
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-color: transparent;
 }
 
 .ds-input.ds-input--error {
-  border-color: var(--color-danger);
+  border-color: var(--color-error);
 }
 
 .ds-input:disabled {
-  background-color: var(--color-background-tertiary);
+  background-color: var(--color-surface-variant);
   cursor: not-allowed;
+  opacity: 0.38;
 }
 
 .ds-input-error-message {
-  color: var(--color-danger);
-  font-size: var(--font-size-sm); /* 14px */
-  margin-top: var(--spacing-xs); /* 4px */
+  color: var(--color-error);
+  font-size: var(--font-size-body-sm);
+  margin-top: var(--spacing-xs);
 }
