@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Leaderboard Styles
  * Phase 2 Sprint 6 - Enhanced Quizzes & Gamification
@@ -16,15 +18,15 @@
 
 .leaderboard-title {
   font-size: 18px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0;
   text-align: center;
 }
 
 .leaderboard-empty {
   font-size: 16px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   text-align: center;
   padding: var(--spacing-lg);
   margin: 0;
@@ -47,7 +49,7 @@
   align-items: center;
   padding: var(--spacing-md);
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   min-height: 48px;
   transition: all var(--transition-base);
@@ -60,7 +62,7 @@
 
 .entry-rank {
   font-size: 20px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   text-align: center;
   line-height: 1;
 }
@@ -73,14 +75,14 @@
 
 .entry-score {
   font-size: 18px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   min-width: 50px;
 }
 
 .entry-difficulty {
   font-size: 12px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   color: white;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
@@ -96,13 +98,13 @@
 
 .entry-date {
   font-size: 12px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
 }
 
 .entry-duration {
   font-size: 12px;
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
 }
 
 /* Responsive Design */

@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * AuthCallback Component Styles
  * Phase 5D.4 - Inline styles extraction
@@ -18,7 +20,7 @@
 .auth-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--color-warning);
+  border: 3px solid var(--color-tertiary);
   border-top: 3px solid var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -27,7 +29,7 @@
 
 /* Status text */
 .auth-status-text {
-  color: var(--color-success);
+  color: var(--color-secondary);
   font-size: 1.1rem;
 }
 
@@ -35,7 +37,7 @@
 .auth-success-icon {
   width: 40px;
   height: 40px;
-  background: var(--color-success);
+  background: var(--color-secondary);
   border-radius: 50%;
   display: flex;
   align-items: center;

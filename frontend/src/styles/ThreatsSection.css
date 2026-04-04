@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * ThreatsSection Styles
  * Container for displaying threat cards list
@@ -14,14 +16,14 @@
 
 .threats-section-title {
   font-size: 28px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0 0 var(--spacing-sm) 0;
 }
 
 .threats-section-subtitle {
   font-size: var(--font-size-senior-base);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin: 0;
 }
 
@@ -32,7 +34,7 @@
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-2xl);
   padding: var(--spacing-lg);
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-lg);
 }
 
@@ -43,7 +45,7 @@
   padding: var(--spacing-md);
   background: var(--color-background);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
 }
 
 .threats-section-stat-icon {
@@ -52,13 +54,13 @@
 
 .threats-section-stat-label {
   font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   flex: 1;
 }
 
 .threats-section-stat-value {
   font-size: 24px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   color: var(--color-primary);
   min-width: 40px;
   text-align: center;
@@ -68,9 +70,9 @@
 .threats-section-empty {
   text-align: center;
   padding: var(--spacing-3xl) var(--spacing-2xl);
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 2px dashed var(--color-border);
+  border: 2px dashed var(--color-outline);
 }
 
 .threats-section-empty-icon {
@@ -82,7 +84,7 @@
 
 .threats-section-empty-message {
   font-size: var(--font-size-senior-base);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin: 0;
 }
 
@@ -107,7 +109,7 @@
   font-size: var(--font-size-md);
   color: var(--color-primary);
   margin: 0;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
 }
 
 /* Responsive */

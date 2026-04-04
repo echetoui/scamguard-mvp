@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * SMSSimulator Styles
  * Senior-friendly design with WCAG AAA accessibility
@@ -22,8 +24,8 @@
   align-items: center;
   margin-bottom: var(--spacing-lg);
   font-size: var(--font-size-senior-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-on-background);
 }
 
 .sms-simulator-score-badge {
@@ -31,16 +33,16 @@
   color: var(--color-primary);
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-full);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
 }
 
 .sms-simulator-progress-bar {
   width: 100%;
   height: 12px;
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-full);
   overflow: hidden;
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--color-outline);
 }
 
 .sms-simulator-progress-fill {
@@ -61,7 +63,7 @@
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-2xl);
   padding: var(--spacing-lg);
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-lg);
 }
 
@@ -71,33 +73,33 @@
   gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-md);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   font-size: var(--font-size-md);
   white-space: nowrap;
 }
 
 .sms-simulator-threat-high {
   background: var(--color-danger-bg-light);
-  color: var(--color-danger);
-  border: 2px solid var(--color-danger);
+  color: var(--color-error);
+  border: 2px solid var(--color-error);
 }
 
 .sms-simulator-threat-medium {
   background: var(--color-warning-bg-light);
-  color: var(--color-warning);
-  border: 2px solid var(--color-warning);
+  color: var(--color-tertiary);
+  border: 2px solid var(--color-tertiary);
 }
 
 .sms-simulator-threat-low {
   background: var(--color-success-bg-light);
-  color: var(--color-success);
-  border: 2px solid var(--color-success);
+  color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
 }
 
 .sms-simulator-institution {
   font-size: var(--font-size-senior-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-on-background);
   margin: 0;
 }
 
@@ -121,7 +123,7 @@
 .sms-simulator-message-text {
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin: 0;
   word-wrap: break-word;
   white-space: pre-wrap;
@@ -134,8 +136,8 @@
 
 .sms-simulator-question-text {
   font-size: var(--font-size-senior-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-on-background);
   text-align: center;
   margin-bottom: var(--spacing-xl);
 }
@@ -153,7 +155,7 @@
   border: none;
   border-radius: var(--radius-lg);
   font-size: var(--font-size-senior-base);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-base);
   width: 100%;
@@ -166,7 +168,7 @@
 }
 
 .sms-simulator-btn:focus {
-  outline: 3px solid var(--color-focus-outline);
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -185,7 +187,7 @@
 }
 
 .sms-simulator-btn-scam {
-  background: var(--color-danger);
+  background: var(--color-error);
   color: var(--color-background);
 }
 
@@ -194,7 +196,7 @@
 }
 
 .sms-simulator-btn-legitimate {
-  background: var(--color-success);
+  background: var(--color-secondary);
   color: var(--color-background);
 }
 
@@ -212,14 +214,14 @@
 
 .sms-simulator-answer-correct {
   background: var(--color-success-bg-light);
-  border: 2px solid var(--color-success);
-  border-left: 6px solid var(--color-success);
+  border: 2px solid var(--color-secondary);
+  border-left: 6px solid var(--color-secondary);
 }
 
 .sms-simulator-answer-incorrect {
   background: var(--color-danger-bg-light);
-  border: 2px solid var(--color-danger);
-  border-left: 6px solid var(--color-danger);
+  border: 2px solid var(--color-error);
+  border-left: 6px solid var(--color-error);
 }
 
 .sms-simulator-answer-header {
@@ -242,12 +244,12 @@
 .sms-simulator-answer-explanation {
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin: 0 0 var(--spacing-md) 0;
 }
 
 .sms-simulator-answer-truth {
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   color: var(--color-primary);
 }
 
@@ -257,14 +259,14 @@
   padding: var(--spacing-lg);
   background: var(--color-background);
   border-radius: var(--radius-md);
-  border-left: 4px solid var(--color-warning);
+  border-left: 4px solid var(--color-tertiary);
 }
 
 .sms-simulator-indicators-title {
   font-size: var(--font-size-senior-base);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   margin: 0 0 var(--spacing-md) 0;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .sms-simulator-indicators-list {
@@ -276,7 +278,7 @@
 .sms-simulator-indicators-list li {
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   padding: var(--spacing-sm) 0;
   margin: 0;
 }
@@ -291,23 +293,23 @@
 
 .sms-simulator-completion-success {
   background: var(--color-success-bg-light);
-  border: 3px solid var(--color-success);
+  border: 3px solid var(--color-secondary);
 }
 
 .sms-simulator-completion-warning {
   background: var(--color-warning-bg-light);
-  border: 3px solid var(--color-warning);
+  border: 3px solid var(--color-tertiary);
 }
 
 .sms-simulator-completion-danger {
   background: var(--color-danger-bg-light);
-  border: 3px solid var(--color-danger);
+  border: 3px solid var(--color-error);
 }
 
 .sms-simulator-completion h2 {
   font-size: 28px;
   margin: 0 0 var(--spacing-xl) 0;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .sms-simulator-final-score {
@@ -319,21 +321,21 @@
 
 .sms-simulator-score-value {
   font-size: 48px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   color: var(--color-primary);
   margin: 0;
 }
 
 .sms-simulator-score-percentage {
   font-size: 28px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin: var(--spacing-md) 0 0 0;
 }
 
 .sms-simulator-result-message {
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin-bottom: var(--spacing-2xl);
 }
 
@@ -343,12 +345,12 @@
   padding: var(--spacing-3xl) var(--spacing-2xl);
   text-align: center;
   font-size: var(--font-size-senior-base);
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .sms-simulator-error {
   background: var(--color-danger-bg-light);
-  border: 2px solid var(--color-danger);
+  border: 2px solid var(--color-error);
   border-radius: var(--radius-lg);
 }
 

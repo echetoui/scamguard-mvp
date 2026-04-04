@@ -1,18 +1,20 @@
+@import '../styles/design-tokens-m3.css';
+
 /* Modern Auth Page - Professional UX/UI Standards */
 
 :root {
   /* Bleu Gardien Tokens from DESIGN.md */
-  --primary: #1E40AF; 
+  --primary: var(--color-primary); 
   --primary-dark: #1e3a8a; 
   --primary-light: #dbeafe; 
-  --secondary: #e0e0e0; 
+  --secondary: var(--color-outline); 
   --success: #166534; /* Safe Green */
   --error: #B91C1C; /* Danger Red */
   --text-primary: #111827; 
   --text-secondary: #555555;
   --bg-light: #F3F4F6; 
-  --bg-white: #FFFFFF;
-  --border: #e0e0e0; 
+  --bg-white: var(--color-surface);
+  --border: var(--color-outline); 
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.15);
@@ -96,7 +98,7 @@ body {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, var(--color-surface) 100%);
   padding: 80px 20px;
 }
 
@@ -388,7 +390,7 @@ body {
 /* Final CTA Section */
 .final-cta-section {
   padding: 80px 20px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, var(--color-surface) 100%);
   text-align: center;
 }
 

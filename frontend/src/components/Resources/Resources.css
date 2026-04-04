@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /* ===== KEYBOARD NAVIGATION & FOCUS ===== */
 *:focus-visible {
   outline: 3px solid #4CAF50;
@@ -53,7 +55,7 @@ input:focus-visible {
   margin-bottom: 30px;
   overflow-x: auto;
   padding-bottom: 10px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--color-outline);
   flex-wrap: wrap;
 }
 
@@ -199,7 +201,7 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: #f9f9f9;
+  background: var(--color-background);
   cursor: pointer;
   user-select: none;
   transition: background 0.2s ease;
@@ -343,7 +345,7 @@ input:focus-visible {
 
 .type-group {
   padding: 20px;
-  background: #f9f9f9;
+  background: var(--color-background);
   border-radius: 12px;
 }
 
@@ -498,7 +500,7 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: #f9f9f9;
+  background: var(--color-background);
   cursor: pointer;
   transition: background 0.2s ease;
   user-select: none;
@@ -614,7 +616,7 @@ input:focus-visible {
 /* Emergency Card */
 .emergency-card {
   padding: 20px;
-  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  background: linear-gradient(135deg, #ff9800 0%, var(--color-tertiary) 100%);
   border-radius: 12px;
   color: white;
   margin-bottom: 30px;
@@ -815,7 +817,7 @@ input:focus-visible {
 
 .faq-category {
   padding: 20px;
-  background: #f9f9f9;
+  background: var(--color-background);
   border-radius: 12px;
 }
 
@@ -830,7 +832,7 @@ input:focus-visible {
 
 .category-header-toggle {
   padding: 16px;
-  background: #f9f9f9;
+  background: var(--color-background);
   border-radius: 8px;
   cursor: pointer;
   user-select: none;
@@ -1032,7 +1034,7 @@ input:focus-visible {
 .emergency-card.active {
   background: #ff9800;
   color: white;
-  border-color: #f57c00;
+  border-color: var(--color-tertiary);
 }
 
 .country-header {
@@ -1106,7 +1108,7 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  background: #f9f9f9;
+  background: var(--color-background);
   cursor: pointer;
   user-select: none;
   transition: all 0.2s ease;
@@ -1435,7 +1437,7 @@ input:focus-visible {
 }
 
 .close-btn:hover {
-  background: #e0e0e0;
+  background: var(--color-outline);
 }
 
 .modal-video {

@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * QuizModule Styles
  * Phase 2 Sprint 6 - Enhanced Quizzes & Gamification
@@ -25,8 +27,8 @@
 
 .quiz-title {
   font-size: 28px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0;
   text-align: center;
 }
@@ -40,15 +42,15 @@
 
 .progress-text {
   font-size: 16px;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-on-background);
   text-align: center;
 }
 
 .progress-bar {
   width: 100%;
   height: 8px;
-  background: var(--color-border);
+  background: var(--color-outline);
   border-radius: var(--radius-full);
   overflow: hidden;
   role: progressbar;
@@ -75,7 +77,7 @@
   gap: var(--spacing-lg);
   padding: var(--spacing-lg);
   background: var(--color-bg-primary);
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-outline);
   border-radius: var(--radius-md);
 }
 
@@ -89,7 +91,7 @@
 
 .question-category {
   font-size: 13px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--color-accent-primary);
   color: white;
@@ -98,7 +100,7 @@
 
 .question-difficulty {
   font-size: 13px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
 }
@@ -108,8 +110,8 @@
 /* Question Text */
 .question-text {
   font-size: 20px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   line-height: var(--line-height-normal);
   margin: 0;
 }
@@ -130,7 +132,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--color-background);
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-outline);
   border-radius: var(--radius-md);
   cursor: pointer;
   min-height: 56px;
@@ -139,7 +141,7 @@
 
 .option-item:hover {
   border-color: var(--color-accent-primary);
-  background: var(--color-hover-bg);
+  background: var(--color-surface-variant);
 }
 
 .option-item:has(input:checked) {
@@ -148,7 +150,7 @@
 }
 
 .option-item:has(input:focus-visible) {
-  outline: 3px solid var(--color-focus-outline);
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -163,7 +165,7 @@
 .option-text {
   flex: 1;
   font-size: 18px;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   line-height: var(--line-height-normal);
   word-wrap: break-word;
 }
@@ -183,7 +185,7 @@
 }
 
 .speak-option-btn:focus-visible {
-  outline: 2px solid var(--color-focus-outline);
+  outline: 2px solid var(--color-primary);
   border-radius: var(--radius-sm);
 }
 
@@ -198,7 +200,7 @@
 
 .feedback-text {
   font-size: 16px;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   line-height: var(--line-height-normal);
   margin: 0;
 }
@@ -213,7 +215,7 @@
 .btn-next {
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: 18px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   color: white;
   background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
   border: none;
@@ -239,7 +241,7 @@
 }
 
 .btn-next:focus-visible {
-  outline: 3px solid var(--color-focus-outline);
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -259,8 +261,8 @@
 
 .results-title {
   font-size: 32px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0;
 }
 
@@ -282,7 +284,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
 }
 
 .score-circle.passed {
@@ -297,12 +299,12 @@
 
 .score-value {
   font-size: 40px;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .results-message {
   font-size: 18px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   margin: 0;
   line-height: var(--line-height-normal);
 }
@@ -328,25 +330,25 @@
   padding: var(--spacing-md);
   background: var(--color-bg-primary);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
 }
 
 .stat-label {
   font-size: 14px;
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
 }
 
 .stat-value {
   font-size: 20px;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   color: var(--color-accent-primary);
 }
 
 .quiz-credits-badge {
   padding: var(--spacing-md);
   font-size: 16px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   background: linear-gradient(135deg, #FFE082, #FFD54F);
   border: 2px solid #F57C00;
   border-radius: var(--radius-md);
@@ -357,7 +359,7 @@
 .btn-restart {
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: 18px;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   color: white;
   background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
   border: none;
@@ -373,7 +375,7 @@
 }
 
 .btn-restart:focus-visible {
-  outline: 3px solid var(--color-focus-outline);
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
