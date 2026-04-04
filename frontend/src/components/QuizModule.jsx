@@ -166,7 +166,7 @@ export default function QuizModule({ moduleId = null, difficultyFilter = 'interm
             <div
               className="progress-fill"
               style={{
-                width: `${((currentQuizIndex + 1) / QUIZ_QUESTIONS.length) * 100}%`,
+                '--progress': `${((currentQuizIndex + 1) / QUIZ_QUESTIONS.length) * 100}%`,
               }}
             />
           </div>
