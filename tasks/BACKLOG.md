@@ -4,6 +4,151 @@ Unstarted tasks, ordered by dependency. Start with top item.
 
 ---
 
+## Design Sprint 1: Professional Brand & Material Design 3 (April 2026)
+
+### DESIGN-1: Brand Identity Documentation ✅ COMPLETED
+- **Domain:** Brand/Design
+- **Files:** 1
+- **Tokens:** 1.5K
+- **Completed:** April 4, 2026
+- **Deliverable:** `docs/brand/brand-identity.md`
+- **Description:** Mission, vision, core values, anti-personas, positioning, brand promise
+- **Commit:** 5518f15
+
+### DESIGN-2: Design Principles (MD3) ✅ COMPLETED
+- **Domain:** Brand/Design
+- **Files:** 1
+- **Tokens:** 1.8K
+- **Completed:** April 4, 2026
+- **Deliverable:** `docs/brand/design-principles.md`
+- **Description:** 5 non-negotiable principles, decision hierarchy, examples + counter-examples
+- **Commit:** 5518f15
+
+### DESIGN-3: Voice & Tone Guidelines ✅ COMPLETED
+- **Domain:** Brand/Design
+- **Files:** 1
+- **Tokens:** 2.2K
+- **Completed:** April 4, 2026
+- **Deliverable:** `docs/brand/voice-tone.md`
+- **Description:** Brand voice, 3 contextual tones (Alert, Coaching, Neutral), 20 writing rules
+- **Commit:** 5518f15
+
+### DESIGN-4: Terminology Glossary ✅ COMPLETED
+- **Domain:** Brand/Design
+- **Files:** 1
+- **Tokens:** 1.6K
+- **Completed:** April 4, 2026
+- **Deliverable:** `docs/brand/terminology.md`
+- **Description:** 30+ Quebec French terms, messaging templates, grammar rules
+- **Commit:** 5518f15
+
+### DESIGN-5: Brand Assets & Logo ✅ COMPLETED
+- **Domain:** Brand/Design
+- **Files:** 1
+- **Tokens:** 1.9K
+- **Completed:** April 4, 2026
+- **Deliverable:** `docs/brand/brand-assets.md`
+- **Description:** Logo, color system, typography, icons, shapes, motion, patterns
+- **Commit:** 5518f15
+
+### DESIGN-6: Material Design 3 Tokens ✅ COMPLETED
+- **Domain:** Design/Frontend
+- **Files:** 1
+- **Tokens:** 2.1K
+- **Completed:** April 4, 2026
+- **Deliverable:** `frontend/src/styles/design-tokens-m3.css`
+- **Description:** Complete CSS variable system (600+ lines, WCAG AAA, dark mode, high contrast)
+- **Commit:** 5518f15
+
+---
+
+## Design Sprint 2: Figma System & Frontend Integration (April 2026)
+
+### FIGMA-1: Create Figma Design System
+- **Domain:** Design/Figma
+- **Files:** Figma project
+- **LOC:** N/A (design tool)
+- **Tokens:** 3K (estimated)
+- **Blocked by:** DESIGN-1 through DESIGN-6
+- **Blocks:** FRONTEND-1
+- **Description:** Build Figma component library from MD3 tokens
+- **Components:**
+  - Button (primary, secondary, destructive, sizes)
+  - Input fields
+  - Cards
+  - Modals/Dialogs
+  - Navigation components
+- **Success Criteria:**
+  1. [ ] All color tokens synchronized with CSS
+  2. [ ] Typography scale matches design-tokens-m3.css
+  3. [ ] Components tested for senior accessibility (18px, 48px touch)
+  4. [ ] Dark mode & high contrast variants
+  5. [ ] Ready for handoff to dev team
+
+### FIGMA-2: Design SMS Simulator Component Set
+- **Domain:** Design/Figma
+- **Files:** Figma artboards
+- **LOC:** N/A
+- **Tokens:** 1.5K (estimated)
+- **Blocked by:** FIGMA-1
+- **Blocks:** None
+- **Description:** SMS Simulator specific components
+- **Components:**
+  - SMS message display card
+  - Answer options (Arnaque / Vrai message)
+  - Score display
+  - Progress bar
+  - Threat level badge
+- **Success Criteria:**
+  1. [ ] All SMS screens designed
+  2. [ ] Responsive variants (mobile/tablet/desktop)
+  3. [ ] Interactive states documented
+
+---
+
+## Implementation Phase 1: Frontend Design System Integration (April-May 2026)
+
+### FRONTEND-1: Apply MD3 Tokens to Existing CSS
+- **Domain:** Frontend/CSS
+- **Files:** 15+ (all CSS files)
+- **LOC:** ~500 (replacements)
+- **Tokens:** 2K (estimated)
+- **Blocked by:** DESIGN-6
+- **Blocks:** FRONTEND-2
+- **Description:** Replace hardcoded colors with design-tokens-m3.css variables
+- **Files to update:**
+  - `frontend/src/App.css`
+  - `frontend/src/styles/design-tokens.css` (deprecate in favor of design-tokens-m3.css)
+  - All component CSS files
+- **Success Criteria:**
+  1. [ ] Zero hardcoded hex colors in main styles
+  2. [ ] All CSS variables use design-tokens-m3.css names
+  3. [ ] WCAG AAA compliance verified
+  4. [ ] Dark mode tested
+  5. [ ] No visual regressions
+
+### FRONTEND-2: Update Components to Use Design System
+- **Domain:** Frontend/Components
+- **Files:** 25+ (all React components)
+- **LOC:** ~800
+- **Tokens:** 3K (estimated)
+- **Blocked by:** FRONTEND-1
+- **Blocks:** None
+- **Description:** Apply consistent styles to all components
+- **Changes:**
+  - Buttons use unified button styles
+  - Forms use input token variables
+  - Cards use MD3 shadow system
+  - Typography uses type scale tokens
+- **Success Criteria:**
+  1. [ ] All buttons 48-60px (touch target)
+  2. [ ] All body text 18px minimum (mobile: 16px)
+  3. [ ] Consistent spacing using 4px grid
+  4. [ ] All colors from design tokens
+  5. [ ] Accessibility audit passing
+
+---
+
 ## Phase 2 - Sprint 1: SMS OTP Complete (April 2026)
 
 ### TASK-101: Clean up TASK_*.md files from git
