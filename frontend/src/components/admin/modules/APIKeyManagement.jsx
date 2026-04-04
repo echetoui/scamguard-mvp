@@ -181,7 +181,7 @@ const APIKeyManagement = ({ institutionId }) => {
                     className={`usage-fill ${
                       usagePercentage(key.requestsToday, key.rateLimit) > 80 ? 'warning' : ''
                     }`}
-                    style={{ width: `${usagePercentage(key.requestsToday, key.rateLimit)}%` }}
+                    style={{ '--usage-percent': `${usagePercentage(key.requestsToday, key.rateLimit)}%` }}
                   ></div>
                 </div>
               </div>
