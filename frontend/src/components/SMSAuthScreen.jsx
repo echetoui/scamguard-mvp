@@ -407,11 +407,7 @@ export default function SMSAuthScreen() {
 
             {error && <div className="error-message" role="alert">⚠️ {error}</div>}
             {successMessage && (
-              <div style={{
-                padding: '15px', backgroundColor: '#E8F5E9', color: '#2E7D32',
-                border: '1px solid #C8E6C9', borderRadius: '8px', marginBottom: '20px',
-                fontSize: '15px', textAlign: 'center', borderLeft: '4px solid #2E7D32'
-              }}>
+              <div className="success-banner">
                 ✅ {successMessage}
               </div>
             )}
@@ -451,9 +447,9 @@ export default function SMSAuthScreen() {
               </button>
             </form>
 
-            <div style={{ textAlign: 'center', margin: '24px 0', color: 'var(--text-light)', position: 'relative' }}>
-              <span style={{ background: 'white', padding: '0 10px', position: 'relative', zIndex: 1 }}>ou</span>
-              <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: '#e0e0e0', zIndex: 0 }}></div>
+            <div className="divider-or">
+              <span className="divider-text">ou</span>
+              <div className="divider-line"></div>
             </div>
 
             <button
@@ -483,11 +479,7 @@ export default function SMSAuthScreen() {
 
             {error && <div className="error-message" role="alert">⚠️ {error}</div>}
             {successMessage && (
-              <div style={{
-                padding: '15px', backgroundColor: '#E8F5E9', color: '#2E7D32',
-                border: '1px solid #C8E6C9', borderRadius: '8px', marginBottom: '20px',
-                fontSize: '15px', textAlign: 'center', borderLeft: '4px solid #2E7D32'
-              }}>
+              <div className="success-banner">
                 ✅ {successMessage}
               </div>
             )}
@@ -498,13 +490,13 @@ export default function SMSAuthScreen() {
                 <input
                   id="verify-code"
                   type="text"
+                  className="text-otp"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="000000"
                   maxLength="6"
                   inputMode="numeric"
                   disabled={loading}
-                  style={{ textAlign: 'center', fontSize: '28px', letterSpacing: '12px', fontWeight: 'bold' }}
                   aria-invalid={error.toLowerCase().includes('code')}
                 />
               </div>
@@ -526,12 +518,11 @@ export default function SMSAuthScreen() {
             
             <button
               type="button"
-              className="auth-link-button"
+              className="link-text mt-md"
               onClick={() => {
                 setStep('email');
               }}
               disabled={loading}
-              style={{ marginTop: '12px', border: 'none', background: 'transparent' }}
             >
               ← Revenir à l'inscription
             </button>
