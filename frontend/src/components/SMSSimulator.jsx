@@ -159,7 +159,7 @@ const SMSSimulator = ({ onComplete = null, initialScenarios = null, scenarioCoun
         <div className="sms-simulator-progress-bar">
           <div
             className="sms-simulator-progress-fill"
-            style={{ width: `${completionPercentage}%` }}
+            style={{ '--progress': `${completionPercentage}%` }}
             role="progressbar"
             aria-valuenow={completionPercentage}
             aria-valuemin={0}
