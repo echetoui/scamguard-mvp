@@ -23,11 +23,11 @@ export default function Leaderboard({ moduleId, moduleName, moduleIcon }) {
     return `${rank + 1}.`;
   };
 
-  const getDifficultyColor = (difficulty) => {
-    if (difficulty === 'debutant') return '#4CAF50'; // Green
-    if (difficulty === 'intermediaire') return '#F57C00'; // Orange
-    if (difficulty === 'expert') return '#D32F2F'; // Red
-    return '#999';
+  const getDifficultyClass = (difficulty) => {
+    if (difficulty === 'debutant') return 'difficulty-debutant';
+    if (difficulty === 'intermediaire') return 'difficulty-intermediaire';
+    if (difficulty === 'expert') return 'difficulty-expert';
+    return '';
   };
 
   const formatDuration = (seconds) => {
@@ -60,12 +60,7 @@ export default function Leaderboard({ moduleId, moduleName, moduleIcon }) {
               <div className="entry-details">
                 <span className="entry-score">{entry.score}%</span>
 
-                <span
-                  className="entry-difficulty"
-                  style={{
-                    backgroundColor: getDifficultyColor(entry.difficulty),
-                  }}
-                >
+                <span className={`entry-difficulty ${getDifficultyClass(entry.difficulty)}`}>
                   {entry.difficulty === 'debutant' && 'Débutant'}
                   {entry.difficulty === 'intermediaire' && 'Intermédiaire'}
                   {entry.difficulty === 'expert' && 'Expert'}
