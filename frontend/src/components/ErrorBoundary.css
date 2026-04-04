@@ -9,10 +9,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #FFF9F3 0%, #F5EDE5 100%);
+  background: linear-gradient(135deg, #F3F4F6 0%, #ffffff 100%);
   padding: 20px;
   font-family: 'Lora', serif;
-  color: #1a0f0a;
+  color: #111827;
 }
 
 .error-boundary-content {
@@ -35,38 +35,38 @@
   font-family: 'Cormorant Garamond', serif;
   font-size: 28px;
   font-weight: 700;
-  color: #1a0f0a;
+  color: #111827;
   margin: 0 0 16px 0;
   line-height: 1.3;
 }
 
 .error-message {
   font-size: 18px;
-  color: #6B5344;
+  color: #555555;
   line-height: 1.6;
   margin: 0 0 28px 0;
 }
 
 /* Technical details (dev only) */
 .error-details {
-  background: #FFFBF7;
+  background: #fdfdfd;
   padding: 16px;
   border-radius: 8px;
   margin: 20px 0;
   text-align: left;
-  border-left: 4px solid #D32F2F;
+  border-left: 4px solid #B91C1C;
 }
 
 .error-details summary {
   cursor: pointer;
   font-weight: 600;
-  color: #1a0f0a;
+  color: #111827;
   padding: 8px;
   user-select: none;
 }
 
 .error-details summary:hover {
-  color: #C85A2A;
+  color: #1E40AF;
 }
 
 .error-stack {
@@ -83,13 +83,13 @@
 
 /* Error warning */
 .error-warning {
-  background: #FEF8F0;
-  border-left: 4px solid #F57C00;
+  background: #fef3c7;
+  border-left: 4px solid #92400E;
   padding: 12px 16px;
   border-radius: 6px;
   margin: 20px 0;
   font-size: 14px;
-  color: #8B4513;
+  color: #92400E;
   text-align: left;
 }
 
@@ -119,35 +119,35 @@
 }
 
 .btn-reset {
-  background: #C85A2A;
+  background: #1E40AF;
   color: white;
 }
 
 .btn-reset:hover {
-  background: #8B4513;
+  background: #1e3a8a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 90, 42, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
 .btn-reset:focus-visible {
-  outline: 3px solid #1a0f0a;
+  outline: 3px solid #1E40AF;
   outline-offset: 2px;
 }
 
 .btn-reload {
-  background: #FFF9F3;
-  color: #C85A2A;
-  border: 2px solid #C85A2A;
+  background: #F3F4F6;
+  color: #1E40AF;
+  border: 2px solid #1E40AF;
 }
 
 .btn-reload:hover {
-  background: rgba(200, 90, 42, 0.08);
+  background: #dbeafe;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 90, 42, 0.2);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
 }
 
 .btn-reload:focus-visible {
-  outline: 3px solid #1a0f0a;
+  outline: 3px solid #1E40AF;
   outline-offset: 2px;
 }
 
@@ -155,9 +155,9 @@
 .error-support {
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #D4A574;
+  border-top: 1px solid #e0e0e0;
   text-align: left;
-  background: #FFF9F3;
+  background: #F3F4F6;
   padding: 20px;
   border-radius: 8px;
 }
@@ -165,7 +165,7 @@
 .support-text {
   font-size: 16px;
   font-weight: 600;
-  color: #1a0f0a;
+  color: #111827;
   margin: 0 0 12px 0;
 }
 
@@ -177,7 +177,7 @@
 
 .support-list li {
   font-size: 16px;
-  color: #6B5344;
+  color: #555555;
   padding: 6px 0 6px 24px;
   position: relative;
   line-height: 1.5;
@@ -187,7 +187,7 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #7A9B7F;
+  color: var(--color-success);
   font-weight: bold;
 }
 
@@ -269,8 +269,8 @@
 
   .btn-reload {
     background: #322b26;
-    color: #D4A574;
-    border-color: #D4A574;
+    color: var(--color-warning);
+    border-color: var(--color-warning);
   }
 
   .btn-reload:hover {

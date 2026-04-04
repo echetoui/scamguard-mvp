@@ -5,26 +5,26 @@
  * Design: "Automne Québécois" - Warm, accessible design for Quebec seniors
  *
  * Color Palette:
- *  🟠 Terracotta (#C85A2A) - Primary, action
- *  🟡 Gold (#D4A574) - Secondary, guidance
- *  🟢 Sage (#7A9B7F) - Accent, positive
- *  🟤 Cream (#FFF9F3) - Background
+ *  🟠 Bleu Royal (var(--color-primary)) - Primary, action
+ *  🟡 Gold (var(--color-warning)) - Secondary, guidance
+ *  🟢 Sage (var(--color-success)) - Accent, positive
+ *  🟤 Cream (var(--color-background)) - Background
  */
 
 :root {
   /* Warm color palette */
-  --warm-primary: #C85A2A;
-  --warm-secondary: #D4A574;
+  --warm-primary: var(--color-primary);
+  --warm-secondary: var(--color-warning);
   --warm-accent: #E67E3C;
   --warm-depth: #8B4513;
 
   /* Accent colors */
   --accent-red: #C1440D;
-  --accent-green: #7A9B7F;
+  --accent-green: var(--color-success);
   --accent-gold: #F0D9A8;
 
   /* Backgrounds & text */
-  --bg-light: #FFF9F3;
+  --bg-light: var(--color-background);
   --bg-card: #FFFFFF;
   --text-dark: #1a0f0a;
   --text-secondary: #6B5344;
@@ -45,7 +45,7 @@
 /* ============================================================================ */
 
 .tools-tab {
-  background: linear-gradient(135deg, #F5EDE5 0%, #FFF9F3 100%);
+  background: linear-gradient(135deg, #e5e7eb 0%, #F3F4F6 100%);
   min-height: 100vh;
   padding: 20px;
   font-family: var(--font-body);
@@ -57,12 +57,12 @@
 /* ============================================================================ */
 
 .tools-header {
-  background: linear-gradient(135deg, var(--warm-primary) 0%, var(--warm-depth) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   padding: 32px 20px;
   border-radius: 16px;
   margin-bottom: 28px;
-  box-shadow: 0 8px 24px rgba(200, 90, 42, 0.2);
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.2);
 }
 
 .tools-title {
@@ -88,7 +88,7 @@
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
-  border-bottom: 3px solid var(--warm-secondary);
+  border-bottom: 3px solid var(--secondary);
   padding-bottom: 0;
 }
 
@@ -111,19 +111,19 @@
 }
 
 .sub-tab-btn:hover:not(:disabled) {
-  color: var(--warm-primary);
-  background-color: rgba(200, 90, 42, 0.05);
+  color: var(--primary);
+  background-color: var(--primary-light);
 }
 
 .sub-tab-btn:focus-visible {
-  outline: 3px solid var(--warm-primary);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 .sub-tab-btn.active {
-  color: var(--warm-primary);
-  border-bottom-color: var(--warm-primary);
+  color: var(--primary);
+  border-bottom-color: var(--primary);
   font-weight: 600;
 }
 
@@ -161,7 +161,7 @@
   margin: 0 0 12px 0;
   font-size: var(--font-size-h2);
   font-family: var(--font-display);
-  color: #1a0f0a;
+  color: var(--text-dark);
 }
 
 .form-description {
@@ -188,7 +188,7 @@
   padding: 14px 16px;
   font-size: var(--font-size-lg);
   font-family: var(--font-body);
-  border: 2px solid var(--warm-secondary);
+  border: 2px solid var(--secondary);
   border-radius: 8px;
   background: var(--bg-light);
   color: var(--text-dark);
@@ -199,13 +199,13 @@
 
 .form-input:focus {
   outline: none;
-  border-color: var(--warm-primary);
-  background: #FFFBF7;
-  box-shadow: 0 0 0 3px rgba(200, 90, 42, 0.1);
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 .form-input:focus-visible {
-  outline: 3px solid var(--warm-primary);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -239,7 +239,7 @@
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(200, 90, 42, 0.3);
+  box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
 }
 
 .btn-primary:focus-visible {
@@ -308,7 +308,7 @@
 .result-section h2 {
   font-size: var(--font-size-h2);
   font-family: var(--font-display);
-  color: #1a0f0a;
+  color: var(--text-dark);
   margin-bottom: 24px;
 }
 
@@ -441,7 +441,7 @@
 .flag-item,
 .action-item {
   padding: 12px 0;
-  border-bottom: 1px solid var(--warm-secondary);
+  border-bottom: 1px solid var(--secondary);
   font-size: var(--font-size-lg);
   color: var(--text-secondary);
 }
@@ -455,7 +455,7 @@
 /* WCAG AAA: Registry links must have min 56px touch target (48px minimum) */
 .registry-item {
   padding: 20px 12px;
-  border-bottom: 1px solid var(--warm-secondary);
+  border-bottom: 1px solid var(--secondary);
   min-height: 60px;
   display: flex;
   align-items: center;
@@ -468,7 +468,7 @@
 .registry-link,
 .external-link {
   /* WCAG AAA color contrast: dark brown on light bg (9.5:1 ratio) */
-  color: #1a0f0a;
+  color: var(--primary-dark);
   text-decoration: none;
   font-weight: 600;
   font-size: var(--font-size-lg);
@@ -481,23 +481,23 @@
 .registry-link:hover,
 .external-link:hover {
   text-decoration: underline;
-  background-color: rgba(200, 90, 42, 0.08);
+  background-color: var(--primary-light);
   border-radius: 4px;
 }
 
 .registry-link:focus-visible,
 .external-link:focus-visible {
-  outline: 3px solid #1a0f0a;
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
   border-radius: 4px;
-  background-color: rgba(200, 90, 42, 0.08);
+  background-color: var(--primary-light);
 }
 
 .summary-box {
   font-size: var(--font-size-lg);
   color: var(--text-dark);
   line-height: var(--line-height-relaxed);
-  border-left: 4px solid var(--warm-secondary);
+  border-left: 4px solid var(--primary);
 }
 
 .disclaimer-box {
@@ -513,8 +513,8 @@
 }
 
 .fallback-link {
-  background: linear-gradient(135deg, rgba(212, 165, 116, 0.05) 0%, rgba(255, 249, 243, 1) 100%);
-  border: 2px solid var(--warm-secondary);
+  background: var(--bg-light);
+  border: 2px solid var(--secondary);
 }
 
 .fallback-link p {
@@ -625,13 +625,13 @@
   }
 
   .sub-tab-btn:hover:not(:disabled) {
-    background-color: rgba(168, 74, 26, 0.15);
-    color: #d4a574;
+    background-color: #333333;
+    color: #4a90e2;
   }
 
   .sub-tab-btn.active {
-    color: #d4a574;
-    border-bottom-color: #d4a574;
+    color: #4a90e2;
+    border-bottom-color: #4a90e2;
   }
 
   .form-section,
@@ -655,11 +655,11 @@
   .registries-box h3,
   .result-section h2,
   .tools-title {
-    color: #d4a574;
+    color: #4a90e2;
   }
 
   .form-description {
-    color: #b89968;
+    color: #a0a0a0;
   }
 
   .form-input {
@@ -669,9 +669,9 @@
   }
 
   .form-input:focus {
-    border-color: #d4a574;
+    border-color: #4a90e2;
     background: #322b26;
-    box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.15);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
   }
 
   .status-indicator.safe,
@@ -691,7 +691,7 @@
 
   .disclaimer-box {
     background: #3a3229;
-    border-left-color: #8b6f47;
+    border-left-color: #555;
   }
 
   .fallback-link {

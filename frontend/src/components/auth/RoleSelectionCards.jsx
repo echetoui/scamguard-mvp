@@ -23,7 +23,7 @@ export default function RoleSelectionCards({ selectedRole, onSelectRole, loading
       label: 'Je protège ma famille',
       description: 'Aidant familial ou membre de la famille',
       icon: '👨‍👩‍👦',
-      gradient: 'terracotta',
+      gradient: 'primary',
     },
     {
       id: 'individual',

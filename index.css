@@ -1,21 +1,21 @@
 :root {
   /* --- Palette de Couleurs (WCAG AAA) --- */
-  --color-primary: #0056b3;       /* Bleu Gardien */
-  --color-primary-dark: #004494;  /* Interaction */
-  --color-primary-light: #e3f2fd; /* Fond focus */
+  --color-primary: #1E40AF;       /* Bleu Royal */
+  --color-primary-dark: #1e3a8a;  /* Interaction */
+  --color-primary-light: #dbeafe; /* Fond focus */
   
-  --color-success: #1b5e20;       /* Vert Profond (Ratio 7.4:1 - AAA) */
+  --color-success: #166534;       /* Vert Profond */
   --color-success-bg: #e8f5e9;    /* Fond succès */
   
-  --color-danger: #b71c1c;        /* Rouge Profond (Ratio 7.2:1 - AAA) */
-  --color-danger-bg: #ffebee;     /* Fond alerte */
+  --color-danger: #B91C1C;        /* Rouge Danger */
+  --color-danger-bg: #fef2f2;     /* Fond alerte */
   
-  --color-warning: #bf360c;       /* Orange Brûlé (Ratio 7.1:1 - AAA) */
+  --color-warning: #92400E;       /* Ambre Alerte */
   
-  --color-background: #f9f9f9;    /* Blanc Cassé (Anti-éblouissement) */
+  --color-background: #F3F4F6;    /* Gris clair (Contraste) */
   --color-surface: #ffffff;       /* Blanc Pur (Cartes) */
   
-  --color-text-main: #1a1a1a;     /* Noir Encre */
+  --color-text-main: #111827;     /* Noir Encre */
   --color-text-secondary: #2c2c2c; /* Gris Foncé (AAA Compliant) */
   --color-text-inverse: #ffffff;  /* Texte sur fond sombre */
   --color-border-subtle: #eeeeee; /* Bordures discrètes */
