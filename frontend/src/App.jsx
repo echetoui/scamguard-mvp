@@ -14,7 +14,7 @@ import QuizAcademie from './components/QuizAcademie';
 import useCreditSystem from './hooks/useCreditSystem';
 import useAccountProfile from './hooks/useAccountProfile';
 import useAuth from './hooks/useAuth';
-import ModernAuthPage from './components/ModernAuthPage';
+import AuthFlow from './screens/Auth/AuthFlow'; // Remplacer le chemin selon ta structure exacte
 import useFamilyDashboard from './hooks/useFamilyDashboard';
 import OnboardingWizard from './components/OnboardingWizard';
 import { analysisAPI } from './services/api';
@@ -152,7 +152,7 @@ export default function App() {
   // DEV MODE: Bypass auth if REACT_APP_BYPASS_AUTH is set
   const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
   if (!auth.isAuthenticated && !bypassAuth) {
-    return <ModernAuthPage />;
+    return <AuthFlow onLoginSuccess={(user, token) => auth.loginWithToken(user, token)} />;
   }
 
   // Synthèse vocale (Le téléphone lit le texte)
@@ -281,9 +281,9 @@ export default function App() {
             onClick={auth.logout}
             style={{
               padding: '12px 20px',
-              backgroundColor: '#FFF9F3',
-              color: '#1a0f0a',
-              border: '2px solid #C85A2A',
+              backgroundColor: '#F3F4F6',
+              color: '#1E40AF',
+              border: '2px solid #1E40AF',
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '16px',
@@ -291,8 +291,8 @@ export default function App() {
               minHeight: '60px',
               fontFamily: 'var(--font-body, "Lora", serif)'
             }}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(200, 90, 42, 0.08)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#FFF9F3'}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#dbeafe'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#F3F4F6'}
           >
             🚪 Déconnexion
           </button>

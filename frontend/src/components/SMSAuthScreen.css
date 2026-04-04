@@ -1,13 +1,13 @@
 /**
  * SMSAuthScreen Styles - Phase 5A Family Protection
- * Design: "Automne Québécois" - Warm design for Quebec seniors
+ * Design: "Bleu Gardien" - Trust & Security design for seniors
  *
  * Design principles:
- *  ✅ Warm autumn colors (terracotta, gold, sage green)
+ *  ✅ Trust colors (Guardian Blue, crisp whites, dark grays)
  *  ✅ Large touch targets (60px minimum)
  *  ✅ Serif fonts (Cormorant + Lora) for trust & readability
  *  ✅ High contrast (WCAG AAA ready)
- *  ✅ Senior-friendly (large text, warm colors, clear hierarchy)
+ *  ✅ Senior-friendly (large text, clear hierarchy)
  *  ✅ Mobile-first responsive design
  *  ✅ Accessible (ARIA, keyboard nav, focus states)
  *  ✅ Sophisticated animations (respectful, not jarring)
@@ -16,27 +16,26 @@
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap');
 
-/* Color Variables - Automne Québécois Palette */
+/* Color Variables - Bleu Gardien Palette */
 :root {
   /* Primary Colors */
-  --warm-primary: #C85A2A;      /* Terracotta - protection, stability */
-  --warm-secondary: #D4A574;    /* Gold - wisdom, experience */
-  --warm-accent: #E67E3C;       /* Orange - warmth, energy */
-  --warm-depth: #8B4513;        /* Brown - tradition, depth */
+  --primary: #0056b3;           /* Guardian Blue - protection, trust */
+  --primary-dark: #004494;      /* Dark Blue - depth, stability */
+  --primary-light: #e6f0ff;     /* Soft Blue - highlights */
+  --secondary: #e0e0e0;         /* Gray - borders, neutral */
 
   /* Accent Colors */
   --accent-red: #C1440D;        /* Red Autumn */
-  --accent-green: #7A9B7F;      /* Sage - balance, autonomy */
-  --accent-gold: #F0D9A8;       /* Pale gold */
+  --accent-green: var(--color-success);      /* Sage - balance, autonomy */
 
   /* Backgrounds */
-  --bg-light: #FFF9F3;          /* Cream - warmth, clarity */
+  --bg-light: #f9f9f9;          /* Off-white - clarity */
   --bg-card: #FFFFFF;           /* Pure white */
 
   /* Text */
-  --text-dark: #1a0f0a;         /* Dark brown (Stitch DESIGN.md) */
-  --text-secondary: #6B5344;    /* Medium brown */
-  --text-light: #9B8B7E;        /* Light brown */
+  --text-dark: #1a1a1a;         /* Dark ink */
+  --text-secondary: #555555;    /* Medium gray */
+  --text-light: #888888;        /* Light gray */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', serif;
@@ -45,7 +44,7 @@
 
 .sms-auth-screen {
   min-height: 100vh;
-  background: linear-gradient(135deg, #F5EDE5 0%, #FFF9F3 100%);
+  background: linear-gradient(135deg, #e5e7eb 0%, #F3F4F6 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -67,11 +66,11 @@
 
 /* Header */
 .auth-header {
-  background: linear-gradient(135deg, #C85A2A 0%, #B84D1F 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   padding: 40px 20px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(200, 90, 42, 0.2);
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.2);
 }
 
 .auth-header h1 {
@@ -132,8 +131,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--warm-primary);
-  box-shadow: 0 0 0 3px rgba(200, 90, 42, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 .form-group input:disabled {
@@ -156,7 +155,7 @@
   font-size: 18px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, var(--warm-primary) 0%, var(--warm-depth) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -173,7 +172,7 @@
 
 .auth-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(200, 90, 42, 0.3);
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
 }
 
 .auth-button:active:not(:disabled) {
@@ -189,9 +188,9 @@
   width: 100%;
   padding: 16px 20px;
   font-size: 16px;
-  color: var(--warm-primary);
+  color: var(--primary);
   background: transparent;
-  border: 2px solid var(--warm-primary);
+  border: 2px solid var(--primary);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -204,7 +203,7 @@
 }
 
 .auth-link-button:hover:not(:disabled) {
-  background: rgba(200, 90, 42, 0.08);
+  background: var(--primary-light);
 }
 
 .auth-link-button:disabled {
@@ -212,7 +211,7 @@
   cursor: not-allowed;
 }
 
-/* Role Selection Cards - Phase 5A - Automne Québécois */
+/* Role Selection Cards */
 
 /* Entrance animation for role cards */
 @keyframes slideInFromLeft {
@@ -257,90 +256,75 @@
   animation-delay: 0.3s;
 }
 
-/* Senior Card - Gold (Wisdom, Experience) */
+/* Senior Card */
 .role-card:nth-child(1) {
-  background: linear-gradient(135deg, #F0D9A8 0%, #E8C88C 100%);
-  border-color: var(--warm-secondary);
-  box-shadow: 0 8px 24px rgba(196, 90, 42, 0.15);
+  background: var(--bg-card);
+  border-color: var(--secondary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .role-card:nth-child(1):hover:not(:disabled) {
-  border-color: var(--warm-secondary);
-  box-shadow: 0 12px 32px rgba(196, 90, 42, 0.25);
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.15);
   transform: translateY(-4px) scale(1.02);
 }
 
 .role-card:nth-child(1).selected {
-  border-color: var(--warm-secondary);
-  box-shadow: 0 12px 32px rgba(196, 90, 42, 0.3);
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.2);
   transform: scale(1.04);
 }
 
-/* Family Card - Terracotta (Protection, Stability) */
+/* Family Card */
 .role-card:nth-child(2) {
-  background: linear-gradient(135deg, #C85A2A 0%, #B84D1F 100%);
-  border-color: var(--warm-depth);
-  color: white;
-  box-shadow: 0 8px 24px rgba(139, 69, 19, 0.15);
+  background: var(--bg-card);
+  border-color: var(--secondary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .role-card:nth-child(2) .role-card-content h3,
 .role-card:nth-child(2) .role-card-content p,
 .role-card:nth-child(2) .role-card-content small {
-  color: white;
-}
-
-.role-card:nth-child(2) .role-card-content p {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.role-card:nth-child(2) .role-card-content small {
-  color: rgba(255, 255, 255, 0.85);
+  color: inherit;
 }
 
 .role-card:nth-child(2):hover:not(:disabled) {
-  border-color: var(--warm-depth);
-  box-shadow: 0 12px 32px rgba(139, 69, 19, 0.25);
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.15);
   transform: translateY(-4px) scale(1.02);
 }
 
 .role-card:nth-child(2).selected {
-  border-color: var(--warm-depth);
-  box-shadow: 0 12px 32px rgba(139, 69, 19, 0.3);
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.2);
   transform: scale(1.04);
 }
 
-/* Individual Card - Sage Green (Balance, Autonomy) */
+/* Individual Card */
 .role-card:nth-child(3) {
-  background: linear-gradient(135deg, #7A9B7F 0%, #6B8A70 100%);
-  border-color: #5A7560;
-  color: white;
-  box-shadow: 0 8px 24px rgba(122, 155, 127, 0.15);
+  background: var(--bg-card);
+  border-color: var(--secondary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .role-card:nth-child(3) .role-card-content h3,
 .role-card:nth-child(3) .role-card-content p,
 .role-card:nth-child(3) .role-card-content small {
-  color: white;
-}
-
-.role-card:nth-child(3) .role-card-content p {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.role-card:nth-child(3) .role-card-content small {
-  color: rgba(255, 255, 255, 0.85);
+  color: inherit;
 }
 
 .role-card:nth-child(3):hover:not(:disabled) {
-  border-color: #5A7560;
-  box-shadow: 0 12px 32px rgba(122, 155, 127, 0.25);
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.15);
   transform: translateY(-4px) scale(1.02);
 }
 
 .role-card:nth-child(3).selected {
-  border-color: #5A7560;
-  box-shadow: 0 12px 32px rgba(122, 155, 127, 0.3);
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.2);
   transform: scale(1.04);
 }
 
@@ -379,11 +363,6 @@
   letter-spacing: 0.5px;
 }
 
-.role-card:nth-child(2) .role-card-content h3,
-.role-card:nth-child(3) .role-card-content h3 {
-  color: white;
-}
-
 .role-card-content p {
   margin: 0 0 6px 0;
   font-size: 14px;
@@ -391,21 +370,11 @@
   line-height: 1.4;
 }
 
-.role-card:nth-child(2) .role-card-content p,
-.role-card:nth-child(3) .role-card-content p {
-  color: rgba(255, 255, 255, 0.95);
-}
-
 .role-card-content small {
   display: block;
   font-size: 12px;
   color: var(--text-light);
   line-height: 1.3;
-}
-
-.role-card:nth-child(2) .role-card-content small,
-.role-card:nth-child(3) .role-card-content small {
-  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Arrow animation on hover */
@@ -427,13 +396,8 @@
   font-weight: bold;
 }
 
-.role-card:nth-child(1) .role-card-arrow {
-  color: var(--warm-primary);
-}
-
-.role-card:nth-child(2) .role-card-arrow,
-.role-card:nth-child(3) .role-card-arrow {
-  color: white;
+.role-card .role-card-arrow {
+  color: var(--primary);
 }
 
 .role-card:hover:not(:disabled) .role-card-arrow {
@@ -465,8 +429,8 @@
 
 .otp-input:focus {
   outline: none;
-  border-color: var(--warm-primary);
-  box-shadow: 0 0 0 3px rgba(200, 90, 42, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 .otp-input:disabled {
@@ -487,7 +451,7 @@
 }
 
 .otp-timer strong {
-  color: var(--warm-primary);
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -653,8 +617,8 @@
   }
 
   .form-group input:focus {
-    border-color: var(--warm-secondary);
-    box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
   }
 
   .form-group small {
@@ -668,8 +632,8 @@
   }
 
   .otp-input:focus {
-    border-color: var(--warm-secondary);
-    box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
   }
 
   .step-description {
@@ -681,7 +645,7 @@
   }
 
   .otp-timer strong {
-    color: var(--warm-secondary);
+    color: var(--primary-light);
   }
 
   .error-message {
@@ -692,67 +656,33 @@
   }
 
   /* Dark mode role cards */
-  .role-card:nth-child(1) {
-    background: linear-gradient(135deg, #5a4a3a 0%, #4a3a2a 100%);
-    border-color: #6a5a4a;
+  .role-card {
+    background: #2d2d2d;
+    border-color: #444;
   }
 
-  .role-card:nth-child(1) .role-card-content h3,
-  .role-card:nth-child(1) .role-card-content p,
-  .role-card:nth-child(1) .role-card-content small {
-    color: #f0d9a8;
+  .role-card .role-card-content h3 {
+    color: #ffffff;
   }
 
-  .role-card:nth-child(1) .role-card-content p {
-    color: #e0c998;
+  .role-card .role-card-content p {
+    color: #b0b0b0;
   }
 
-  .role-card:nth-child(1) .role-card-content small {
-    color: #d0b988;
+  .role-card .role-card-content small {
+    color: #888888;
   }
 
-  .role-card:nth-child(2) {
-    background: linear-gradient(135deg, #6a4a2a 0%, #5a3a1a 100%);
-    border-color: #8a6a4a;
+  .role-card:hover:not(:disabled), .role-card.selected {
+    border-color: var(--primary-light);
+    background: #333333;
   }
 
-  .role-card:nth-child(2) .role-card-content h3,
-  .role-card:nth-child(2) .role-card-content p,
-  .role-card:nth-child(2) .role-card-content small {
-    color: #f5ede5;
-  }
-
-  .role-card:nth-child(2) .role-card-content p {
-    color: #e5ddd5;
-  }
-
-  .role-card:nth-child(2) .role-card-content small {
-    color: #d5cdc5;
-  }
-
-  .role-card:nth-child(3) {
-    background: linear-gradient(135deg, #5a6a5a 0%, #4a5a4a 100%);
-    border-color: #6a7a6a;
-  }
-
-  .role-card:nth-child(3) .role-card-content h3,
-  .role-card:nth-child(3) .role-card-content p,
-  .role-card:nth-child(3) .role-card-content small {
-    color: #f0f0e0;
-  }
-
-  .role-card:nth-child(3) .role-card-content p {
-    color: #e0e0d0;
-  }
-
-  .role-card:nth-child(3) .role-card-content small {
-    color: #d0d0c0;
-  }
 }
 
 /* Focus States - Keyboard Navigation */
 .form-group input:focus-visible {
-  outline: 3px solid var(--warm-primary);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -763,13 +693,13 @@
 
 .auth-link-button:focus-visible,
 .link-button:focus-visible {
-  outline: 3px solid var(--warm-primary);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 .role-card:focus-visible {
-  outline: 3px solid var(--warm-primary);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 

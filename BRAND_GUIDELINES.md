@@ -31,17 +31,17 @@ La palette est conçue pour respecter les normes **WCAG AAA** (contraste maximal
 
 | Couleur | Hex | Nom | Usage | Signification |
 |---------|-----|-----|-------|---------------|
-| ![#0056b3](https://via.placeholder.com/15/0056b3/0056b3.png) | `#0056b3` | **Bleu Gardien** | Boutons principaux, En-têtes, Marque | Confiance, Stabilité, Technologie. |
-| !#f9f9f9 | `#f9f9f9` | **Blanc Cassé** | Arrière-plan général | Réduit l'éblouissement par rapport au blanc pur (#FFFFFF). |
-| !#1a1a1a | `#1a1a1a` | **Noir Encre** | Textes courants | Lisibilité maximale sans être agressif. |
+| !#1E40AF | `#1E40AF` | **Bleu Royal** | Boutons principaux, En-têtes, Marque | Sécurité bancaire et institutionnelle. |
+| !#F3F4F6 | `#F3F4F6` | **Gris Clair** | Arrière-plan général | Fait ressortir les cartes blanches par contraste. |
+| !#111827 | `#111827` | **Noir Encre** | Textes courants | Lisibilité maximale sans être agressif. |
 
 ### Couleurs Sémantiques (Feedback)
 
 | Couleur | Hex | Nom | Usage | Signification |
 |---------|-----|-----|-------|---------------|
-| !#2e7d32 | `#2e7d32` | **Vert Sûr** | Validation, Scores élevés (>50), Succès | "C'est sécuritaire", "Action réussie". |
-| !#d32f2f | `#d32f2f` | **Rouge Alerte** | Erreur, Danger, Arnaque détectée | "Attention", "Stop", "Danger". |
-| !#ff9800 | `#ff9800` | **Orange Vigilance** | Avertissements, Scores moyens | "Soyez prudent", "Doute". |
+| !#166534 | `#166534` | **Vert Sûr** | Validation, Scores élevés (>50), Succès | "C'est sécuritaire", "Action réussie". |
+| !#B91C1C | `#B91C1C` | **Rouge Danger** | Erreur, Danger, Arnaque détectée | "Attention", "Ceci est une arnaque". |
+| !#92400E | `#92400E` | **Ambre Alerte** | Avertissements, Scores moyens | "Soyez prudent", "Doute". |
 
 ### Couleurs Secondaires
 
@@ -49,16 +49,6 @@ La palette est conçue pour respecter les normes **WCAG AAA** (contraste maximal
 |---------|-----|-----|-------|
 | !#e8f5e9 | `#e8f5e9` | **Vert Menthe** | Fonds des zones de succès/coaching. |
 | !#ffebee | `#ffebee` | **Rouge Pâle** | Fonds des zones d'alerte. |
-
-### Thème "Automne Québécois" (Interface Chaleureuse Seniors)
-
-| Couleur | Hex | Nom | Usage |
-|---------|-----|-----|-------|
-| !#C85A2A | `#C85A2A` | **Terracotta** | Boutons secondaires, Accents chaleureux |
-| !#1a0f0a | `#1a0f0a` | **Brun Foncé** | Textes sur fonds clairs/terracotta (Contraste 9.5:1 AAA) |
-| !#D4A574 | `#D4A574` | **Or** | Éléments de gamification, Badges |
-| !#7A9B7F | `#7A9B7F` | **Sauge** | Accents de nature, Éléments secondaires apaisants |
-| !#FFF9F3 | `#FFF9F3` | **Crème** | Fonds de cartes ou sections douces |
 
 ---
 
@@ -140,23 +130,15 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
 ```css
 :root {
   /* Couleurs */
-  --color-primary: #0056b3;
-  --color-primary-dark: #004494;
-  --color-success: #2e7d32;
-  --color-danger: #d32f2f;
-  --color-warning: #ff9800;
-  --color-background: #f9f9f9;
+  --color-primary: #1E40AF;
+  --color-primary-dark: #1e3a8a;
+  --color-success: #166534;
+  --color-danger: #B91C1C;
+  --color-warning: #92400E;
+  --color-background: #F3F4F6;
   --color-surface: #ffffff;
-  --color-text-main: #1a1a1a;
+  --color-text-main: #111827;
   --color-text-secondary: #555555;
-
-  /* Thème Automne Québécois */
-  --color-terracotta: #C85A2A;
-  --color-dark-brown: #1a0f0a;
-  --color-gold: #D4A574;
-  --color-sage: #7A9B7F;
-  --color-creme: #FFF9F3;
-  --color-focus: #0066cc; /* ou #1a0f0a selon le contraste du fond */
 
   /* Typographie */
   --font-family-base: 'Inter', 'Roboto', sans-serif;

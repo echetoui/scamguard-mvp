@@ -1,24 +1,24 @@
 # ScamGuard - Semantic Design System
 
 ## Overview
-This design system ("Automne Québécois") targets seniors (65-85+) in Quebec. 
-The core focus is **radical accessibility**, large touch targets, and a warm, non-intimidating aesthetic.
+This design system targets seniors (65-85+) in Quebec. 
+The core focus is **radical accessibility**, large touch targets, and a professional, trust-inspiring blue aesthetic.
 
 ## 1. Tokens
 
-### Colors (Automne Québécois)
-- **Primary (Action/Protection)**: `#C85A2A` (Terracotta)
-- **Secondary (Wisdom/Guidance)**: `#D4A574` (Gold)
-- **Accent (Balance/Autonomy)**: `#7A9B7F` (Sage Green)
-- **Background (Warmth)**: `#FFF9F3` (Cream)
+### Colors (Bleu Gardien)
+- **Primary (Action/Protection)**: `#1E40AF` (Royal Blue)
+- **Primary Dark**: `#1e3a8a`
+- **Primary Light**: `#dbeafe` (Soft Blue)
+- **Background**: `#F3F4F6` (Light Gray)
 - **Card Background**: `#FFFFFF`
-- **Text Primary**: `#1a0f0a` (Dark Brown - ensuring 9.5:1 AAA contrast)
-- **Text Secondary**: `#6B5344`
+- **Text Primary**: `#111827` (Dark Gray - ensuring AAA contrast)
+- **Text Secondary**: `#555555`
 
 ### Status Colors (Feedback)
-- **Safe / Success**: `#2E7D32`
-- **Warning / Vigilance**: `#F57C00`
-- **Danger / Alert**: `#D32F2F`
+- **Safe / Success**: `#166534`
+- **Warning / Vigilance**: `#92400E`
+- **Danger / Alert**: `#B91C1C`
 
 ## 2. Typography
 - **Display Font (Headings)**: `Cormorant Garamond`, serif
@@ -38,7 +38,7 @@ The core focus is **radical accessibility**, large touch targets, and a warm, no
 - **Contrast**: All text must maintain a contrast ratio of > 7:1 against its background.
 - **Focus States**: All interactive elements must have a highly visible focus state for keyboard navigation:
   ```css
-  outline: 3px solid #1a0f0a; /* Dark Brown outline */
+  outline: 3px solid #1E40AF; /* Blue outline */
   outline-offset: 2px;
   ```
 - **Visual Validation**: Never rely on color alone. Use Color + Icon + Text (e.g., `🔴 + 🛑 + "Erreur"`).

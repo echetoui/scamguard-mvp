@@ -1,0 +1,76 @@
+{
+  "model": "haiku",
+  "context": {
+    "cache": {
+      "enabled": true,
+      "strategy": "aggressive"
+    },
+    "stableFiles": [
+      ".claude/CLAUDE.md",
+      ".claude/projects/-Users-echetoui-scamguard-mvp/memory/MEMORY.md",
+      ".claude/projects/-Users-echetoui-scamguard-mvp/memory/ACTIVE_RULES.md",
+      ".claude/projects/-Users-echetoui-scamguard-mvp/memory/HOW_TO_USE.md",
+      "docs/architecture.md",
+      "backend/README.md",
+      "README.md",
+      ".claudeignore"
+    ]
+  },
+  "hooks": {
+    "beforeSessionStart": {
+      "enabled": true,
+      "commands": [
+        {
+          "trigger": "session-init",
+          "command": "echo '📖 Loading stable context: CLAUDE.md + Memory system'",
+          "loadFiles": [
+            ".claude/CLAUDE.md",
+            ".claude/projects/-Users-echetoui-scamguard-mvp/memory/MEMORY.md",
+            ".claude/projects/-Users-echetoui-scamguard-mvp/memory/ACTIVE_RULES.md"
+          ]
+        }
+      ]
+    }
+  },
+  "contextOptimization": {
+    "cacheTTL": "7d",
+    "compressionEnabled": true,
+    "deduplication": true,
+    "excludeFromCache": [
+      "node_modules/",
+      "venv/",
+      "__pycache__/",
+      ".git/",
+      "dist/",
+      "build/",
+      "*.log"
+    ]
+  },
+  "tokenUsage": {
+    "trackingEnabled": true,
+    "budgetPerSession": 100000,
+    "alerts": {
+      "threshold": 0.8,
+      "enabled": true
+    }
+  },
+  "rag": {
+    "enabled": true,
+    "indexFile": "RAG_INDEX.md",
+    "strategy": "keyword-based",
+    "contextBudget": 30000,
+    "defaultRetrievalStrategy": "relevant-files-only"
+  },
+  "workflow": {
+    "beforeCodeQuestion": [
+      "1. Consult RAG_INDEX.md for relevant files",
+      "2. Load only mapped files (not entire codebase)",
+      "3. Provide targeted context"
+    ],
+    "beforeArchitectureChange": [
+      "1. Consult DECISIONS.md",
+      "2. Check if decision affects other systems",
+      "3. Verify no contradictions with ACTIVE_RULES"
+    ]
+  }
+}

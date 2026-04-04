@@ -60,7 +60,7 @@ class AgentsStack(Stack):
 
         return sfn.StateMachine(
             self, "ProjectWorkflow",
-            definition=definition,
+            definition_body=sfn.DefinitionBody.from_chainable(definition),
             state_machine_name="project-unit-workflow",
             timeout=Duration.minutes(60)  # Increased timeout for more agents
         )
@@ -79,7 +79,7 @@ class AgentsStack(Stack):
 
         return sfn.StateMachine(
             self, "ProductWorkflow",
-            definition=definition,
+            definition_body=sfn.DefinitionBody.from_chainable(definition),
             state_machine_name="product-unit-workflow",
             timeout=Duration.minutes(15)  # Increased timeout
         )
