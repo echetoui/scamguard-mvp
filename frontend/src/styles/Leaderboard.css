@@ -89,6 +89,19 @@
   white-space: nowrap;
 }
 
+/* Difficulty Level Styles */
+.entry-difficulty.difficulty-debutant {
+  background-color: var(--color-secondary);
+}
+
+.entry-difficulty.difficulty-intermediaire {
+  background-color: var(--color-tertiary);
+}
+
+.entry-difficulty.difficulty-expert {
+  background-color: var(--color-error);
+}
+
 .entry-meta {
   display: flex;
   flex-direction: column;
