@@ -80,10 +80,10 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
     }
   };
 
-  const getRiskColor = (score) => {
-    if (score >= 80) return 'var(--color-danger)'; // Red - High risk
-    if (score >= 50) return 'var(--color-warning)'; // Orange - Medium risk
-    return 'var(--color-success)'; // Green - Low risk
+  const getRiskClass = (score) => {
+    if (score >= 80) return 'high-risk';
+    if (score >= 50) return 'medium-risk';
+    return 'low-risk';
   };
 
   const getRiskLabel = (score) => {
@@ -179,7 +179,7 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
             <span className="progress-xp">{userStats.xpPoints % 500} / 500 XP</span>
           </div>
           <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${calculateProgress()}%` }}></div>
+            <div className="progress-fill" style={{ '--progress': `${calculateProgress()}%` }}></div>
           </div>
         </div>
 
@@ -230,10 +230,7 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
                     <span className="analysis-date">{analysis.date}</span>
                   </div>
                   <div className="analysis-risk">
-                    <div
-                      className="risk-score"
-                      style={{ backgroundColor: getRiskColor(analysis.riskScore) }}
-                    >
+                    <div className={`risk-score ${getRiskClass(analysis.riskScore)}`}>
                       {analysis.riskScore}%
                     </div>
                     <span className="risk-label">{getRiskLabel(analysis.riskScore)}</span>
