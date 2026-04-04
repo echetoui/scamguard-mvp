@@ -19,6 +19,7 @@ import { setAuth, setUserId } from '../utils/authStorage';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import './SMSAuthScreen.css';
 
+import '../../styles/utility-classes.css';
 export default function SMSAuthScreen() {
   const auth = useAuth();
   
@@ -389,7 +390,7 @@ export default function SMSAuthScreen() {
               type="button"
               className="auth-link-button"
               onClick={() => setMode('choose')}
-              style={{ marginTop: '20px' }}
+              className="mt-xl"
             >
               ← Retour
             </button>
@@ -518,7 +519,7 @@ export default function SMSAuthScreen() {
               className="auth-link-button"
               onClick={handleResendCode}
               disabled={loading}
-              style={{ marginTop: '16px' }}
+              className="mt-lg"
             >
               Vous n'avez pas reçu le code? Renvoyer
             </button>
