@@ -342,7 +342,7 @@ export default function SMSAuthScreen() {
               Choisissez entre créer un nouveau compte ou vous connecter
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="flex-gap-sm">
               <button
                 type="button"
                 className="auth-button"
