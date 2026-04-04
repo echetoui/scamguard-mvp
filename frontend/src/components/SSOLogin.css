@@ -17,13 +17,13 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #D4A574, transparent);
+  background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
 }
 
 .sso-divider span {
-  background: #FFF9F3;
+  background: #F3F4F6;
   padding: 0 1rem;
-  color: #7A9B7F;
+  color: #555555;
   font-size: 16px;
   font-family: 'Lora', serif;
 }
@@ -40,10 +40,10 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 16px 24px;
-  border: 2px solid #D4A574; /* Gold */
+  border: 2px solid #e0e0e0;
   border-radius: 8px;
   background: #FFFFFF;
-  color: #1a0f0a; /* Dark Brown (AAA contrast) */
+  color: #111827;
   font-family: 'Lora', serif;
   font-size: 18px;
   font-weight: 600;
@@ -69,27 +69,27 @@
 
 /* Focus States - Keyboard Navigation */
 .sso-button:focus-visible {
-  outline: 3px solid #1a0f0a;
+  outline: 3px solid #1E40AF;
   outline-offset: 2px;
   border-radius: 8px;
 }
 
 .google-button {
-  border-color: #D4A574;
+  border-color: #e0e0e0;
 }
 
 .google-button:hover {
-  background: #FFF9F3;
-  border-color: #C85A2A; /* Terracotta */
+  background: #dbeafe;
+  border-color: #1E40AF;
 }
 
 .facebook-button {
-  border-color: #D4A574;
+  border-color: #e0e0e0;
 }
 
 .facebook-button:hover {
-  background: #FFF9F3;
-  border-color: #C85A2A; /* Terracotta */
+  background: #dbeafe;
+  border-color: #1E40AF;
 }
 
 .sso-icon {
@@ -102,19 +102,19 @@
 @media (prefers-color-scheme: dark) {
   .sso-divider span {
     background: #2a2420;
-    color: #D4A574;
+    color: var(--color-warning);
   }
   
   .sso-button {
     background: #322b26;
     border-color: #6b5344;
-    color: #FFF9F3;
+    color: var(--color-background);
   }
   
   .google-button:hover,
   .facebook-button:hover {
     background: rgba(200, 90, 42, 0.15);
-    border-color: #C85A2A;
+    border-color: var(--color-primary);
   }
 }
 

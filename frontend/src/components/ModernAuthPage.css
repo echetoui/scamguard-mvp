@@ -1,18 +1,18 @@
 /* Modern Auth Page - Professional UX/UI Standards */
 
 :root {
-  /* Automne Québécois Tokens from DESIGN.md */
-  --primary: #C85A2A; /* Terracotta */
-  --primary-dark: #8B4513; /* Brown Depth */
-  --primary-light: #FFF9F3; /* Cream */
-  --secondary: #D4A574; /* Gold */
-  --success: #2E7D32; /* Safe Green */
-  --error: #D32F2F; /* Danger Red */
-  --text-primary: #1a0f0a; /* Dark Brown */
-  --text-secondary: #6B5344;
-  --bg-light: #FFF9F3; /* Cream */
+  /* Bleu Gardien Tokens from DESIGN.md */
+  --primary: #1E40AF; 
+  --primary-dark: #1e3a8a; 
+  --primary-light: #dbeafe; 
+  --secondary: #e0e0e0; 
+  --success: #166534; /* Safe Green */
+  --error: #B91C1C; /* Danger Red */
+  --text-primary: #111827; 
+  --text-secondary: #555555;
+  --bg-light: #F3F4F6; 
   --bg-white: #FFFFFF;
-  --border: #D4A574; /* Gold as border */
+  --border: #e0e0e0; 
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.15);
@@ -166,12 +166,12 @@ body {
   gap: 8px;
   transition: all 0.3s ease;
   min-height: 60px;
-  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3);
 }
 
 .cta-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 102, 204, 0.4);
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.4);
 }
 
 .cta-primary:active {

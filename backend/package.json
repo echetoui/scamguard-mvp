@@ -1,0 +1,22 @@
+{
+  "name": "scamguard-backend-dev",
+  "version": "1.0.0",
+  "description": "ScamGuard Backend - Development Server",
+  "main": "dev-server.js",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "start": "node dev-server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2"
+  },
+  "keywords": [
+    "scamguard",
+    "backend",
+    "dev-server"
+  ],
+  "author": "",
+  "license": "MIT"
+}

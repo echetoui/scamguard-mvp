@@ -1,0 +1,50 @@
+# Dependencies (large, never needed)
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+venv/
+.venv/
+env/
+__pycache__/
+.pnpm-store/
+.npm/
+.yarn/
+*.egg-info/
+
+# Build artifacts (generated, regenerable)
+dist/
+build/
+frontend/dist/
+frontend/build/
+cdk.out/
+.pytest_cache/
+.vite/
+.mypy_cache/
+.tox/
+
+# Version control (internal)
+.git/
+.svn/
+
+# Secrets (never share)
+.env
+.env.local
+.env.*.local
+aws_credentials/
+
+# Large binary files (never need context)
+*.zip
+*.tar.gz
+*.xlsx
+*.pdf
+*.csv
+
+# OS noise
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Lock files (redundant with package.json)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

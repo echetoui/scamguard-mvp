@@ -1,16 +1,16 @@
 /**
  * ScamReportingSystem.css
- * Design System: Automne Québécois
+ * Design System: Bleu Gardien
  */
 
 :root {
-  --primary: #C85A2A;      /* Terracotta */
-  --secondary: #D4A574;    /* Gold */
-  --accent: #7A9B7F;       /* Sage Green */
-  --bg-light: #FFF9F3;     /* Cream */
-  --text-main: #1a0f0a;    /* Dark Brown (AAA) */
-  --text-muted: #6B5344;
-  --focus-ring: #1a0f0a;
+  --primary: #1E40AF;
+  --primary-dark: #1e3a8a;
+  --secondary: #e0e0e0;
+  --bg-light: #F3F4F6;
+  --text-main: #111827;
+  --text-muted: #555555;
+  --focus-ring: #1E40AF;
 }
 
 .reporting-main {
@@ -30,7 +30,7 @@
   border: 2px solid var(--secondary);
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 8px 24px rgba(200, 90, 42, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 /* Header */
@@ -84,7 +84,7 @@
   height: 40px;
   border-radius: 50%;
   background: var(--bg-light);
-  border: 2px solid var(--secondary);
+  border: 2px solid #ccc;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -107,7 +107,7 @@
 .stepper-separator {
   flex: 1;
   height: 2px;
-  background: var(--secondary);
+  background: #ccc;
   margin: 0 16px 24px 16px;
   opacity: 0.3;
 }
@@ -141,7 +141,7 @@
   width: 100%;
   min-height: 60px;
   padding: 16px;
-  border: 2px solid var(--secondary);
+  border: 2px solid #ccc;
   border-radius: 8px;
   font-family: 'Lora', serif;
   font-size: 18px;
@@ -153,6 +153,7 @@
 .form-input:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
+  border-color: var(--primary);
 }
 
 .form-input.textarea {
@@ -177,7 +178,7 @@
 }
 
 .upload-area:hover, .upload-area:focus-visible {
-  background-color: #f7e8df;
+  background-color: #dbeafe;
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -213,13 +214,13 @@
   max-width: 100%;
   max-height: 300px;
   border-radius: 8px;
-  border: 2px solid var(--secondary);
+  border: 2px solid #ccc;
 }
 
 /* Validation Step */
 .summary-card {
   background-color: var(--bg-light);
-  border: 1px solid var(--secondary);
+  border: 1px solid #ccc;
   border-radius: 8px;
   padding: 24px;
   margin-bottom: 24px;
@@ -248,7 +249,7 @@
   gap: 16px;
   margin-top: 40px;
   padding-top: 24px;
-  border-top: 1px solid var(--secondary);
+  border-top: 1px solid #ccc;
 }
 
 .btn-primary, .btn-secondary {
@@ -269,7 +270,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #8B4513; /* Darker brown */
+  background-color: var(--primary-dark);
 }
 
 .btn-primary:disabled {
@@ -285,7 +286,7 @@
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-light);
+  background-color: #dbeafe;
 }
 
 .btn-primary:focus-visible, .btn-secondary:focus-visible {

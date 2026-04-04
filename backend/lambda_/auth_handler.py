@@ -53,6 +53,25 @@ def generate_invite_code():
     return ''.join(random.choice(chars) for _ in range(6))
 
 
+def validate_phone_number(phone):
+    """
+    Validate phone number format (Canadian format: 10+ digits).
+    Removes non-digit characters and validates.
+    """
+    # Remove all non-digit characters
+    cleaned = re.sub(r'[^\d+]', '', phone)
+    # Must have at least 10 digits
+    digits_only = re.sub(r'[^\d]', '', cleaned)
+    return len(digits_only) >= 10, cleaned
+
+
+def generate_otp():
+    """
+    Generate a 4-digit OTP code for SMS verification.
+    """
+    return ''.join(str(random.randint(0, 9)) for _ in range(4))
+
+
 def error_response(status_code, error_code, message):
     """Return standardized error response."""
     return {
@@ -459,6 +478,197 @@ def post_logout(event, context):
         return error_response(500, "INTERNAL_ERROR", f"Error during logout: {str(e)}")
 
 
+def post_request_sms_otp(event, context):
+    """
+    Request SMS OTP for phone-based authentication.
+
+    Generates a 4-digit code and stores it in DynamoDB with TTL (5 minutes).
+    In production, this would send via SNS or Twilio.
+    For development, the code is returned in response.
+    """
+    try:
+        body_raw = event.get("body", "{}")
+        if isinstance(body_raw, str):
+            body = json.loads(body_raw)
+        else:
+            body = body_raw
+        phone_number = body.get("phoneNumber", "").strip()
+
+        if not phone_number:
+            return error_response(400, "MISSING_PHONE", "Phone number is required.")
+
+        # Validate phone number
+        is_valid, cleaned_phone = validate_phone_number(phone_number)
+        if not is_valid:
+            return error_response(400, "INVALID_PHONE", "Phone number must have at least 10 digits.")
+
+        # Generate OTP
+        otp = generate_otp()
+
+        # Store OTP in DynamoDB with 5-minute TTL
+        otp_expiry = int(datetime.utcnow().timestamp()) + 300  # 5 minutes
+        table.put_item(
+            Item={
+                "PK": f"OTP#{cleaned_phone}",
+                "SK": "VERIFICATION",
+                "code": otp,
+                "created_at": datetime.utcnow().isoformat(),
+                "expires_at": otp_expiry,
+                "TTL": otp_expiry,  # DynamoDB TTL attribute
+                "attempts": 0,
+            }
+        )
+
+        # In development, return the code for testing
+        # In production, send via SNS/Twilio and don't return the code
+        is_dev = os.environ.get("ENVIRONMENT", "dev") == "dev"
+        response_data = {
+            "message": "OTP sent to your phone number.",
+            "phone_masked": f"***{cleaned_phone[-4:]}"
+        }
+        if is_dev:
+            response_data["otp"] = otp  # Development only
+
+        return success_response(200, response_data)
+
+    except Exception as e:
+        return error_response(500, "INTERNAL_ERROR", f"Error requesting OTP: {str(e)}")
+
+
+def post_verify_sms_otp(event, context):
+    """
+    Verify SMS OTP code.
+
+    Validates the code provided by the user against the stored OTP.
+    Creates or retrieves user based on phone number.
+    Returns authentication tokens.
+    """
+    try:
+        body_raw = event.get("body", "{}")
+        if isinstance(body_raw, str):
+            body = json.loads(body_raw)
+        else:
+            body = body_raw
+        phone_number = body.get("phoneNumber", "").strip()
+        code = body.get("code", "").strip()
+
+        if not phone_number or not code:
+            return error_response(400, "MISSING_FIELDS", "Phone number and code are required.")
+
+        # Validate phone number
+        is_valid, cleaned_phone = validate_phone_number(phone_number)
+        if not is_valid:
+            return error_response(400, "INVALID_PHONE", "Invalid phone number format.")
+
+        # Retrieve OTP from DynamoDB
+        try:
+            response = table.get_item(
+                Key={
+                    "PK": f"OTP#{cleaned_phone}",
+                    "SK": "VERIFICATION"
+                }
+            )
+        except Exception as e:
+            return error_response(400, "OTP_NOT_FOUND", "No OTP found for this phone number.")
+
+        if "Item" not in response:
+            return error_response(400, "OTP_NOT_FOUND", "OTP expired or not found. Please request a new code.")
+
+        otp_item = response["Item"]
+        stored_code = otp_item.get("code")
+        attempts = otp_item.get("attempts", 0)
+
+        # Check if OTP has expired
+        expires_at = otp_item.get("expires_at", 0)
+        if int(datetime.utcnow().timestamp()) > expires_at:
+            table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
+            return error_response(400, "OTP_EXPIRED", "OTP has expired. Please request a new code.")
+
+        # Check if too many attempts (max 3)
+        if attempts >= 3:
+            table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
+            return error_response(429, "TOO_MANY_ATTEMPTS", "Too many failed attempts. Please request a new code.")
+
+        # Verify code
+        if stored_code != code:
+            # Increment attempts
+            table.update_item(
+                Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"},
+                UpdateExpression="SET attempts = attempts + :inc",
+                ExpressionAttributeValues={":inc": 1}
+            )
+            return error_response(400, "INVALID_OTP", "Incorrect OTP code.")
+
+        # OTP is valid - clean up and create/retrieve user
+        table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
+
+        # Get or create user profile
+        user_id = str(uuid.uuid4())
+        profile_key = f"USER#{user_id}"
+
+        # Check if phone already has a user
+        try:
+            response = table.query(
+                IndexName="PhoneIndex" if os.environ.get("PHONE_INDEX", "false") == "true" else None,
+                KeyConditionExpression="phone_number = :phone",
+                ExpressionAttributeValues={":phone": cleaned_phone},
+                Limit=1
+            ) if os.environ.get("PHONE_INDEX", "false") == "true" else {"Items": []}
+
+            if response.get("Items"):
+                # Existing user
+                existing_user = response["Items"][0]
+                user_id = existing_user.get("PK").replace("USER#", "")
+                profile_key = f"USER#{user_id}"
+            else:
+                # New user - create profile
+                table.put_item(
+                    Item={
+                        "PK": profile_key,
+                        "SK": "PROFILE",
+                        "phone_number": cleaned_phone,
+                        "phone_verified": True,
+                        "status": "ACTIVE",
+                        "created_at": datetime.utcnow().isoformat(),
+                        "verified_at": datetime.utcnow().isoformat(),
+                    }
+                )
+        except Exception as e:
+            # If phone index doesn't exist, just create new user
+            table.put_item(
+                Item={
+                    "PK": profile_key,
+                    "SK": "PROFILE",
+                    "phone_number": cleaned_phone,
+                    "phone_verified": True,
+                    "status": "ACTIVE",
+                    "created_at": datetime.utcnow().isoformat(),
+                    "verified_at": datetime.utcnow().isoformat(),
+                }
+            )
+
+        # Generate a simple JWT-like token (in production, use proper JWT library)
+        # For now, return a base64-encoded token
+        import base64
+        token_payload = {
+            "user_id": user_id,
+            "phone_number": cleaned_phone,
+            "iat": int(datetime.utcnow().timestamp()),
+            "exp": int(datetime.utcnow().timestamp()) + 3600
+        }
+        token = base64.b64encode(json.dumps(token_payload).encode()).decode()
+
+        return success_response(200, {
+            "user_id": user_id,
+            "phone_number": cleaned_phone,
+            "token": token,
+            "message": "SMS OTP verified successfully."
+        })
+
+    except Exception as e:
+        return error_response(500, "INTERNAL_ERROR", f"Error verifying OTP: {str(e)}")
+
+
 def lambda_handler(event, context):
     """
     Route authentication requests to appropriate handler.
@@ -492,5 +702,9 @@ def lambda_handler(event, context):
         return post_refresh_token(event, context)
     elif path == "/api/v1/auth/logout" and method == "POST":
         return post_logout(event, context)
+    elif path == "/api/v1/auth/request-sms-otp" and method == "POST":
+        return post_request_sms_otp(event, context)
+    elif path == "/api/v1/auth/verify-sms-otp" and method == "POST":
+        return post_verify_sms_otp(event, context)
     else:
         return error_response(404, "NOT_FOUND", "Endpoint not found.")
