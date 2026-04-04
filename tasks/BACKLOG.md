@@ -128,25 +128,49 @@ Unstarted tasks, ordered by dependency. Start with top item.
   4. ✅ Dark mode tokens included in system
   5. ✅ All E2E tests passing (no visual regressions)
 
-### FRONTEND-2: Update Components to Use Design System
+### FRONTEND-2: Update Components to Use Design System 🔄 IN PROGRESS
 - **Domain:** Frontend/Components
-- **Files:** 25+ (all React components)
-- **LOC:** ~800
-- **Tokens:** 3K (estimated)
+- **Files:** 47 JSX files (10 priority, 37 remaining)
+- **LOC:** ~1500 (refactored)
+- **Tokens:** 3.2K (actual)
 - **Blocked by:** None (FRONTEND-1 completed ✅)
-- **Blocks:** None
-- **Description:** Apply consistent styles to all components
-- **Changes:**
-  - Buttons use unified button styles
-  - Forms use input token variables
-  - Cards use MD3 shadow system
-  - Typography uses type scale tokens
+- **Blocks:** FIGMA-1
+- **Started:** April 4, 2026
+- **Estimated Completion:** April 5-6, 2026
+- **Description:** Replace all inline styles with MD3 utility classes
+
+**Phase 1 (Complete ✅):**
+  - ✅ Created utility-classes.css (100+ semantic classes)
+  - ✅ Global import in App.jsx
+  - ✅ SMSAuthScreen.jsx refactored (partial)
+  - ✅ Documentation guide created
+
+**Phase 2 (In Progress 🔄):**
+  - 🔄 Refactor 10 priority components:
+    1. Dashboard.jsx
+    2. DashboardStats.jsx
+    3. ThreatCard.jsx
+    4. AccountProfile.jsx
+    5. OnboardingWizard.jsx
+    6. FamilyDashboard.jsx
+    7. WeeklyDigest.jsx
+    8. AnalysisHistory.jsx
+    9. ModernAuthPage.jsx
+    10. SecurityHeartDashboard.jsx
+
+**Phase 3 (Upcoming ⬜):**
+  - ⬜ Refactor remaining 37 components
+  - ⬜ Remove all inline styles
+  - ⬜ Final validation + audit
+
 - **Success Criteria:**
-  1. [ ] All buttons 48-60px (touch target)
-  2. [ ] All body text 18px minimum (mobile: 16px)
-  3. [ ] Consistent spacing using 4px grid
-  4. [ ] All colors from design tokens
-  5. [ ] Accessibility audit passing
+  1. [ ] 100+ utility classes available (✅ Done Phase 1)
+  2. [ ] All buttons use .btn-base or design-system components (Phase 2)
+  3. [ ] All body text 18px minimum via tokens (Phase 2)
+  4. [ ] Consistent spacing using --spacing-* tokens (Phase 2)
+  5. [ ] All colors from MD3 tokens only (Phase 2)
+  6. [ ] Zero inline style props remaining (Phase 3)
+  7. [ ] Accessibility audit passing (Phase 3)
 
 ---
 
