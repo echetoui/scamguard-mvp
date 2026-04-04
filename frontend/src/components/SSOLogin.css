@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /* SSOLogin.css - Styles pour les boutons SSO */
 
 .sso-container {
@@ -102,7 +104,7 @@
 @media (prefers-color-scheme: dark) {
   .sso-divider span {
     background: #2a2420;
-    color: var(--color-warning);
+    color: var(--color-tertiary);
   }
   
   .sso-button {

@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Animations & Transitions System
  * Phase 3.1.4 - Accessible Motion Design
@@ -563,7 +565,7 @@ button:active {
 /* Input focus ripple */
 @keyframes inputFocus {
   from {
-    border-color: var(--color-border);
+    border-color: var(--color-outline);
     box-shadow: none;
   }
   to {
@@ -793,7 +795,7 @@ textarea.error {
 
 @keyframes colorPulse {
   0%, 100% {
-    color: var(--color-text-primary);
+    color: var(--color-on-background);
   }
   50% {
     color: var(--color-primary);

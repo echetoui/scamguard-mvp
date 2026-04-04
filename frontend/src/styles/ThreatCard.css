@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * ThreatCard Styles
  * Individual threat display component
@@ -6,7 +8,7 @@
 
 .threat-card {
   background: var(--color-background);
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-outline);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   margin-bottom: var(--spacing-md);
@@ -17,20 +19,20 @@
 
 .threat-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--color-border-strong);
+  border-color: var(--color-outline);
   transform: translateY(-2px);
 }
 
 .threat-card-danger {
-  border-left: 6px solid var(--color-danger);
+  border-left: 6px solid var(--color-error);
 }
 
 .threat-card-warning {
-  border-left: 6px solid var(--color-warning);
+  border-left: 6px solid var(--color-tertiary);
 }
 
 .threat-card-success {
-  border-left: 6px solid var(--color-success);
+  border-left: 6px solid var(--color-secondary);
 }
 
 /* Card Header */
@@ -40,7 +42,7 @@
   align-items: flex-start;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-outline);
 }
 
 .threat-card-header-left {
@@ -54,9 +56,9 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-md);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   font-size: var(--font-size-md);
   white-space: nowrap;
   min-width: 56px;
@@ -77,14 +79,14 @@
 
 .threat-card-institution {
   font-size: var(--font-size-senior-base);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .threat-card-type {
   font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin: var(--spacing-sm) 0 0 0;
   display: flex;
   align-items: center;
@@ -97,7 +99,7 @@
 
 .threat-card-date {
   font-size: var(--font-size-md);
-  color: var(--color-text-tertiary);
+  color: var(--color-on-surface-variant);
   white-space: nowrap;
   text-align: right;
 }
@@ -106,7 +108,7 @@
 .threat-card-message {
   margin-bottom: var(--spacing-lg);
   padding: var(--spacing-lg);
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-md);
   border-left: 4px solid var(--color-primary);
 }
@@ -115,7 +117,7 @@
   font-size: var(--font-size-senior-base);
   line-height: 1.5;
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   word-break: break-word;
 }
 
@@ -126,8 +128,8 @@
 
 .threat-card-indicators-label {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-on-background);
   margin: 0 0 var(--spacing-sm) 0;
 }
 
@@ -140,11 +142,11 @@
 .threat-card-indicator-tag {
   display: inline-block;
   background: var(--color-warning-bg-light);
-  color: var(--color-warning);
+  color: var(--color-tertiary);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   max-width: 150px;
   white-space: nowrap;
   overflow: hidden;
@@ -159,20 +161,20 @@
 /* Expand Hint */
 .threat-card-expand-hint {
   padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-outline);
   text-align: center;
 }
 
 .threat-card-expand-hint p {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin: 0;
   font-style: italic;
 }
 
 /* Expanded Content */
 .threat-card-expanded {
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
 }
 
 .threat-card-expanded-content {
@@ -192,8 +194,8 @@
 
 .threat-card-expanded-label {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-on-background);
   margin: 0 0 var(--spacing-md) 0;
 }
 
@@ -201,11 +203,11 @@
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   white-space: pre-wrap;
   word-break: break-word;
   padding: var(--spacing-lg);
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-radius: var(--radius-sm);
 }
 
@@ -213,7 +215,7 @@
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .threat-card-expanded-indicators {
@@ -225,7 +227,7 @@
 .threat-card-expanded-indicators li {
   font-size: var(--font-size-senior-base);
   line-height: 1.6;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   padding: var(--spacing-sm) 0;
   margin: 0;
 }
@@ -239,16 +241,16 @@
   background: var(--color-background);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   margin-top: var(--spacing-lg);
 }
 
 .threat-card-source-label {
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
 }
 
 .threat-card-source-value {
-  color: var(--color-text-tertiary);
+  color: var(--color-on-surface-variant);
   font-family: monospace;
 }
 

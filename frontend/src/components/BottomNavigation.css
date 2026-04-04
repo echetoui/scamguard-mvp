@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Bottom Navigation Styles
  * Phase 3.1.2 - Senior-First Navigation
@@ -34,7 +36,7 @@
   right: 0;
   height: 80px;
   background-color: var(--color-background);
-  border-top: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-outline);
   display: flex;
   justify-content: space-around;
   align-items: stretch;
@@ -62,12 +64,12 @@
   touch-action: manipulation;
 
   /* Text color */
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
 
   /* Font properties */
   font-family: var(--font-family-system);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
   letter-spacing: var(--letter-spacing-wide);
 
   /* Accessibility */
@@ -78,27 +80,27 @@
 
 /* Hover State */
 .nav-item:hover {
-  background-color: var(--color-hover-bg);
+  background-color: var(--color-surface-variant);
   color: var(--color-primary);
 }
 
 /* Focus State (Keyboard Navigation) */
 .nav-item:focus {
-  outline: 3px solid var(--color-focus-outline);
+  outline: 3px solid var(--color-primary);
   outline-offset: -3px;
-  background-color: var(--color-hover-bg);
+  background-color: var(--color-surface-variant);
 }
 
 /* Active State */
 .nav-item.active {
   color: var(--color-primary);
   border-top-color: var(--color-primary);
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-surface);
 }
 
 /* Active State Hover */
 .nav-item.active:hover {
-  background-color: var(--color-active-bg);
+  background-color: var(--color-surface);
 }
 
 /* ============ Icon Styling ============ */
@@ -276,23 +278,23 @@
 
 [data-theme="dark"] .bottom-navigation {
   background-color: var(--color-background);
-  border-top-color: var(--color-border);
+  border-top-color: var(--color-outline);
   box-shadow: var(--shadow-lg);
 }
 
 [data-theme="dark"] .nav-item {
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
 }
 
 [data-theme="dark"] .nav-item:hover {
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-surface);
   color: var(--color-primary);
 }
 
 [data-theme="dark"] .nav-item.active {
   color: var(--color-primary);
   /* Use a slightly different background for active items in dark mode if needed */
-  background-color: var(--color-background-tertiary);
+  background-color: var(--color-surface-variant);
 }
 
 [data-theme="dark"] .nav-item.active:hover {
@@ -300,8 +302,8 @@
 }
 
 [data-theme="dark"] .nav-item:focus {
-  outline-color: var(--color-focus-outline);
-  background-color: var(--color-background-secondary);
+  outline-color: var(--color-primary);
+  background-color: var(--color-surface);
 }
 
 [data-theme="dark"] .active-indicator {

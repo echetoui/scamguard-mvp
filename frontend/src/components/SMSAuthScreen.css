@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * SMSAuthScreen Styles - Phase 5A Family Protection
  * Design: "Bleu Gardien" - Trust & Security design for seniors
@@ -26,7 +28,7 @@
 
   /* Accent Colors */
   --accent-red: #C1440D;        /* Red Autumn */
-  --accent-green: var(--color-success);      /* Sage - balance, autonomy */
+  --accent-green: var(--color-secondary);      /* Sage - balance, autonomy */
 
   /* Backgrounds */
   --bg-light: #f9f9f9;          /* Off-white - clarity */
