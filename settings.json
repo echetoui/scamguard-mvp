@@ -46,6 +46,36 @@
       "*.log"
     ]
   },
+  "compaction": {
+    "enabled": true,
+    "description": "Automatic context compaction when session exceeds token thresholds",
+    "triggers": {
+      "sessionTokens": {
+        "enabled": true,
+        "threshold": 100000,
+        "description": "Compress session context when exceeding 100K tokens"
+      },
+      "observationAge": {
+        "enabled": true,
+        "archiveAfterDays": 28,
+        "escalateAfterConfirmations": 5,
+        "description": "Archive 4-week-old observations, escalate patterns with 5+ confirmations"
+      },
+      "taskArchive": {
+        "enabled": true,
+        "keepRecentCount": 10,
+        "archiveAfterSessions": 20,
+        "description": "Archive completed tasks after 20 sessions, keep last 10 detailed"
+      }
+    },
+    "summaryModel": "haiku",
+    "summaryPrompt": "Summarize session progress for archival: (1) Completed tasks with outcomes, (2) Key decisions made, (3) Current state and in-progress work, (4) Next steps. Format as <summary>...</summary>. Omit raw tool output.",
+    "archiveFormat": "markdown-table",
+    "preserveTokenMetrics": true,
+    "monthlyReview": true,
+    "costSavingsTarget": "70-85%",
+    "estimatedMonthlySavings": "720K tokens (~$14.40)"
+  },
   "tokenUsage": {
     "trackingEnabled": true,
     "budgetPerSession": 100000,
