@@ -1,0 +1,151 @@
+{
+  "agent": "orchestrator",
+  "version": "1.0.0",
+  "description": "Coordinate specialized agents to execute complex tasks",
+  "role": "Decision-maker, router, result combiner",
+  "tokenBudget": 2000,
+  "visibility": {
+    "canSee": [
+      "Original request/task",
+      "Agent specifications",
+      "Task decomposition",
+      "Communication logs"
+    ],
+    "cannotSee": [
+      "Source code",
+      "Implementation details",
+      "Test infrastructure",
+      "Full codebase"
+    ]
+  },
+  "responsibilities": [
+    "Parse incoming requests",
+    "Decompose into agent tasks",
+    "Route to specialized agents",
+    "Coordinate execution",
+    "Combine agent results",
+    "Report status to user"
+  ],
+  "decisionLogic": {
+    "parseRequest": {
+      "extractType": "new_feature|bug_fix|refactor|debug",
+      "identifyDomain": "Frontend|Backend|Infrastructure",
+      "assessComplexity": "simple|moderate|complex"
+    },
+    "agentSelection": {
+      "search": "Find relevant code",
+      "analysis": "Understand problem",
+      "code": "Implement solution",
+      "test": "Validate results",
+      "review": "Final approval"
+    },
+    "executionStrategy": {
+      "sequential": "Each step depends on previous",
+      "parallel": "Independent tasks run together",
+      "waitPoints": "Output becomes next input"
+    }
+  },
+  "agents": [
+    {
+      "name": "search",
+      "priority": 1,
+      "tokenBudget": 2000,
+      "triggeredBy": "Always first",
+      "passesTo": "analysis",
+      "description": "Find relevant code files using RAG"
+    },
+    {
+      "name": "analysis",
+      "priority": 2,
+      "tokenBudget": 1500,
+      "triggeredBy": "After search",
+      "passesTo": "code",
+      "description": "Understand problem, identify root cause"
+    },
+    {
+      "name": "code",
+      "priority": 3,
+      "tokenBudget": 3500,
+      "triggeredBy": "After analysis",
+      "passesTo": "test",
+      "description": "Implement fix/feature"
+    },
+    {
+      "name": "test",
+      "priority": 4,
+      "tokenBudget": 2000,
+      "triggeredBy": "After code",
+      "passesTo": "review",
+      "description": "Validate solution"
+    },
+    {
+      "name": "review",
+      "priority": 5,
+      "tokenBudget": 1500,
+      "triggeredBy": "After test",
+      "passesTo": "orchestrator",
+      "optional": true,
+      "description": "Final code review"
+    }
+  ],
+  "communication": {
+    "protocol": "JSON structured messages",
+    "messageFormat": {
+      "from": "string",
+      "to": "string",
+      "timestamp": "ISO 8601",
+      "messageType": "request|response|error",
+      "taskId": "string",
+      "content": "object",
+      "metadata": {
+        "tokenUsed": "number",
+        "executionTimeMs": "number",
+        "success": "boolean"
+      }
+    },
+    "errorHandling": {
+      "onAgentFailure": "Collect details, escalate or retry",
+      "onGuardrailViolation": "Block, explain, suggest alternative",
+      "onContextOverflow": "Reduce scope, split into subtasks"
+    }
+  },
+  "outputFormat": {
+    "taskComplete": "boolean",
+    "summary": "string",
+    "changes": {
+      "filesModified": "array",
+      "linesAdded": "number",
+      "linesRemoved": "number"
+    },
+    "validation": {
+      "testsRun": "number",
+      "testsPassed": "number",
+      "guardrailsChecked": "boolean",
+      "guardrailsViolations": "number"
+    },
+    "tokenUsage": {
+      "orchestrator": "number",
+      "search": "number",
+      "analysis": "number",
+      "code": "number",
+      "test": "number",
+      "review": "number",
+      "total": "number"
+    },
+    "confidence": "number (0-1)",
+    "blockers": "array"
+  },
+  "integrations": {
+    "taskSystem": "Respects task file scope and success criteria",
+    "ragSystem": "Routes to Search Agent, enforces RAG_INDEX usage",
+    "guardrails": "All agents apply safety rules",
+    "memory": "All agents respect ACTIVE_RULES and DECISIONS.md",
+    "caching": "Accesses cached stable context"
+  },
+  "monitoring": {
+    "trackTokenUsage": true,
+    "trackExecutionTime": true,
+    "trackErrorRate": true,
+    "reportingFrequency": "per_task"
+  }
+}

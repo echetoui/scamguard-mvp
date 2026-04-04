@@ -125,5 +125,58 @@
       "beforeCommit": true,
       "beforeLoadContext": true
     }
+  },
+  "multiAgentSystem": {
+    "enabled": true,
+    "orchestratorConfig": "agents/orchestrator.json",
+    "agents": [
+      {
+        "name": "search",
+        "role": "Find relevant code files",
+        "tokenBudget": 2000,
+        "priority": 1
+      },
+      {
+        "name": "analysis",
+        "role": "Understand problem and identify root cause",
+        "tokenBudget": 1500,
+        "priority": 2
+      },
+      {
+        "name": "code",
+        "role": "Implement fix or feature",
+        "tokenBudget": 3500,
+        "priority": 3
+      },
+      {
+        "name": "test",
+        "role": "Validate solution and check success criteria",
+        "tokenBudget": 2000,
+        "priority": 4
+      },
+      {
+        "name": "review",
+        "role": "Final code review and approval",
+        "tokenBudget": 1500,
+        "priority": 5,
+        "optional": true
+      }
+    ],
+    "communication": {
+      "protocol": "JSON structured messages",
+      "errorHandling": "Collect details, escalate or retry"
+    },
+    "tokenBudget": {
+      "total": 13500,
+      "vs_singleAgent": 50000,
+      "savings": "73%"
+    },
+    "integrations": {
+      "taskSystem": true,
+      "ragSystem": true,
+      "guardrails": true,
+      "memory": true,
+      "caching": true
+    }
   }
 }
