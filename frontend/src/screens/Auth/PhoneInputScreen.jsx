@@ -1,14 +1,4 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  TouchableOpacity, 
-  KeyboardAvoidingView, 
-  Platform,
-  ActivityIndicator
-} from 'react-native';
 
 // Constantes issues de BRAND_GUIDELINES.md
 const COLORS = {
@@ -25,185 +15,201 @@ export default function PhoneInputScreen({ onRequestCode, errorMsg }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
-  // Formatage ultra-simple : On ne garde que les chiffres et le '+'
+  // Simple formatting: Keep only digits and '+'
   const handlePhoneChange = (text) => {
     const cleaned = text.replace(/[^0-9+]/g, '');
     setPhoneNumber(cleaned);
   };
 
   const handleSubmit = async () => {
-    // On s'assure qu'il y a au moins 10 chiffres (format canadien standard)
+    // Ensure at least 10 digits (standard Canadian format)
     if (phoneNumber.length < 10) return;
-    
+
     setIsLoading(true);
     try {
-      // Appelle la fonction passée en prop (qui fera l'appel API vers ton Lambda)
+      // Call the function passed as prop (which will make the API call to Lambda)
       await onRequestCode(phoneNumber);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const Wrapper = Platform.OS === 'web' ? View : KeyboardAvoidingView;
-  const wrapperProps = Platform.OS === 'web' ? { style: styles.container } : {
-    behavior: Platform.OS === 'ios' ? 'padding' : 'height',
-    style: styles.container
-  };
-
   return (
-    <Wrapper {...wrapperProps}>
-      <View style={styles.content}>
-        
-        <View style={styles.header}>
-          <Text style={styles.icon} accessibilityElementsHidden={true}>🛡️</Text>
-          <Text style={styles.title} accessibilityRole="header">
-            Bienvenue sur ScamGuard
-          </Text>
-          <Text style={styles.subtitle}>
-            Votre bouclier contre la fraude. Connectez-vous simplement avec votre numéro de cellulaire.
-          </Text>
-        </View>
+    <div style={styles.container}>
+      <div style={styles.content}>
 
-        <View style={styles.formContainer}>
-          <Text style={styles.label} nativeID="phoneLabel">
+        <div style={styles.header}>
+          <div style={styles.icon} aria-hidden="true">🛡️</div>
+          <h1 style={styles.title}>
+            Bienvenue sur ScamGuard
+          </h1>
+          <p style={styles.subtitle}>
+            Votre bouclier contre la fraude. Connectez-vous simplement avec votre numéro de cellulaire.
+          </p>
+        </div>
+
+        <div style={styles.formContainer}>
+          <label htmlFor="phoneInput" style={styles.label}>
             Quel est votre numéro de téléphone ?
-          </Text>
+          </label>
 
           {errorMsg ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorMsg}</Text>
-            </View>
+            <div style={styles.errorContainer}>
+              <p style={styles.errorText}>{errorMsg}</p>
+            </div>
           ) : null}
-          
-          <TextInput
+
+          <input
+            id="phoneInput"
+            type="tel"
             style={[
               styles.input,
               isFocused && styles.inputFocused
             ]}
             value={phoneNumber}
-            onChangeText={handlePhoneChange}
-            keyboardType="phone-pad"
+            onChange={(e) => handlePhoneChange(e.target.value)}
             placeholder="Ex: 514 123 4567"
-            placeholderTextColor="#9CA3AF" // Gris clair
-            accessibilityLabelledBy="phoneLabel"
-            accessibilityHint="Entrez votre numéro pour recevoir un code par SMS"
+            aria-label="Quel est votre numéro de téléphone ?"
+            aria-describedby="phoneHint"
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             maxLength={15}
           />
+          <p id="phoneHint" style={{ fontSize: '14px', color: '#6B7280', marginTop: '-16px', marginBottom: '16px' }}>
+            Entrez votre numéro pour recevoir un code par SMS
+          </p>
 
-          <TouchableOpacity 
+          <button
             style={[
               styles.button,
               (phoneNumber.length < 10 || isLoading) && styles.buttonDisabled
             ]}
-            onPress={handleSubmit}
+            onClick={handleSubmit}
             disabled={phoneNumber.length < 10 || isLoading}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: phoneNumber.length < 10 || isLoading }}
+            aria-busy={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color={COLORS.surface} size="large" />
+              <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⏳</span>
             ) : (
-              <Text style={styles.buttonText}>Continuer</Text>
+              <span style={styles.buttonText}>Continuer</span>
             )}
-          </TouchableOpacity>
-          
-          <Text style={styles.privacyText}>
-            🔒 Nous ne partagerons jamais votre numéro. Il sert uniquement à sécuriser votre compte.
-          </Text>
-        </View>
+          </button>
 
-      </View>
-    </Wrapper>
+          <p style={styles.privacyText}>
+            🔒 Nous ne partagerons jamais votre numéro. Il sert uniquement à sécuriser votre compte.
+          </p>
+        </div>
+
+      </div>
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    minHeight: '100vh',
+    padding: '20px',
   },
   content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center', // Centrer verticalement pour faciliter l'accès
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    paddingLeft: '24px',
+    paddingRight: '24px',
+    minHeight: '100vh',
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 40,
+    textAlign: 'center',
+    marginBottom: '40px',
   },
   icon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: '64px',
+    marginBottom: '16px',
+    display: 'block',
   },
   title: {
-    fontSize: 32, // Typo H1
+    fontSize: '32px',
     fontWeight: 'bold',
     color: COLORS.primary,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: '12px',
+    margin: '0 0 12px 0',
   },
   subtitle: {
-    fontSize: 20, // Grand Body pour les aînés
+    fontSize: '20px',
     color: COLORS.textSecondary,
     textAlign: 'center',
-    lineHeight: 28,
+    lineHeight: '28px',
+    margin: '0',
   },
   formContainer: {
     width: '100%',
   },
   label: {
-    fontSize: 22,
+    fontSize: '22px',
     fontWeight: '600',
     color: COLORS.textMain,
-    marginBottom: 12,
+    marginBottom: '12px',
+    display: 'block',
   },
   input: {
-    height: 70, // Règle des >60px : Immense champ de texte
+    height: '70px',
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    fontSize: 24, // Typographie très grande
-    paddingHorizontal: 20,
+    borderRadius: '12px',
+    border: '2px solid #D1D5DB',
+    fontSize: '24px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
     color: COLORS.textMain,
-    marginBottom: 24,
+    marginBottom: '24px',
+    boxSizing: 'border-box',
+    fontFamily: 'inherit',
   },
   inputFocused: {
-    borderColor: COLORS.primary, // Contour net quand sélectionné
+    borderColor: COLORS.primary,
   },
   button: {
-    height: 70, // Règle des >60px
+    height: '70px',
     backgroundColor: COLORS.primary,
-    borderRadius: 12,
+    borderRadius: '12px',
+    border: 'none',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: '20px',
+    cursor: 'pointer',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    transition: 'background-color 0.2s',
   },
   buttonDisabled: {
-    backgroundColor: '#9CA3AF', // Gris désactivé
+    backgroundColor: '#9CA3AF',
+    cursor: 'not-allowed',
   },
   buttonText: {
-    fontSize: 24,
+    fontSize: '24px',
     fontWeight: 'bold',
     color: COLORS.surface,
   },
   privacyText: {
-    fontSize: 16,
+    fontSize: '16px',
     color: COLORS.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: '24px',
+    margin: '0',
   },
   errorContainer: {
     backgroundColor: '#FEE2E2',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '16px',
   },
   errorText: {
     color: '#DC2626',
-    fontSize: 16,
+    fontSize: '16px',
     textAlign: 'center',
+    margin: '0',
   }
-});
+};

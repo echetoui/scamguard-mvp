@@ -1,14 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  TouchableOpacity, 
-  KeyboardAvoidingView, 
-  Platform,
-  Pressable
-} from 'react-native';
 
 // Constantes issues de BRAND_GUIDELINES.md
 const COLORS = {
@@ -17,12 +7,12 @@ const COLORS = {
   textMain: '#111827',
   textSecondary: '#555555',
   surface: '#ffffff',
-  focus: '#92400E', // Utilisé pour le contour de focus (Ambre Alerte pour visibilité)
+  focus: '#92400E',
   success: '#166534'
 };
 
 const CODE_LENGTH = 4;
-const TIMER_MINUTES = 5; // 5 minutes pour réduire le stress
+const TIMER_MINUTES = 5;
 
 export default function OTPVerificationScreen({ phoneNumber, onVerifySuccess, errorMsg }) {
   const [code, setCode] = useState('');
@@ -30,14 +20,14 @@ export default function OTPVerificationScreen({ phoneNumber, onVerifySuccess, er
   const [isFocused, setIsFocused] = useState(true);
   const inputRef = useRef(null);
 
-  // Minuteur rassurant de 5 minutes
+  // Timer: 5 minutes to enter the code
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timerId = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(timerId);
   }, [timeLeft]);
 
-  // Formatage du temps (ex: 04:59)
+  // Format time as MM:SS
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -45,11 +35,11 @@ export default function OTPVerificationScreen({ phoneNumber, onVerifySuccess, er
   };
 
   const handleCodeChange = (value) => {
-    // On n'accepte que les chiffres
+    // Only accept digits
     const numericValue = value.replace(/[^0-9]/g, '');
     if (numericValue.length <= CODE_LENGTH) {
       setCode(numericValue);
-      // Auto-soumission quand les 4 chiffres sont entrés
+      // Auto-submit when 4 digits entered
       if (numericValue.length === CODE_LENGTH) {
         onVerifySuccess(numericValue);
       }
@@ -60,218 +50,216 @@ export default function OTPVerificationScreen({ phoneNumber, onVerifySuccess, er
     inputRef.current?.focus();
   };
 
-  const Wrapper = Platform.OS === 'web' ? View : KeyboardAvoidingView;
-  const wrapperProps = Platform.OS === 'web' ? { style: styles.container } : {
-    behavior: Platform.OS === 'ios' ? 'padding' : 'height',
-    style: styles.container
-  };
-
   return (
-    <Wrapper {...wrapperProps}>
-      <View style={styles.content}>
-        
-        {/* En-tête rassurant et éducatif */}
-        <Text style={styles.title} accessibilityRole="header">
+    <div style={styles.container}>
+      <div style={styles.content}>
+
+        {/* Reassuring and educational header */}
+        <h1 style={styles.title}>
           Vérification sécurisée
-        </Text>
-        
-        <View style={styles.infoCard}>
-          <Text style={styles.instructionText}>
-            Nous avons envoyé un code à 4 chiffres au <Text style={styles.boldText}>{phoneNumber}</Text>.
-          </Text>
-          <Text style={styles.educationText}>
+        </h1>
+
+        <div style={styles.infoCard}>
+          <p style={styles.instructionText}>
+            Nous avons envoyé un code à 4 chiffres au <strong style={styles.boldText}>{phoneNumber}</strong>.
+          </p>
+          <p style={styles.educationText}>
             🛡️ ScamGuard ne vous appellera JAMAIS pour vous demander ce code.
-          </Text>
-        </View>
+          </p>
+        </div>
 
         {errorMsg ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{errorMsg}</Text>
-          </View>
+          <div style={styles.errorContainer}>
+            <p style={styles.errorText}>{errorMsg}</p>
+          </div>
         ) : null}
 
-        {/* Zone de saisie du code */}
-        <View style={styles.codeContainer}>
-          <Pressable style={styles.boxesContainer} onPress={handleBoxPress}>
+        {/* Code input area */}
+        <div style={styles.codeContainer}>
+          <div style={styles.boxesContainer} onClick={handleBoxPress}>
             {[...Array(CODE_LENGTH)].map((_, index) => {
               const digit = code[index] || '';
               const isCurrentDigit = index === code.length;
               const isActive = isCurrentDigit && isFocused;
 
               return (
-                <View 
-                  key={index} 
-                  style={[
-                    styles.codeBox, 
-                    isActive && styles.codeBoxActive,
-                    digit && styles.codeBoxFilled
-                  ]}
+                <div
+                  key={index}
+                  style={{
+                    ...styles.codeBox,
+                    ...(isActive && styles.codeBoxActive),
+                    ...(digit && styles.codeBoxFilled)
+                  }}
                 >
-                  <Text style={styles.codeText}>{digit}</Text>
-                </View>
+                  <span style={styles.codeText}>{digit}</span>
+                </div>
               );
             })}
-          </Pressable>
+          </div>
 
-          {/* 
-            Le champ TextInput caché qui fait la magie : 
-            - textContentType="oneTimeCode" (iOS AutoFill)
-            - autoComplete="sms-otp" (Android AutoFill)
-          */}
-          <TextInput
+          {/* Hidden input for keyboard entry and autofill */}
+          <input
             ref={inputRef}
+            type="text"
+            inputMode="numeric"
             value={code}
-            onChangeText={handleCodeChange}
-            keyboardType="number-pad"
-            textContentType="oneTimeCode"
-            autoComplete="sms-otp"
+            onChange={(e) => handleCodeChange(e.target.value)}
             maxLength={CODE_LENGTH}
             style={styles.hiddenInput}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            accessibilityLabel="Entrez le code à 4 chiffres reçu par SMS"
+            aria-label="Entrez le code à 4 chiffres reçu par SMS"
             autoFocus
           />
-        </View>
+        </div>
 
-        {/* Compte à rebours et renvoi généreux */}
-        <View style={styles.timerContainer}>
+        {/* Timer and resend */}
+        <div style={styles.timerContainer}>
           {timeLeft > 0 ? (
-            <Text style={styles.timerText}>
-              Prenez votre temps. Code valide pour : <Text style={styles.boldText}>{formatTime(timeLeft)}</Text>
-            </Text>
+            <p style={styles.timerText}>
+              Prenez votre temps. Code valide pour : <strong style={styles.boldText}>{formatTime(timeLeft)}</strong>
+            </p>
           ) : (
-            <TouchableOpacity 
-              style={styles.resendButton} 
-              accessibilityRole="button"
-              accessibilityHint="Renvoie un nouveau code par SMS"
+            <button
+              style={styles.resendButton}
+              onClick={() => {
+                setCode('');
+                setTimeLeft(TIMER_MINUTES * 60);
+              }}
+              aria-label="Renvoyer un nouveau code par SMS"
             >
-              <Text style={styles.resendButtonText}>Renvoyer un nouveau code</Text>
-            </TouchableOpacity>
+              Renvoyer un nouveau code
+            </button>
           )}
-        </View>
+        </div>
 
-      </View>
-    </Wrapper>
+      </div>
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    minHeight: '100vh',
+    padding: '20px',
   },
   content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
+    display: 'flex',
+    flexDirection: 'column',
+    paddingLeft: '24px',
+    paddingRight: '24px',
+    paddingTop: '40px',
+    minHeight: '100vh',
   },
   title: {
-    fontSize: 32, // Typographie H1 de la charte
+    fontSize: '32px',
     fontWeight: 'bold',
     color: COLORS.primary,
-    marginBottom: 20,
+    marginBottom: '20px',
+    margin: '0 0 20px 0',
   },
   infoCard: {
     backgroundColor: COLORS.surface,
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 40,
-    ...Platform.select({
-      web: {
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-      },
-      default: {
-        elevation: 2, // Ombre légère pour Android
-        shadowColor: '#000', // Ombre pour iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      }
-    })
+    padding: '20px',
+    borderRadius: '16px',
+    marginBottom: '40px',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
   },
   instructionText: {
-    fontSize: 20, // Plus grand que le Body standard (18px) pour les seniors
+    fontSize: '20px',
     color: COLORS.textMain,
-    lineHeight: 30,
-    marginBottom: 16,
+    lineHeight: '30px',
+    marginBottom: '16px',
+    margin: '0 0 16px 0',
   },
   educationText: {
-    fontSize: 18,
+    fontSize: '18px',
     color: COLORS.textSecondary,
-    lineHeight: 26,
+    lineHeight: '26px',
     fontStyle: 'italic',
+    margin: '0',
   },
   boldText: {
     fontWeight: 'bold',
   },
   codeContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
+    textAlign: 'center',
+    marginBottom: '40px',
+    position: 'relative',
   },
   boxesContainer: {
-    flexDirection: 'row',
+    display: 'flex',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 10,
+    paddingLeft: '10px',
+    paddingRight: '10px',
+    cursor: 'pointer',
   },
   codeBox: {
-    width: 65,
-    height: 75, // Règle des >60px respectée (très grand pour les tremblements)
+    width: '65px',
+    height: '75px',
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#D1D5DB', // Gris bordure standard
+    borderRadius: '12px',
+    border: '2px solid #D1D5DB',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    fontSize: '36px',
+    fontWeight: 'bold',
   },
   codeBoxActive: {
-    borderColor: COLORS.focus, // Double validation visuelle (Focus)
-    borderWidth: 3,
+    borderColor: COLORS.focus,
+    borderWidth: '3px',
   },
   codeBoxFilled: {
     borderColor: COLORS.primary,
   },
   codeText: {
-    fontSize: 36,
+    fontSize: '36px',
     fontWeight: 'bold',
     color: COLORS.textMain,
   },
   hiddenInput: {
     position: 'absolute',
-    width: 1,
-    height: 1,
-    opacity: 0,
+    width: '1px',
+    height: '1px',
+    opacity: '0',
+    border: 'none',
   },
   timerContainer: {
-    alignItems: 'center',
-  },
-  timerText: {
-    fontSize: 18,
-    color: COLORS.textSecondary,
     textAlign: 'center',
   },
-  resendButton: {
-    minHeight: 60, // Règle des 60px
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#E5E7EB', // Bouton secondaire
-    borderRadius: 12,
+  timerText: {
+    fontSize: '18px',
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    margin: '0',
   },
-  resendButtonText: {
-    fontSize: 20,
+  resendButton: {
+    minHeight: '60px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    backgroundColor: '#E5E7EB',
+    borderRadius: '12px',
+    border: 'none',
+    fontSize: '20px',
     fontWeight: '600',
     color: COLORS.primary,
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
   },
   errorContainer: {
     backgroundColor: '#FEE2E2',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '20px',
   },
   errorText: {
     color: '#DC2626',
-    fontSize: 16,
+    fontSize: '16px',
     textAlign: 'center',
+    margin: '0',
   }
-});
+};
