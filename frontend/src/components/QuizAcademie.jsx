@@ -19,6 +19,7 @@ import {
 } from '../utils/quizStorage';
 import '../styles/QuizAcademie.css';
 
+import '../../styles/utility-classes.css';
 // Module definitions
 const MODULES = [
   {
@@ -151,7 +152,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
           <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
             Choisissez votre niveau
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex-col gap-sm">
             <button
               onClick={() => handleDifficultySelect('debutant')}
               style={{
