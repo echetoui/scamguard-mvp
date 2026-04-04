@@ -18,16 +18,16 @@ export default function AnalysisHistory({ analyses = [] }) {
     );
   }
 
-  const getRiskColor = (riskLevel) => {
+  const getRiskClass = (riskLevel) => {
     switch (riskLevel) {
       case 'safe':
-        return '#2E7D32';
+        return 'risk-safe';
       case 'moderate':
-        return '#F57C00';
+        return 'risk-moderate';
       case 'danger':
-        return '#D32F2F';
+        return 'risk-danger';
       default:
-        return '#666666';
+        return '';
     }
   };
 
@@ -91,22 +91,14 @@ export default function AnalysisHistory({ analyses = [] }) {
         {analyses.map((analysis) => (
           <div
             key={analysis.id}
-            className="analysis-item"
-            style={{
-              borderLeftColor: getRiskColor(analysis.result?.riskLevel),
-            }}
+            className={`analysis-item ${getRiskClass(analysis.result?.riskLevel)}`}
           >
             <div className="analysis-header">
               <div className="analysis-risk">
                 <span className="risk-icon">
                   {getRiskIcon(analysis.result?.riskLevel)}
                 </span>
-                <span
-                  className="risk-label"
-                  style={{
-                    color: getRiskColor(analysis.result?.riskLevel),
-                  }}
-                >
+                <span className="risk-label">
                   {getRiskLabel(analysis.result?.riskLevel)}
                 </span>
               </div>

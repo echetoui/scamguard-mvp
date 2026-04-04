@@ -78,6 +78,31 @@
   font-size: 16px;
 }
 
+/* Risk Level Styles */
+.analysis-item.risk-safe {
+  border-left-color: var(--color-secondary);
+}
+
+.analysis-item.risk-safe .risk-label {
+  color: var(--color-secondary);
+}
+
+.analysis-item.risk-moderate {
+  border-left-color: var(--color-tertiary);
+}
+
+.analysis-item.risk-moderate .risk-label {
+  color: var(--color-tertiary);
+}
+
+.analysis-item.risk-danger {
+  border-left-color: var(--color-error);
+}
+
+.analysis-item.risk-danger .risk-label {
+  color: var(--color-error);
+}
+
 .analysis-score {
   background: linear-gradient(135deg, #f0f0f0, #ffffff);
   padding: 8px 12px;
