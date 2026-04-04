@@ -147,20 +147,21 @@
 
 .risk-bar-fill {
   height: 100%;
+  width: var(--progress, 0%);
   border-radius: 8px;
   transition: width var(--transition-base);
 }
 
 .risk-bar-fill.safe {
-  background: linear-gradient(90deg, #2E7D32 0%, #4CAF50 100%);
+  background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-secondary-container) 100%);
 }
 
 .risk-bar-fill.moderate {
-  background: linear-gradient(90deg, #F57C00 0%, #FFB74D 100%);
+  background: linear-gradient(90deg, var(--color-tertiary) 0%, var(--color-tertiary-container) 100%);
 }
 
 .risk-bar-fill.danger {
-  background: linear-gradient(90deg, #D32F2F 0%, #EF5350 100%);
+  background: linear-gradient(90deg, var(--color-error) 0%, var(--color-error-container) 100%);
 }
 
 .risk-bar-percentage {
