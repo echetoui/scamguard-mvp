@@ -16,6 +16,48 @@ import {
 import './SecurityHeartDashboard.css';
 
 /**
+ * Generate dynamic alerts based on score and stats
+ * @param {number} score - Security score 0-100
+ * @param {object} stats - Weekly stats {scamsBlocked, quizzesCompleted, guardianActive}
+ * @returns {array} Array of alert objects
+ */
+const generateAlerts = (score, stats) => {
+  const generatedAlerts = [];
+
+  // Critical score alert (highest priority)
+  if (score < 30) {
+    generatedAlerts.push({
+      id: 'critical',
+      variant: 'error',
+      title: 'Sécurité Critique',
+      message: 'Votre score est très faible. Nous recommandons une action immédiate.'
+    });
+  }
+  // Low score alert
+  else if (score < 50) {
+    generatedAlerts.push({
+      id: 'low-score',
+      variant: 'warning',
+      title: 'Score Faible',
+      message: 'Votre score de sécurité a baissé. Complétez un quiz pour l\'améliorer.'
+    });
+  }
+
+  // Quiz recommendation (lowest priority)
+  if (stats.quizzesCompleted < 2) {
+    generatedAlerts.push({
+      id: 'quiz-recommend',
+      variant: 'info',
+      title: 'Conseil',
+      message: `Vous avez complété ${stats.quizzesCompleted} quiz. Un de plus vous aiderait!`
+    });
+  }
+
+  // Return max 3 alerts
+  return generatedAlerts.slice(0, 3);
+};
+
+/**
  * Security Heart Dashboard - Phase 3.1.1
  *
  * Senior-First design dashboard showing overall security score
@@ -43,6 +85,8 @@ const SecurityHeartDashboard = ({ userId }) => {
   });
   const [scoreHistory, setScoreHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [alerts, setAlerts] = useState([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState(new Set());
 
   const fetchSecurityData = async () => {
     try {
@@ -61,9 +105,17 @@ const SecurityHeartDashboard = ({ userId }) => {
       setScoreHistory(mockHistory);
       setWeeklyStats(mockStats);
       setScoreStatus(getScoreStatus(mockScore));
+      const generatedAlerts = generateAlerts(mockScore, mockStats);
+      setAlerts(generatedAlerts);
     } catch (error) {
       console.error('Error fetching security data:', error);
       setScoreStatus('error');
+      setAlerts([{
+        id: 'error',
+        variant: 'error',
+        title: 'Erreur de Chargement',
+        message: 'Nous n\'avons pas pu charger vos données. Veuillez rafraîchir.'
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +129,9 @@ const SecurityHeartDashboard = ({ userId }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const dismissAlert = (alertId) => {
+    setAlerts(alerts.filter(alert => alert.id !== alertId));
+  };
 
   return (
     <div className="security-heart-dashboard">
