@@ -188,14 +188,17 @@ const SecurityHeartDashboard = ({ userId }) => {
         </Section>
       )}
 
-      {/* Score Evolution Graph */}
-      {scoreHistory.length > 0 && (
-        <div className="score-history-section">
-          <h3 className="section-title">Votre progression</h3>
-          <div className="score-graph">
+      {/* Progress Section */}
+      {scoreHistory.length > 0 && !isLoading && (
+        <Section
+          title="Votre Progression"
+          subtitle="Derniers 5 jours"
+        >
+          <Card variant="outlined">
             <svg
               viewBox="0 0 300 100"
               className="graph-svg"
+              style={{ width: '100%', height: 'auto', minHeight: '150px' }}
               role="img"
               aria-label="Graphique de progression du score de sécurité"
             >
@@ -221,15 +224,12 @@ const SecurityHeartDashboard = ({ userId }) => {
                     cy={point.y}
                     r="3"
                     className="graph-point"
-                    role="button"
-                    tabIndex="0"
-                    aria-label={point.label}
                   />
                 );
               })}
             </svg>
-          </div>
-        </div>
+          </Card>
+        </Section>
       )}
 
       {/* Weekly Summary */}
