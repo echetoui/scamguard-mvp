@@ -135,52 +135,58 @@ const SecurityHeartDashboard = ({ userId }) => {
 
   return (
     <div className="security-heart-dashboard">
-      {/* Main Heart Section */}
-      <div className="heart-section">
-        {/* Heart Icon and Score */}
-        <div className="heart-container">
-          {isLoading ? (
-            <div className="heart-spinner">
-              <div className="spinner"></div>
-              <p>Calcul en cours...</p>
-            </div>
-          ) : (
-            <>
-              <div
-                className={`heart-icon score-${scoreStatus}`}
-                aria-label={`Cœur de Sécurité: ${securityScore} sur 100`}
-              >
-                ❤️
-              </div>
+      {/* Score Section */}
+      {!isLoading && (
+        <Section
+          title="Votre Sécurité"
+          subtitle="Protection actuelle"
+        >
+          <Card variant="elevated">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.lg }}>
+              {/* Heart Icon */}
+              <div style={{ fontSize: '120px', lineHeight: 1 }}>❤️</div>
 
-              <div className="score-display">
-                <div className={`score-number score-${scoreStatus}`}>
+              {/* Score Display */}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: `${typography.fontSize.displaySm}px`, fontWeight: typography.fontWeight.bold, color: colors.textPrimary }}>
                   {securityScore}
                 </div>
-                <div className="score-max">/100</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  /100
+                </div>
               </div>
 
-              <div className="score-emoji">
-                {getScoreEmoji(securityScore)}
-              </div>
-            </>
-          )}
-        </div>
+              {/* Status Badge */}
+              <Badge
+                variant="filled"
+                size="large"
+                color={scoreStatus === 'safe' ? 'secondary' : scoreStatus === 'moderate' ? 'tertiary' : 'error'}
+              >
+                {getStatusText(scoreStatus)}
+              </Badge>
 
-        {/* Status Text */}
-        <div className="status-section">
-          <div
-            className={`status-badge score-${scoreStatus}`}
-            role="status"
-            aria-live="polite"
-          >
-            {getStatusText(scoreStatus)}
-          </div>
-          <div className="status-message">
-            {getStatusMessage(securityScore)}
-          </div>
-        </div>
-      </div>
+              {/* Encouraging Message */}
+              <p style={{ marginTop: spacing.lg, textAlign: 'center', fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary, margin: 0 }}>
+                {getStatusMessage(securityScore)}
+              </p>
+            </div>
+          </Card>
+        </Section>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <Section title="Chargement...">
+          <Card variant="elevated">
+            <div style={{ textAlign: 'center', padding: `${spacing['2xl']} ${spacing.lg}` }}>
+              <div className="heart-spinner">
+                <div className="spinner"></div>
+                <p style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textPrimary, margin: 0, marginTop: spacing.lg }}>Calcul en cours...</p>
+              </div>
+            </div>
+          </Card>
+        </Section>
+      )}
 
       {/* Score Evolution Graph */}
       {scoreHistory.length > 0 && (
