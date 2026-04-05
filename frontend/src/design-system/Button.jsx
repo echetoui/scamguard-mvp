@@ -54,7 +54,7 @@ export function Button({
     fontWeight: typography.fontWeight.bold,
     borderRadius: borderRadius.lg,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: `background-color ${transitions.fast}, border-color ${transitions.fast}`,
+    transition: `background-color ${transitions.fast}, border-color ${transitions.fast}, box-shadow ${transitions.fast}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -70,14 +70,23 @@ export function Button({
     cursor: 'not-allowed',
   } : {};
 
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  const focusStyle = isFocused && !disabled ? {
+    boxShadow: `0 0 0 3px ${colors.focusShadow}`,
+  } : {};
+
   return (
     <button
       style={{
         ...baseStyle,
         ...disabledStyle,
+        ...focusStyle,
       }}
       disabled={disabled}
       onClick={onClick}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
       {...props}
     >
       {children}
