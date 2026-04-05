@@ -8,8 +8,8 @@
  */
 
 import React, { useState } from 'react';
-import Input from '../../design-system/Input';
-import Button from '../../design-system/Button';
+import { Input } from '@/design-system';
+import { Button } from '@/design-system';
 import '../SMSAuthScreen.css';
 
 export default function EmailAuthForm({

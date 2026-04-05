@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Button from '../design-system/Button';
+import { Button } from '@/design-system';
 import QuebecFraudAlerts from './QuebecFraudAlerts';
 import './DashboardStyles.css';
 
