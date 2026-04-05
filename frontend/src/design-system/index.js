@@ -3,7 +3,7 @@ export { Button } from './Button';
 export { Card } from './Card';
 export { Input } from './Input';
 export { Alert } from './Alert';
+export { Section } from './Section';
 export { ThemeToggle } from './ThemeToggle';
-// Badge and Section exports will be added once components are created
+// Badge export will be added once component is created
 // export { Badge } from './Badge';
-// export { Section } from './Section';
