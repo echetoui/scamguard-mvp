@@ -49,3 +49,4 @@ skills-lock.json
 
 # Test results (use CI/CD artifacts instead)
 frontend/test-results/
+*.zip
