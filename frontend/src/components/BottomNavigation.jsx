@@ -92,6 +92,13 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange, hasFamily = fal
       icon: '⚙️',
       description: 'Vos paramètres et profil',
       route: '/settings'
+    },
+    {
+      id: 'design',
+      label: 'Design',
+      icon: '🎨',
+      description: 'Composants du design system',
+      route: '/design'
     }
   ];
 
