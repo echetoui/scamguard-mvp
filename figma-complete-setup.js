@@ -1,7 +1,26 @@
 // ScamGuard Design System - COMPLETE SETUP (MD3)
 // Creates full Material Design 3 system with components, variants, sizes, and states
+// SAFETY: Only runs once per file - detects existing setup and prevents duplicates
 
-console.log('🚀 Starting complete MD3 setup...\n');
+console.log('🚀 Checking for existing setup...\n');
+
+// ==================== SAFETY CHECK ====================
+// Check if setup has already run by looking for marker components
+const setupMarker = 'Button / Primary / Small'; // Created in first run
+const existingComponent = figma.root.findAll(
+  node => node.type === 'COMPONENT' && node.name === setupMarker
+);
+
+if (existingComponent.length > 0) {
+  console.log('⚠️  SETUP ALREADY COMPLETED!');
+  console.log('\n❌ Design system already exists. To run setup again:');
+  console.log('   1. Delete the Components and ScamGuard Specific pages');
+  console.log('   2. Or run figma-cleanup-variants.js to remove state variants');
+  console.log('   3. Then re-run this script\n');
+  throw new Error('Setup already completed. Aborting to prevent duplicates.');
+}
+
+console.log('✅ Fresh install detected - proceeding with setup\n');
 
 // ==================== CREATE PAGES ====================
 console.log('📄 Creating pages...');
