@@ -31,6 +31,7 @@ const FamilyDashboard = lazy(() => import('./components/FamilyDashboard'));
 const AccountProfile = lazy(() => import('./components/AccountProfile'));
 const CreditSystem = lazy(() => import('./components/CreditSystem'));
 const ScamReportingSystem = lazy(() => import('./components/ScamReportingSystem'));
+const DesignSystemDemo = lazy(() => import('./components/DesignSystemDemo'));
 
 // Loading placeholder component
 const LoadingPlaceholder = () => (
@@ -98,7 +99,8 @@ export default function App() {
       'outils': 'Outils',
       'famille': 'Famille',
       'parametres': 'Paramètres',
-      'signaler': 'Signaler'
+      'signaler': 'Signaler',
+      'design': 'Design'
     };
     if (isVoiceGuidanceEnabled) {
       speak(`Onglet ${tabNames[activeTab]}`);
@@ -468,6 +470,13 @@ export default function App() {
               stats={creditStats}
               formatTimeAgo={formatTimeAgo}
             />
+          </Suspense>
+        </TabPanel>
+
+        {/* Tab: Design System Demo */}
+        <TabPanel tabId="design" activeTab={activeTab}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <DesignSystemDemo />
           </Suspense>
         </TabPanel>
       </div>
