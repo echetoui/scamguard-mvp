@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import './SecurityHeartDashboard.css';
+import { Section } from '@/design-system';
+import { Card } from '@/design-system';
+import { Button } from '@/design-system';
+import { Badge } from '@/design-system';
+import { Alert } from '@/design-system';
+import { colors, typography, spacing } from '@/styles/design-tokens';
 import {
   getScoreStatus,
   getScoreEmoji,
@@ -8,6 +13,7 @@ import {
   calculateGraphPoints,
   calculateDataPoint
 } from '../utils/dashboardUtils';
+import './SecurityHeartDashboard.css';
 
 /**
  * Security Heart Dashboard - Phase 3.1.1
