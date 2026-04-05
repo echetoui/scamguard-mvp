@@ -18,8 +18,8 @@ import {
   getStreakData,
 } from '../utils/quizStorage';
 import '../styles/QuizAcademie.css';
+import '../styles/utility-classes.css';
 
-import '../../styles/utility-classes.css';
 // Module definitions
 const MODULES = [
   {
@@ -174,6 +174,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
             <button
               onClick={handleDifficultyCancel}
               className="p-lg text-lg font-semibold bg-light border-primary rounded-sm min-h-60"
+              style={{
                 backgroundColor: '#F3F4F6',
                 color: '#1E40AF',
                 border: '2px solid #1E40AF',

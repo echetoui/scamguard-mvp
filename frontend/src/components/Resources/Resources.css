@@ -1,4 +1,4 @@
-@import '../styles/design-tokens-m3.css';
+@import '../../styles/design-tokens-m3.css';
 
 /* ===== KEYBOARD NAVIGATION & FOCUS ===== */
 *:focus-visible {
