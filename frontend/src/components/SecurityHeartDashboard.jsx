@@ -232,41 +232,58 @@ const SecurityHeartDashboard = ({ userId }) => {
         </Section>
       )}
 
-      {/* Weekly Summary */}
-      <div className="weekly-summary-section">
-        <h3 className="section-title">Cette semaine</h3>
-
-        <div className="summary-items">
-          {/* Scams Blocked */}
-          <div className="summary-item">
-            <div className="summary-icon">🛡️</div>
-            <div className="summary-content">
-              <div className="summary-label">Arnaques détectées et arrêtées</div>
-              <div className="summary-value">{weeklyStats.scamsBlocked}</div>
-            </div>
-          </div>
-
-          {/* Quizzes Completed */}
-          <div className="summary-item">
-            <div className="summary-icon">✓</div>
-            <div className="summary-content">
-              <div className="summary-label">Quizz réussis</div>
-              <div className="summary-value">{weeklyStats.quizzesCompleted}</div>
-            </div>
-          </div>
-
-          {/* Guardian Status */}
-          <div className="summary-item">
-            <div className="summary-icon">👁️</div>
-            <div className="summary-content">
-              <div className="summary-label">Ange gardien vous surveille</div>
-              <div className="summary-value">
-                {weeklyStats.guardianActive ? 'Actif' : 'Inactif'}
+      {/* Weekly Stats Section */}
+      {!isLoading && (
+        <Section
+          title="Cette Semaine"
+          subtitle="Vos activités"
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: spacing.lg }}>
+            {/* Scams Blocked Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>🛡️</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Arnaques détectées
+                </div>
+                <Badge variant="filled" size="large" color="secondary">
+                  {weeklyStats.scamsBlocked}
+                </Badge>
               </div>
-            </div>
+            </Card>
+
+            {/* Quizzes Completed Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>✓</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Quizz réussis
+                </div>
+                <Badge variant="filled" size="large" color="primary">
+                  {weeklyStats.quizzesCompleted}
+                </Badge>
+              </div>
+            </Card>
+
+            {/* Guardian Status Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>👁️</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Ange gardien
+                </div>
+                <Badge
+                  variant="tonal"
+                  size="large"
+                  color={weeklyStats.guardianActive ? 'secondary' : 'error'}
+                >
+                  {weeklyStats.guardianActive ? 'Actif' : 'Inactif'}
+                </Badge>
+              </div>
+            </Card>
           </div>
-        </div>
-      </div>
+        </Section>
+      )}
 
       {/* Call to Action */}
       <div className="cta-section">
