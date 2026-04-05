@@ -62,10 +62,10 @@ export default function PhoneInputScreen({ onRequestCode, errorMsg }) {
           <input
             id="phoneInput"
             type="tel"
-            style={[
-              styles.input,
-              isFocused && styles.inputFocused
-            ]}
+            style={{
+              ...styles.input,
+              ...(isFocused && styles.inputFocused)
+            }}
             value={phoneNumber}
             onChange={(e) => handlePhoneChange(e.target.value)}
             placeholder="Ex: 514 123 4567"
@@ -80,10 +80,10 @@ export default function PhoneInputScreen({ onRequestCode, errorMsg }) {
           </p>
 
           <button
-            style={[
-              styles.button,
-              (phoneNumber.length < 10 || isLoading) && styles.buttonDisabled
-            ]}
+            style={{
+              ...styles.button,
+              ...((phoneNumber.length < 10 || isLoading) && styles.buttonDisabled)
+            }}
             onClick={handleSubmit}
             disabled={phoneNumber.length < 10 || isLoading}
             aria-busy={isLoading}
