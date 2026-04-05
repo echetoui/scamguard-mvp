@@ -1,52 +1,88 @@
-/**
- * New Design System - Button Component
- *
- * Adheres to the Phase 3 Design System Refresh Plan.
- *
- * Core Principles:
- * - Clarity First: Clear, understandable button labels.
- * - High Contrast & Readability: Meets WCAG AAA contrast ratios. Font size is 18px.
- * - Large Touch Targets: Minimum touch target size of 56x56 pixels.
- * - Simplicity: Clean design with ample padding.
- */
+// frontend/src/design-system/Button.jsx
 import React from 'react';
-import './Button.css';
+import {
+  colors,
+  typography,
+  spacing,
+  borderRadius,
+  transitions,
+  touchTargets,
+  shadows,
+} from '@/styles/design-tokens';
 
-/**
- * Renders a button with design system styles.
- *
- * @param {object} props
- * @param {React.ReactNode} props.children - The content to display inside the button.
- * @param {function} props.onClick - The function to call when the button is clicked.
- * @param {'primary' | 'secondary'} [props.variant='primary'] - The visual style of the button.
- * @param {'medium' | 'small'} [props.size] - The size of the button.
- * @param {boolean} [props.disabled=false] - Whether the button is disabled.
- * @param {string} [props.className=''] - Additional class names to apply.
- */
-const Button = ({
-  children,
-  onClick,
+export function Button({
   variant = 'primary',
-  size,
+  size = 'large',
   disabled = false,
-  className = '',
-}) => {
-  const buttonClasses = `
-    ds-button
-    ds-button--${variant}
-    ${size ? `ds-button--${size}` : ''}
-    ${className}
-  `.trim();
+  onClick,
+  children,
+  ...props
+}) {
+  const sizeMap = {
+    small: 48,
+    medium: 60,
+    large: 72,
+  };
+
+  const variantStyles = {
+    primary: {
+      backgroundColor: colors.primary,
+      color: colors.onPrimary,
+      border: 'none',
+    },
+    secondary: {
+      backgroundColor: 'transparent',
+      color: colors.primary,
+      border: `2px solid ${colors.primary}`,
+    },
+    tertiary: {
+      backgroundColor: 'transparent',
+      color: colors.primary,
+      border: 'none',
+    },
+    destructive: {
+      backgroundColor: colors.error,
+      color: colors.onError,
+      border: 'none',
+    },
+  };
+
+  const baseStyle = {
+    height: `${sizeMap[size]}px`,
+    padding: `0 ${spacing.xl}`,
+    fontSize: `${typography.fontSize.h4}px`,
+    fontWeight: typography.fontWeight.bold,
+    borderRadius: borderRadius.lg,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    transition: `background-color ${transitions.fast}, border-color ${transitions.fast}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    outline: 'none',
+    ...variantStyles[variant],
+  };
+
+  const disabledStyle = disabled ? {
+    backgroundColor: colors.disabledBg,
+    color: colors.textDisabled,
+    border: 'none',
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  } : {};
 
   return (
     <button
-      className={buttonClasses}
-      onClick={onClick}
+      style={{
+        ...baseStyle,
+        ...disabledStyle,
+      }}
       disabled={disabled}
+      onClick={onClick}
+      {...props}
     >
       {children}
     </button>
   );
-};
+}
 
-export default Button;
+Button.displayName = 'Button';
