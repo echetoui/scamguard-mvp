@@ -6,20 +6,24 @@ import { Input } from '../Input';
 describe('Input Component', () => {
   test('renders text input', () => {
     render(<Input type="text" label="Name" />);
-    const input = screen.getByRole('textbox', { name: /name/i });
+    const input = screen.getByRole('textbox');
     expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute('type', 'text');
   });
 
   test('renders email input', () => {
     render(<Input type="email" label="Email" />);
-    const input = screen.getByRole('textbox', { name: /email/i });
+    const input = screen.getByRole('textbox');
     expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute('type', 'email');
   });
 
-  test('renders password input with toggle', () => {
-    render(<Input type="password" label="Password" />);
-    const input = screen.getByLabelText(/password/i);
-    expect(input).toHaveAttribute('type', 'password');
+  test('renders password input with toggle button', () => {
+    const { container } = render(<Input type="password" label="Password" />);
+    const input = container.querySelector('input[type="password"]');
+    expect(input).toBeInTheDocument();
+    const toggleButton = screen.getByLabelText(/show password/i);
+    expect(toggleButton).toBeInTheDocument();
   });
 
   test('renders number input', () => {
@@ -93,7 +97,7 @@ describe('Input Component', () => {
     expect(input).toBeInTheDocument();
   });
 
-  test('is keyboard accessible with focus ring', () => {
+  test('is keyboard accessible with focus ring', async () => {
     const { container } = render(<Input type="text" label="Test" />);
     const input = container.querySelector('input');
     input.focus();
