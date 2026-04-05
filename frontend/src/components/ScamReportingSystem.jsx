@@ -11,8 +11,8 @@
 import React, { useState, useRef } from 'react';
 import useScamReport from '../hooks/useScamReport';
 import './ScamReportingSystem.css';
+import '../styles/utility-classes.css';
 
-import '../../styles/utility-classes.css';
 export default function ScamReportingSystem() {
   const { submitReport, isLoading, error } = useScamReport();
   const [currentStep, setCurrentStep] = useState(1);
@@ -184,10 +184,10 @@ export default function ScamReportingSystem() {
         
         {/* Feedbacks */}
         {error && (
-          <div className="error-message" role="alert" className="mt-xl">⚠️ {error}</div>
+          <div className="error-message mt-xl" role="alert">⚠️ {error}</div>
         )}
         {successMessage && (
-          <div className="success-msg" role="alert" className="mt-xl">✅ {successMessage}</div>
+          <div className="success-msg mt-xl" role="alert">✅ {successMessage}</div>
         )}
 
         {/* Navigation Buttons */}
