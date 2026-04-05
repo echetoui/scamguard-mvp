@@ -1,154 +1,87 @@
-import React, { useState } from 'react';
-import '../styles/ThreatCard.css';
+/**
+ * ThreatCard Component - ScamGuard Design System
+ * Figma Component: Threat Card / Low | Medium | Danger
+ *
+ * Displays threat information with severity-based visual hierarchy
+ */
+
+import React from 'react';
+import { colors } from '../styles/design-tokens';
+import './ThreatCard.css';
 
 /**
- * ThreatCard Component
- * Individual threat display card showing threat details
- *
- * Props:
- * - threat: threat object with threat_level, message, institution, etc.
- * - onSelect: callback when card is selected
- * - expandable: whether card can be expanded
+ * @param {object} props
+ * @param {'low' | 'medium' | 'danger'} props.severity - Threat severity
+ * @param {string} props.title - Threat title
+ * @param {string} props.description - Threat description
+ * @param {React.ReactNode} [props.icon] - Optional icon element
+ * @param {function} [props.onAction] - Callback for action button
  */
-const ThreatCard = ({ threat, onSelect = null, expandable = true }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const threatEmoji = {
-    high: '🔴',
-    medium: '🟡',
-    low: '🟢',
-  };
-
-  const threatColor = {
-    high: 'danger',
-    medium: 'warning',
-    low: 'success',
-  };
-
-  const typeEmoji = {
-    SMS: '📱',
-    Email: '💌',
-    Call: '☎️',
-    Phishing: '🎣',
-  };
-
-  const handleCardClick = () => {
-    if (expandable) {
-      setIsExpanded(!isExpanded);
-    }
-    if (onSelect) {
-      onSelect(threat);
+const ThreatCard = ({
+  severity = 'medium',
+  title,
+  description,
+  icon,
+  onAction
+}) => {
+  const severityMap = {
+    low: {
+      color: colors.tertiary,       // #7A5900 - Ambre
+      label: 'Low Threat'
+    },
+    medium: {
+      color: '#FF8A00',             // Orange (extended palette)
+      label: 'Medium Threat'
+    },
+    danger: {
+      color: colors.error,          // #BA1A1A - Rouge
+      label: 'High Threat'
     }
   };
 
-  const handleKeyDown = (e) => {
-    if ((e.key === 'Enter' || e.key === ' ') && expandable) {
-      e.preventDefault();
-      setIsExpanded(!isExpanded);
-      if (onSelect) {
-        onSelect(threat);
-      }
-    }
-  };
+  const config = severityMap[severity];
 
   return (
     <div
-      className={`threat-card threat-card-${threatColor[threat.threat_level]} ${isExpanded ? 'threat-card-expanded' : ''}`}
-      onClick={handleCardClick}
-      onKeyDown={handleKeyDown}
+      className="threat-card"
+      style={{ borderLeftColor: config.color }}
       role="article"
-      aria-expanded={isExpanded}
-      aria-label={`Menace ${threat.threat_level}: ${threat.institution}`}
-      tabIndex={expandable ? 0 : -1}
+      aria-label={`${config.label}: ${title}`}
     >
-      {/* Card Header */}
-      <div className="threat-card-header">
-        <div className="threat-card-header-left">
-          <div className="threat-card-threat-badge">
-            <span className="threat-card-threat-emoji">{threatEmoji[threat.threat_level]}</span>
-            <span className="threat-card-threat-level">{threat.threat_level.toUpperCase()}</span>
+      {/* Left Border Accent */}
+      <div
+        className="threat-card__accent"
+        style={{ backgroundColor: config.color }}
+        aria-hidden="true"
+      />
+
+      {/* Content */}
+      <div className="threat-card__content">
+        {icon && (
+          <div className="threat-card__icon">
+            {icon}
           </div>
-          <div className="threat-card-info">
-            <p className="threat-card-institution">{threat.institution}</p>
-            <p className="threat-card-type">
-              <span className="threat-card-type-emoji">{typeEmoji[threat.type] || '📨'}</span>
-              {threat.type}
-            </p>
-          </div>
-        </div>
-        <div className="threat-card-date">
-          {new Date(threat.date_detected).toLocaleDateString('fr-CA')}
+        )}
+
+        <div className="threat-card__text">
+          <h3 className="threat-card__title">{title}</h3>
+          <p className="threat-card__description">{description}</p>
         </div>
       </div>
 
-      {/* Message Preview */}
-      <div className="threat-card-message">
-        <p className="threat-card-message-text">
-          {threat.message.length > 100 ? threat.message.substring(0, 100) + '...' : threat.message}
-        </p>
-      </div>
-
-      {/* Threat Indicators (Preview) */}
-      {threat.threat_indicators && threat.threat_indicators.length > 0 && !isExpanded && (
-        <div className="threat-card-indicators-preview">
-          <p className="threat-card-indicators-label">Signes d'alerte:</p>
-          <div className="threat-card-indicators-list">
-            {threat.threat_indicators.slice(0, 2).map((indicator, idx) => (
-              <span key={idx} className="threat-card-indicator-tag">
-                {indicator}
-              </span>
-            ))}
-            {threat.threat_indicators.length > 2 && (
-              <span className="threat-card-indicator-tag threat-card-indicator-more">
-                +{threat.threat_indicators.length - 2}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Expanded Content */}
-      {isExpanded && (
-        <div className="threat-card-expanded-content">
-          {/* Full message */}
-          <div className="threat-card-expanded-section">
-            <p className="threat-card-expanded-label">Message complet:</p>
-            <p className="threat-card-expanded-message">{threat.message}</p>
-          </div>
-
-          {/* Full threat indicators */}
-          {threat.threat_indicators && threat.threat_indicators.length > 0 && (
-            <div className="threat-card-expanded-section">
-              <p className="threat-card-expanded-label">Tous les signes d'alerte:</p>
-              <ul className="threat-card-expanded-indicators">
-                {threat.threat_indicators.map((indicator, idx) => (
-                  <li key={idx}>• {indicator}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Explanation */}
-          {threat.explanation_fr && (
-            <div className="threat-card-expanded-section">
-              <p className="threat-card-expanded-label">Explication:</p>
-              <p className="threat-card-expanded-explanation">{threat.explanation_fr}</p>
-            </div>
-          )}
-
-          {/* Source */}
-          <div className="threat-card-source">
-            <span className="threat-card-source-label">Source:</span>
-            <span className="threat-card-source-value">{threat.source || 'N/A'}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Click to expand indicator */}
-      {expandable && !isExpanded && (
-        <div className="threat-card-expand-hint">
-          <p>Cliquez pour plus de détails</p>
-        </div>
+      {/* Action Button */}
+      {onAction && (
+        <button
+          className="threat-card__action"
+          onClick={onAction}
+          style={{
+            color: config.color,
+            borderColor: config.color
+          }}
+          aria-label={`Learn more about ${title}`}
+        >
+          Learn More →
+        </button>
       )}
     </div>
   );

@@ -1,0 +1,94 @@
+/**
+ * SMSMessage Component Styles
+ * Material Design 3 Aligned
+ */
+
+@import '../styles/design-tokens-m3.css';
+
+.sms-message {
+  padding: var(--spacing-2xl);
+  border-radius: 12px;
+  border-left: 4px solid;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-width: 420px;
+  transition: all 0.3s ease;
+}
+
+.sms-message:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sms-message__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.sms-message__icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.sms-message__verdict {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sms-message__sender {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+}
+
+.sms-message__text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-on-surface);
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.sms-message__action {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sms-message__action:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sms-message__action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .sms-message {
+    max-width: 100%;
+    padding: var(--spacing-lg);
+  }
+
+  .sms-message__text {
+    font-size: 13px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .sms-message {
+    transition: none;
+  }
+}

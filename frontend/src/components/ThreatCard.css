@@ -1,0 +1,118 @@
+/**
+ * ThreatCard Component Styles
+ * Material Design 3 Aligned
+ */
+
+@import '../styles/design-tokens-m3.css';
+
+.threat-card {
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: 12px;
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  transition: all 0.3s ease;
+}
+
+.threat-card:hover {
+  background-color: var(--color-surface-container);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.threat-card:focus-within {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Left Accent Border */
+.threat-card__accent {
+  width: 4px;
+  border-radius: 2px;
+  grid-row: 1 / -1;
+}
+
+/* Main Content */
+.threat-card__content {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: flex-start;
+}
+
+.threat-card__icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.threat-card__text {
+  flex: 1;
+}
+
+.threat-card__title {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  line-height: 1.4;
+}
+
+.threat-card__description {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+}
+
+/* Action Button */
+.threat-card__action {
+  grid-column: 2;
+  align-self: flex-end;
+  background: none;
+  border: 1px solid;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.threat-card__action:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  text-decoration: underline;
+}
+
+.threat-card__action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .threat-card {
+    grid-template-columns: 4px 1fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .threat-card__action {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .threat-card,
+  .threat-card__action {
+    transition: none;
+  }
+}
