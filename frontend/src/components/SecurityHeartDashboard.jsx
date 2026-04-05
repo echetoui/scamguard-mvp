@@ -135,6 +135,22 @@ const SecurityHeartDashboard = ({ userId }) => {
 
   return (
     <div className="security-heart-dashboard">
+      {/* Alerts Section */}
+      {alerts.length > 0 && (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: spacing.lg, marginBottom: spacing['2xl'] }}>
+          {alerts.map((alert) => (
+            <Alert
+              key={alert.id}
+              variant={alert.variant}
+              title={alert.title}
+              message={alert.message}
+              dismissable={true}
+              onDismiss={() => dismissAlert(alert.id)}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Score Section */}
       {!isLoading && (
         <Section
@@ -285,21 +301,29 @@ const SecurityHeartDashboard = ({ userId }) => {
         </Section>
       )}
 
-      {/* Call to Action */}
-      <div className="cta-section">
-        <button
-          className="continue-button"
-          onClick={() => window.location.href = '/main'}
-          aria-label="Continuer vers l'application principale"
-        >
-          CONTINUER
-        </button>
-      </div>
-
-      {/* Accessibility Skip Link */}
-      <a href="#main-content" className="skip-link">
-        Aller au contenu principal
-      </a>
+      {/* CTA Section */}
+      {!isLoading && (
+        <Section>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg, width: '100%' }}>
+            <Button
+              variant="primary"
+              size="large"
+              onClick={() => window.location.href = '/main'}
+              style={{ width: '100%' }}
+            >
+              CONTINUER
+            </Button>
+            <Button
+              variant="secondary"
+              size="large"
+              onClick={() => console.log('Settings clicked')}
+              style={{ width: '100%' }}
+            >
+              PARAMÈTRES
+            </Button>
+          </div>
+        </Section>
+      )}
     </div>
   );
 };
