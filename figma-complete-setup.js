@@ -82,24 +82,24 @@ const colors = {
 };
 
 const colorsPage = pages['Colors'];
-let yOffset = 0;
+let colorYOffset = 0;
 
 for (const [tokenName, colorData] of Object.entries(colors)) {
   const rect = figma.createRectangle();
   rect.name = tokenName;
   rect.resize(120, 80);
   rect.fills = [{ type: 'SOLID', color: { r: colorData.r, g: colorData.g, b: colorData.b } }];
-  rect.y = yOffset;
+  rect.y = colorYOffset;
   colorsPage.appendChild(rect);
 
   // Add text label
   const text = figma.createText();
   text.characters = tokenName;
   text.fontSize = 11;
-  text.y = yOffset + 85;
+  text.y = colorYOffset + 85;
   colorsPage.appendChild(text);
 
-  yOffset += 120;
+  colorYOffset += 120;
 }
 console.log(`  ✅ ${Object.keys(colors).length} color tokens created`);
 
@@ -107,7 +107,7 @@ console.log(`  ✅ ${Object.keys(colors).length} color tokens created`);
 console.log('\n🔧 Creating MD3 base components with variants and sizes...');
 
 const componentsPage = pages['Components'];
-let yOffset = 0;
+let componentYOffset = 0;
 
 // Helper: Create button with proper MD3 styling
 function createButton(name, fillColor, width = 200, height = 56) {
@@ -142,11 +142,11 @@ for (const variant of buttonVariants) {
       200,
       size.height
     );
-    button.y = yOffset;
+    button.y = componentYOffset;
     componentsPage.appendChild(button);
-    yOffset += size.height + 20;
+    componentYOffset += size.height + 20;
   }
-  yOffset += 40; // Extra spacing between variants
+  componentYOffset += 40; // Extra spacing between variants
 }
 console.log('  ✅ Buttons (4 variants × 3 sizes = 12 components)');
 
@@ -161,9 +161,9 @@ for (const type of inputTypes) {
   input.fills = [{ type: 'SOLID', color: { r: 250/255, g: 252/255, b: 255/255 } }];
   input.strokes = [{ type: 'SOLID', color: { r: 114/255, g: 120/255, b: 142/255 } }];
   input.strokeWeight = 2;
-  input.y = yOffset;
+  input.y = componentYOffset;
   componentsPage.appendChild(input);
-  yOffset += 80;
+  componentYOffset += 80;
 }
 console.log('  ✅ Inputs (4 types)');
 
@@ -183,9 +183,9 @@ for (const variant of cardVariants) {
     card.strokes = [{ type: 'SOLID', color: { r: 196/255, g: 199/255, b: 197/255 } }];
     card.strokeWeight = 1;
   }
-  card.y = yOffset;
+  card.y = componentYOffset;
   componentsPage.appendChild(card);
-  yOffset += 240;
+  componentYOffset += 240;
 }
 console.log('  ✅ Cards (2 variants)');
 
@@ -201,9 +201,9 @@ for (const variant of badgeVariants) {
   badge.resize(32, 20);
   badge.cornerRadius = 16;
   badge.fills = [{ type: 'SOLID', color: variant.color }];
-  badge.y = yOffset;
+  badge.y = componentYOffset;
   componentsPage.appendChild(badge);
-  yOffset += 60;
+  componentYOffset += 60;
 }
 console.log('  ✅ Badges (2 variants)');
 
@@ -214,16 +214,16 @@ dialog.name = 'Dialog / Default';
 dialog.resize(400, 300);
 dialog.cornerRadius = 12;
 dialog.fills = [{ type: 'SOLID', color: { r: 250/255, g: 252/255, b: 255/255 } }];
-dialog.y = yOffset;
+dialog.y = componentYOffset;
 componentsPage.appendChild(dialog);
-yOffset += 340;
+componentYOffset += 340;
 console.log('  ✅ Dialog');
 
 // ==================== CREATE SCAMGUARD COMPONENTS ====================
 console.log('\n🎨 Creating ScamGuard-specific components...');
 
 const scamguardPage = pages['ScamGuard Specific'];
-yOffset = 0;
+let scamguardYOffset = 0;
 
 // Risk Score - Create all risk levels
 const riskLevels = [
@@ -240,7 +240,7 @@ for (const level of riskLevels) {
   riskScore.layoutMode = 'VERTICAL';
   riskScore.itemSpacing = 12;
   riskScore.primaryAxisAlignItems = 'CENTER';
-  riskScore.y = yOffset;
+  riskScore.y = scamguardYOffset;
   scamguardPage.appendChild(riskScore);
 
   const circle = figma.createEllipse();
@@ -248,7 +248,7 @@ for (const level of riskLevels) {
   circle.fills = [{ type: 'SOLID', color: level.color }];
   riskScore.appendChild(circle);
 
-  yOffset += 250;
+  scamguardYOffset += 250;
 }
 console.log('  ✅ Risk Score (3 levels: Safe, Moderate, Danger)');
 
@@ -272,7 +272,7 @@ for (const severity of threatSeverities) {
   threatCard.paddingBottom = 12;
   threatCard.fills = [{ type: 'SOLID', color: { r: 222/255, g: 226/255, b: 235/255 } }];
   threatCard.cornerRadius = 12;
-  threatCard.y = yOffset;
+  threatCard.y = scamguardYOffset;
   scamguardPage.appendChild(threatCard);
 
   const border = figma.createRectangle();
@@ -280,7 +280,7 @@ for (const severity of threatSeverities) {
   border.fills = [{ type: 'SOLID', color: severity.color }];
   threatCard.appendChild(border);
 
-  yOffset += 170;
+  scamguardYOffset += 170;
 }
 console.log('  ✅ Threat Cards (3 severity levels)');
 
@@ -299,9 +299,9 @@ for (const status of heartStatuses) {
   heart.layoutMode = 'VERTICAL';
   heart.primaryAxisAlignItems = 'CENTER';
   heart.fills = [{ type: 'SOLID', color: status.color }];
-  heart.y = yOffset;
+  heart.y = scamguardYOffset;
   scamguardPage.appendChild(heart);
-  yOffset += 170;
+  scamguardYOffset += 170;
 }
 console.log('  ✅ Security Hearts (3 status levels)');
 
@@ -325,9 +325,9 @@ for (const verdict of smsVerdicts) {
   sms.paddingBottom = 12;
   sms.fills = [{ type: 'SOLID', color: verdict.bgColor }];
   sms.cornerRadius = 12;
-  sms.y = yOffset;
+  sms.y = scamguardYOffset;
   scamguardPage.appendChild(sms);
-  yOffset += 150;
+  scamguardYOffset += 150;
 }
 console.log('  ✅ SMS Messages (3 verdicts: Scam, Legitimate, Suspicious)');
 
@@ -346,7 +346,7 @@ quiz.fills = [{ type: 'SOLID', color: { r: 250/255, g: 252/255, b: 255/255 } }];
 quiz.cornerRadius = 12;
 quiz.strokes = [{ type: 'SOLID', color: { r: 196/255, g: 199/255, b: 197/255 } }];
 quiz.strokeWeight = 1;
-quiz.y = yOffset;
+quiz.y = scamguardYOffset;
 scamguardPage.appendChild(quiz);
 console.log('  ✅ Quiz Card');
 
