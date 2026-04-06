@@ -14,6 +14,8 @@ import {
   getAllBadges,
   clearQuizProgress,
   getModuleState,
+  addXp,
+  getXpData,
 } from '../quizStorage';
 
 describe('quizStorage utility', () => {
@@ -270,6 +272,98 @@ describe('quizStorage utility', () => {
       saveModuleResult('phishing', 60, false);
       const state = getModuleState('phishing');
       expect(state).toBe('in-progress');
+    });
+  });
+
+  describe('addXp', () => {
+    it('should accumulate XP over multiple calls', () => {
+      addXp(50);
+      addXp(30);
+      const data = getXpData();
+      expect(data.totalXp).toBe(80);
+    });
+
+    it('should reject negative XP', () => {
+      addXp(100);
+      addXp(-50); // Should be ignored
+      const data = getXpData();
+      expect(data.totalXp).toBe(100);
+    });
+
+    it('should reject non-number values', () => {
+      addXp(100);
+      addXp('invalid'); // Should be ignored
+      const data = getXpData();
+      expect(data.totalXp).toBe(100);
+    });
+
+    it('should persist XP to localStorage', () => {
+      addXp(75);
+      const progress = getQuizProgress();
+      expect(progress._xp.totalXp).toBe(75);
+    });
+
+    it('should handle zero XP gracefully', () => {
+      addXp(0);
+      const data = getXpData();
+      expect(data.totalXp).toBe(0);
+    });
+  });
+
+  describe('getXpData', () => {
+    it('should return defaults when no XP earned', () => {
+      const data = getXpData();
+      expect(data.totalXp).toBe(0);
+      expect(data.level).toBe(1);
+      expect(data.xpInLevel).toBe(0);
+      expect(data.xpNeeded).toBe(500);
+    });
+
+    it('should calculate level 1 at 0 XP', () => {
+      addXp(250);
+      const data = getXpData();
+      expect(data.level).toBe(1);
+      expect(data.xpInLevel).toBe(250);
+    });
+
+    it('should reach level 2 at exactly 500 XP', () => {
+      addXp(500);
+      const data = getXpData();
+      expect(data.level).toBe(2);
+      expect(data.xpInLevel).toBe(0);
+      expect(data.xpNeeded).toBe(1000);
+    });
+
+    it('should calculate progress correctly in level 2', () => {
+      addXp(600);
+      const data = getXpData();
+      expect(data.level).toBe(2);
+      expect(data.xpInLevel).toBe(100);
+      expect(data.xpNeeded).toBe(1000);
+    });
+
+    it('should wrap xpInLevel when crossing level boundary', () => {
+      addXp(550);
+      const data = getXpData();
+      expect(data.level).toBe(2);
+      expect(data.xpInLevel).toBe(50);
+    });
+
+    it('should calculate level 3 correctly', () => {
+      addXp(1100);
+      const data = getXpData();
+      expect(data.level).toBe(3);
+      expect(data.xpInLevel).toBe(100);
+    });
+  });
+
+  describe('clearQuizProgress clears XP', () => {
+    it('should clear XP when clearing all progress', () => {
+      addXp(500);
+      clearQuizProgress();
+      const data = getXpData();
+      expect(data.totalXp).toBe(0);
+      expect(data.level).toBe(1);
     });
   });
 });
