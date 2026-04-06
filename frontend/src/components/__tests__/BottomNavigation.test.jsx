@@ -36,7 +36,7 @@ describe('BottomNavigation Component', () => {
         <BottomNavigation activeTab="securite" onTabChange={mockOnTabChange} />
       );
       const buttons = container.querySelectorAll('.nav-item');
-      expect(buttons.length).toBe(6);
+      expect(buttons.length).toBe(9);
     });
 
     it('should render with family tab when hasFamily=true', () => {
@@ -44,7 +44,7 @@ describe('BottomNavigation Component', () => {
         <BottomNavigation activeTab="securite" onTabChange={mockOnTabChange} hasFamily={true} />
       );
       const buttons = container.querySelectorAll('.nav-item');
-      expect(buttons.length).toBe(7);
+      expect(buttons.length).toBe(10);
     });
 
     it('should not render family tab when hasFamily=false', () => {
@@ -52,7 +52,7 @@ describe('BottomNavigation Component', () => {
         <BottomNavigation activeTab="securite" onTabChange={mockOnTabChange} hasFamily={false} />
       );
       const buttons = container.querySelectorAll('.nav-item');
-      expect(buttons.length).toBe(6);
+      expect(buttons.length).toBe(9);
     });
 
     it('should display all tab labels', () => {
@@ -174,10 +174,10 @@ describe('BottomNavigation Component', () => {
     });
 
     it('should not navigate right at last tab', () => {
-      render(<BottomNavigation activeTab="parametres" onTabChange={mockOnTabChange} />);
+      render(<BottomNavigation activeTab="design" onTabChange={mockOnTabChange} />);
 
-      const parametresTab = screen.getByText('Paramètres').closest('button');
-      fireEvent.keyDown(parametresTab, { key: 'ArrowRight' });
+      const designTab = screen.getByText('Design').closest('button');
+      fireEvent.keyDown(designTab, { key: 'ArrowRight' });
 
       expect(mockOnTabChange).not.toHaveBeenCalled();
     });
@@ -205,7 +205,7 @@ describe('BottomNavigation Component', () => {
         <BottomNavigation activeTab="securite" onTabChange={mockOnTabChange} />
       );
       const tabs = container.querySelectorAll('[role="tab"]');
-      expect(tabs.length).toBe(6);
+      expect(tabs.length).toBe(9);
     });
 
     it('should have aria-selected on tabs', () => {
