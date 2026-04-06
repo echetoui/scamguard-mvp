@@ -96,9 +96,8 @@ describe('SMSMessage Component', () => {
         message="Test scam message"
       />
     );
-    expect(screen.getByRole('article')).toHaveAttribute(
-      'aria-label',
-      /Test scam message/
+    expect(screen.getByRole('article').getAttribute('aria-label')).toContain(
+      'Test scam message'
     );
   });
 

@@ -166,7 +166,7 @@ describe('SettingsBranding Module', () => {
       fireEvent.change(primaryColorInput, { target: { value: '#ff0000' } });
 
       const previewCard = container.querySelector('.preview-card');
-      expect(previewCard.style.backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(previewCard.style.getPropertyValue('--primary-color')).toBe('#ff0000');
     });
   });
 
