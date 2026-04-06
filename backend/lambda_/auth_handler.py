@@ -492,7 +492,7 @@ def post_request_sms_otp(event, context):
             body = json.loads(body_raw)
         else:
             body = body_raw
-        phone_number = body.get("phoneNumber", "").strip()
+        phone_number = body.get("phone", "").strip()
 
         if not phone_number:
             return error_response(400, "MISSING_PHONE", "Phone number is required.")
@@ -549,7 +549,7 @@ def post_verify_sms_otp(event, context):
             body = json.loads(body_raw)
         else:
             body = body_raw
-        phone_number = body.get("phoneNumber", "").strip()
+        phone_number = body.get("phone", "").strip()
         code = body.get("code", "").strip()
 
         if not phone_number or not code:

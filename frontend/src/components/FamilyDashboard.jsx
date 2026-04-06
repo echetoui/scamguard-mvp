@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Alert, Badge } from '@/design-system';
 import { getAuthToken } from '../utils/authStorage';
 import './FamilyDashboard.css';
 
@@ -26,6 +27,10 @@ export default function FamilyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinError, setJoinError] = useState('');
+  const [joinSuccess, setJoinSuccess] = useState(false);
 
   const API_URL = 'http://localhost:3001/api/v1';
 
@@ -85,6 +90,30 @@ export default function FamilyDashboard() {
       navigator.clipboard.writeText(familyData.inviteCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleJoinFamily = async () => {
+    if (!joinCode || joinCode.length !== 6) {
+      setJoinError('Le code doit contenir 6 caractères');
+      return;
+    }
+    setJoinLoading(true);
+    setJoinError('');
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/family/join`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode: joinCode.toUpperCase() }),
+      });
+      if (!response.ok) throw new Error('Code invalide');
+      setJoinSuccess(true);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch {
+      setJoinError('Code invalide ou expiré. Vérifiez avec votre proche.');
+    } finally {
+      setJoinLoading(false);
     }
   };
 
@@ -148,12 +177,36 @@ export default function FamilyDashboard() {
 
   if (!familyData.familyName && familyData.members.length === 0) {
     return (
-      <div className="family-dashboard empty">
-        <div className="empty-state">
-          <div className="empty-icon">👨‍👩‍👧‍👦</div>
-          <h2>Pas de famille créée</h2>
-          <p>Vous n'avez pas encore créé de groupe familial.</p>
-          <p className="hint">Sélectionnez "Je protège ma famille" lors de votre inscription pour créer un groupe.</p>
+      <div className="family-dashboard">
+        <div className="container">
+          <div className="join-family-section">
+            <div className="empty-icon">👨‍👩‍👧‍👦</div>
+            <h2>Rejoindre une famille</h2>
+            <p>Vous n'avez pas encore de groupe familial.</p>
+            <p className="hint">Demandez le code d'invitation à votre proche aidant.</p>
+            <div className="join-code-form">
+              <label htmlFor="join-code-input">Code d'invitation (6 caractères) :</label>
+              <input
+                id="join-code-input"
+                type="text"
+                value={joinCode}
+                onChange={e => setJoinCode(e.target.value.toUpperCase().slice(0, 6))}
+                placeholder="Ex: ABC123"
+                className="join-code-input"
+                maxLength={6}
+                disabled={joinLoading || joinSuccess}
+                aria-label="Entrez le code d'invitation de 6 caractères"
+              />
+              <button
+                onClick={handleJoinFamily}
+                className="btn-join"
+                disabled={joinLoading || joinCode.length !== 6 || joinSuccess}
+              >
+                {joinLoading ? '⏳ Connexion...' : joinSuccess ? '✅ Rejoint!' : '🤝 Rejoindre'}
+              </button>
+              {joinError && <p className="join-error" role="alert">{joinError}</p>}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -170,11 +223,7 @@ export default function FamilyDashboard() {
           </p>
         </div>
 
-        {error && (
-          <div className="error-message" role="alert">
-            ⚠️ {error}
-          </div>
-        )}
+        {error && <Alert variant="error" title="Erreur" message={error} />}
 
         {/* Invite Code Section */}
         {familyData.inviteCode && (
@@ -225,7 +274,9 @@ export default function FamilyDashboard() {
                   <div className="member-content">
                     <h4 className="member-name">{member.email?.split('@')[0]}</h4>
                     <div className="member-role">
-                      <span className="role-badge">{getRoleLabel(member.role)}</span>
+                      <Badge variant="tonal" color={member.role === 'senior' ? 'primary' : 'secondary'} size="small">
+                        {getRoleLabel(member.role)}
+                      </Badge>
                     </div>
                     <div className="member-activity">
                       <small>

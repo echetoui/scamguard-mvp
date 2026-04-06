@@ -4,6 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import SecurityHeartDashboard from '../SecurityHeartDashboard';
 
+// Mock quizStorage
+vi.mock('../../utils/quizStorage', () => ({
+  getEarnedBadges: vi.fn(() => []),
+  getXpData: vi.fn(() => ({ totalXp: 0, level: 1, xpInLevel: 0, xpNeeded: 500 })),
+  getStreakData: vi.fn(() => ({ currentStreak: 0, longestStreak: 0, lastPlayedDate: null })),
+}));
+
 describe('SecurityHeartDashboard - Refactored', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -122,6 +129,81 @@ describe('SecurityHeartDashboard - Refactored', () => {
       const continuerBtn = screen.getByRole('button', { name: /CONTINUER/i });
       continuerBtn.focus();
       expect(continuerBtn).toHaveFocus();
+    });
+  });
+
+  describe('Real Quiz Data Integration', () => {
+    test('should call getEarnedBadges on render', async () => {
+      const { getEarnedBadges } = await import('../../utils/quizStorage');
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        expect(getEarnedBadges).toHaveBeenCalled();
+      });
+    });
+
+    test('should call getXpData on render', async () => {
+      const { getXpData } = await import('../../utils/quizStorage');
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        expect(getXpData).toHaveBeenCalled();
+      });
+    });
+
+    test('should call getStreakData on render', async () => {
+      const { getStreakData } = await import('../../utils/quizStorage');
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        expect(getStreakData).toHaveBeenCalled();
+      });
+    });
+
+    test('should display 4 stat cards in weekly stats section', async () => {
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Arnaques détectées/i)).toBeInTheDocument();
+        expect(screen.getByText(/Quizz réussis/i)).toBeInTheDocument();
+        expect(screen.getByText(/Ange gardien/i)).toBeInTheDocument();
+        expect(screen.getByText(/Niveau Quiz/i)).toBeInTheDocument();
+      });
+    });
+
+    test('should show XP level badge with correct number', async () => {
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        // Default mock returns level 1
+        expect(screen.getByText(/Niv\. 1/)).toBeInTheDocument();
+      });
+    });
+
+    test('should use badge count as quizzes completed', async () => {
+      const { getEarnedBadges } = await import('../../utils/quizStorage');
+      vi.mocked(getEarnedBadges).mockReturnValueOnce([
+        { id: 'badge1', name: 'Test Badge 1', emoji: '🎖️', description: 'Test' },
+        { id: 'badge2', name: 'Test Badge 2', emoji: '🎖️', description: 'Test' }
+      ]);
+
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        // Should display "2" for quizzes completed (2 badges earned)
+        const badges = screen.getAllByText('2');
+        expect(badges.length).toBeGreaterThan(0);
+      });
+    });
+
+    test('should display XP level in star card', async () => {
+      render(<SecurityHeartDashboard userId="test-user" />);
+
+      await waitFor(() => {
+        const card = screen.getByText(/Niveau Quiz/i).closest('div');
+        expect(card).toBeInTheDocument();
+        expect(screen.getByText(/Niv\. 1/)).toBeInTheDocument();
+      });
     });
   });
 });

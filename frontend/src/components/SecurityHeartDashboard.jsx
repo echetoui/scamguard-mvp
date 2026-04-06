@@ -5,6 +5,7 @@ import { Button } from '@/design-system';
 import { Badge } from '@/design-system';
 import { Alert } from '@/design-system';
 import { colors, typography, spacing } from '@/styles/design-tokens';
+import { getEarnedBadges, getXpData, getStreakData } from '../utils/quizStorage';
 import {
   getScoreStatus,
   getScoreEmoji,
@@ -81,7 +82,9 @@ const SecurityHeartDashboard = ({ userId }) => {
   const [weeklyStats, setWeeklyStats] = useState({
     scamsBlocked: 0,
     quizzesCompleted: 0,
-    guardianActive: true
+    guardianActive: true,
+    xpLevel: 1,
+    currentStreak: 0
   });
   const [scoreHistory, setScoreHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,13 +95,20 @@ const SecurityHeartDashboard = ({ userId }) => {
     try {
       setIsLoading(true);
 
+      // Get real data from quizStorage
+      const badges = getEarnedBadges();
+      const xpInfo = getXpData();
+      const streakInfo = getStreakData();
+
       // Mock data for MVP (in production, call backend API)
       const mockScore = 78;
       const mockHistory = [50, 58, 65, 72, 78]; // Last 5 days
       const mockStats = {
         scamsBlocked: 3,
-        quizzesCompleted: 2,
-        guardianActive: true
+        quizzesCompleted: badges.length,    // ← REAL: badge count
+        guardianActive: true,
+        xpLevel: xpInfo.level,              // ← REAL: XP level
+        currentStreak: streakInfo.currentStreak // ← REAL: streak
       };
 
       setSecurityScore(mockScore);
@@ -294,6 +304,19 @@ const SecurityHeartDashboard = ({ userId }) => {
                   color={weeklyStats.guardianActive ? 'secondary' : 'error'}
                 >
                   {weeklyStats.guardianActive ? 'Actif' : 'Inactif'}
+                </Badge>
+              </div>
+            </Card>
+
+            {/* XP Level Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>⭐</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Niveau Quiz
+                </div>
+                <Badge variant="filled" size="large" color="secondary">
+                  Niv. {weeklyStats.xpLevel || 1}
                 </Badge>
               </div>
             </Card>
