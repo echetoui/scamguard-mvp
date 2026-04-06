@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import NotificationPreferences from './NotificationPreferences';
+import ThemeToggle from '../design-system/ThemeToggle';
 import '../styles/AccountProfile.css';
 
 const AVATARS = ['🛡️', '👴', '👵', '🧑', '🦸'];
@@ -21,7 +22,9 @@ export default function AccountProfile({
   onResetProfile,
   joinDate = '',
   onExportData,
-  onLogout
+  onLogout,
+  isVoiceGuidanceEnabled,
+  onToggleVoiceGuidance
 }) {
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState(profile.name || '');
@@ -138,6 +141,21 @@ export default function AccountProfile({
         <NotificationPreferences />
 
         <div className="preferences-list">
+          <div className="preference-item">
+            <ThemeToggle />
+          </div>
+          <div className="preference-item">
+            <span className="pref-icon">🗣️</span>
+            <span className="pref-label">Guidage Vocal</span>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={isVoiceGuidanceEnabled}
+                onChange={onToggleVoiceGuidance}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
           <div className="preference-item">
             <span className="pref-icon">📅</span>
             <span className="pref-label">Rappel quotidien</span>

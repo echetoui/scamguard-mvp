@@ -310,6 +310,47 @@ export default function useAuth() {
     return { success: true };
   }, []);
 
+  /**
+   * Login with token (SMS OTP or direct token)
+   * Used for SMS-based authentication where we get token directly
+   */
+  const loginWithToken = useCallback((userInfo, token) => {
+    try {
+      // Store token (SMS tokens are base64-encoded JSON, not JWT with 3 parts)
+      // For now, treat as simple token storage
+      setAuth({
+        id_token: token,
+        access_token: token,
+        refresh_token: token,
+        expires_in: 3600,
+      });
+
+      // Set user info
+      if (userInfo) {
+        setUser({
+          sub: userInfo.user_id || userInfo.id,
+          phone: userInfo.phone_number,
+          name: userInfo.name || 'User',
+        });
+        setUserId(userInfo.user_id || userInfo.id);
+        setIsAuthenticated(true);
+        setupRefreshTimer(3600);
+      }
+
+      return {
+        success: true,
+        user: userInfo,
+      };
+    } catch (err) {
+      console.error('Login with token failed:', err);
+      setError('Authentication failed');
+      return {
+        success: false,
+        error: 'Authentication failed',
+      };
+    }
+  }, [setupRefreshTimer]);
+
   return {
     // State
     user,
@@ -322,6 +363,7 @@ export default function useAuth() {
     verifyEmail,
     resendCode,
     login,
+    loginWithToken,
     logout,
 
     // Utilities

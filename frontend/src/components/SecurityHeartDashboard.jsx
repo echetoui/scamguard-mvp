@@ -1,14 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import './SecurityHeartDashboard.css';
+import { Section } from '@/design-system';
+import { Card } from '@/design-system';
+import { Button } from '@/design-system';
+import { Badge } from '@/design-system';
+import { Alert } from '@/design-system';
+import { colors, typography, spacing } from '@/styles/design-tokens';
 import {
   getScoreStatus,
-  getScoreColor,
   getScoreEmoji,
   getStatusMessage,
   getStatusText,
   calculateGraphPoints,
   calculateDataPoint
 } from '../utils/dashboardUtils';
+import './SecurityHeartDashboard.css';
+
+/**
+ * Generate dynamic alerts based on score and stats
+ * @param {number} score - Security score 0-100
+ * @param {object} stats - Weekly stats {scamsBlocked, quizzesCompleted, guardianActive}
+ * @returns {array} Array of alert objects
+ */
+const generateAlerts = (score, stats) => {
+  const generatedAlerts = [];
+
+  // Critical score alert (highest priority)
+  if (score < 30) {
+    generatedAlerts.push({
+      id: 'critical',
+      variant: 'error',
+      title: 'Sécurité Critique',
+      message: 'Votre score est très faible. Nous recommandons une action immédiate.'
+    });
+  }
+  // Low score alert
+  else if (score < 50) {
+    generatedAlerts.push({
+      id: 'low-score',
+      variant: 'warning',
+      title: 'Score Faible',
+      message: 'Votre score de sécurité a baissé. Complétez un quiz pour l\'améliorer.'
+    });
+  }
+
+  // Quiz recommendation (lowest priority)
+  if (stats.quizzesCompleted < 2) {
+    generatedAlerts.push({
+      id: 'quiz-recommend',
+      variant: 'info',
+      title: 'Conseil',
+      message: `Vous avez complété ${stats.quizzesCompleted} quiz. Un de plus vous aiderait!`
+    });
+  }
+
+  // Return max 3 alerts
+  return generatedAlerts.slice(0, 3);
+};
 
 /**
  * Security Heart Dashboard - Phase 3.1.1
@@ -38,6 +85,8 @@ const SecurityHeartDashboard = ({ userId }) => {
   });
   const [scoreHistory, setScoreHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [alerts, setAlerts] = useState([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState(new Set());
 
   const fetchSecurityData = async () => {
     try {
@@ -56,9 +105,17 @@ const SecurityHeartDashboard = ({ userId }) => {
       setScoreHistory(mockHistory);
       setWeeklyStats(mockStats);
       setScoreStatus(getScoreStatus(mockScore));
+      const generatedAlerts = generateAlerts(mockScore, mockStats);
+      setAlerts(generatedAlerts);
     } catch (error) {
       console.error('Error fetching security data:', error);
       setScoreStatus('error');
+      setAlerts([{
+        id: 'error',
+        variant: 'error',
+        title: 'Erreur de Chargement',
+        message: 'Nous n\'avons pas pu charger vos données. Veuillez rafraîchir.'
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -69,68 +126,95 @@ const SecurityHeartDashboard = ({ userId }) => {
     // Refresh every 5 minutes
     const interval = setInterval(fetchSecurityData, 5 * 60 * 1000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const dismissAlert = (alertId) => {
+    setAlerts(alerts.filter(alert => alert.id !== alertId));
+  };
 
   return (
     <div className="security-heart-dashboard">
-      {/* Main Heart Section */}
-      <div className="heart-section">
-        {/* Heart Icon and Score */}
-        <div className="heart-container">
-          {isLoading ? (
-            <div className="heart-spinner">
-              <div className="spinner"></div>
-              <p>Calcul en cours...</p>
-            </div>
-          ) : (
-            <>
-              <div
-                className="heart-icon"
-                style={{ color: getScoreColor(securityScore) }}
-                aria-label={`Cœur de Sécurité: ${securityScore} sur 100`}
-              >
-                ❤️
-              </div>
+      {/* Alerts Section */}
+      {alerts.length > 0 && (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: spacing.lg, marginBottom: spacing['2xl'] }}>
+          {alerts.map((alert) => (
+            <Alert
+              key={alert.id}
+              variant={alert.variant}
+              title={alert.title}
+              message={alert.message}
+              dismissable={true}
+              onDismiss={() => dismissAlert(alert.id)}
+            />
+          ))}
+        </div>
+      )}
 
-              <div className="score-display">
-                <div className="score-number" style={{ color: getScoreColor(securityScore) }}>
+      {/* Score Section */}
+      {!isLoading && (
+        <Section
+          title="Votre Sécurité"
+          subtitle="Protection actuelle"
+        >
+          <Card variant="elevated">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.lg }}>
+              {/* Heart Icon */}
+              <div style={{ fontSize: '120px', lineHeight: 1 }}>❤️</div>
+
+              {/* Score Display */}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: `${typography.fontSize.displaySm}px`, fontWeight: typography.fontWeight.bold, color: colors.textPrimary }}>
                   {securityScore}
                 </div>
-                <div className="score-max">/100</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  /100
+                </div>
               </div>
 
-              <div className="score-emoji">
-                {getScoreEmoji(securityScore)}
+              {/* Status Badge */}
+              <Badge
+                variant="filled"
+                size="large"
+                color={scoreStatus === 'safe' ? 'secondary' : scoreStatus === 'moderate' ? 'tertiary' : 'error'}
+              >
+                {getStatusText(scoreStatus)}
+              </Badge>
+
+              {/* Encouraging Message */}
+              <p style={{ marginTop: spacing.lg, textAlign: 'center', fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary, margin: 0 }}>
+                {getStatusMessage(securityScore)}
+              </p>
+            </div>
+          </Card>
+        </Section>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <Section title="Chargement...">
+          <Card variant="elevated">
+            <div style={{ textAlign: 'center', padding: `${spacing['2xl']} ${spacing.lg}` }}>
+              <div className="heart-spinner">
+                <div className="spinner"></div>
+                <p style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textPrimary, margin: 0, marginTop: spacing.lg }}>Calcul en cours...</p>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </Card>
+        </Section>
+      )}
 
-        {/* Status Text */}
-        <div className="status-section">
-          <div
-            className="status-badge"
-            style={{ borderColor: getScoreColor(securityScore) }}
-            role="status"
-            aria-live="polite"
-          >
-            {getStatusText(scoreStatus)}
-          </div>
-          <div className="status-message">
-            {getStatusMessage(securityScore)}
-          </div>
-        </div>
-      </div>
-
-      {/* Score Evolution Graph */}
-      {scoreHistory.length > 0 && (
-        <div className="score-history-section">
-          <h3 className="section-title">Votre progression</h3>
-          <div className="score-graph">
+      {/* Progress Section */}
+      {scoreHistory.length > 0 && !isLoading && (
+        <Section
+          title="Votre Progression"
+          subtitle="Derniers 5 jours"
+        >
+          <Card variant="outlined">
             <svg
               viewBox="0 0 300 100"
               className="graph-svg"
+              style={{ width: '100%', height: 'auto', minHeight: '150px' }}
               role="img"
               aria-label="Graphique de progression du score de sécurité"
             >
@@ -156,68 +240,90 @@ const SecurityHeartDashboard = ({ userId }) => {
                     cy={point.y}
                     r="3"
                     className="graph-point"
-                    role="button"
-                    tabIndex="0"
-                    aria-label={point.label}
                   />
                 );
               })}
             </svg>
-          </div>
-        </div>
+          </Card>
+        </Section>
       )}
 
-      {/* Weekly Summary */}
-      <div className="weekly-summary-section">
-        <h3 className="section-title">Cette semaine</h3>
-
-        <div className="summary-items">
-          {/* Scams Blocked */}
-          <div className="summary-item">
-            <div className="summary-icon">🛡️</div>
-            <div className="summary-content">
-              <div className="summary-label">Arnaques détectées et arrêtées</div>
-              <div className="summary-value">{weeklyStats.scamsBlocked}</div>
-            </div>
-          </div>
-
-          {/* Quizzes Completed */}
-          <div className="summary-item">
-            <div className="summary-icon">✓</div>
-            <div className="summary-content">
-              <div className="summary-label">Quizz réussis</div>
-              <div className="summary-value">{weeklyStats.quizzesCompleted}</div>
-            </div>
-          </div>
-
-          {/* Guardian Status */}
-          <div className="summary-item">
-            <div className="summary-icon">👁️</div>
-            <div className="summary-content">
-              <div className="summary-label">Ange gardien vous surveille</div>
-              <div className="summary-value">
-                {weeklyStats.guardianActive ? 'Actif' : 'Inactif'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Call to Action */}
-      <div className="cta-section">
-        <button
-          className="continue-button"
-          onClick={() => window.location.href = '/main'}
-          aria-label="Continuer vers l'application principale"
+      {/* Weekly Stats Section */}
+      {!isLoading && (
+        <Section
+          title="Cette Semaine"
+          subtitle="Vos activités"
         >
-          CONTINUER
-        </button>
-      </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: spacing.lg }}>
+            {/* Scams Blocked Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>🛡️</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Arnaques détectées
+                </div>
+                <Badge variant="filled" size="large" color="secondary">
+                  {weeklyStats.scamsBlocked}
+                </Badge>
+              </div>
+            </Card>
 
-      {/* Accessibility Skip Link */}
-      <a href="#main-content" className="skip-link">
-        Aller au contenu principal
-      </a>
+            {/* Quizzes Completed Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>✓</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Quizz réussis
+                </div>
+                <Badge variant="filled" size="large" color="primary">
+                  {weeklyStats.quizzesCompleted}
+                </Badge>
+              </div>
+            </Card>
+
+            {/* Guardian Status Card */}
+            <Card variant="filled">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.md, textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', lineHeight: 1 }}>👁️</div>
+                <div style={{ fontSize: `${typography.fontSize.base}px`, color: colors.textSecondary }}>
+                  Ange gardien
+                </div>
+                <Badge
+                  variant="tonal"
+                  size="large"
+                  color={weeklyStats.guardianActive ? 'secondary' : 'error'}
+                >
+                  {weeklyStats.guardianActive ? 'Actif' : 'Inactif'}
+                </Badge>
+              </div>
+            </Card>
+          </div>
+        </Section>
+      )}
+
+      {/* CTA Section */}
+      {!isLoading && (
+        <Section>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg, width: '100%' }}>
+            <Button
+              variant="primary"
+              size="large"
+              onClick={() => window.location.href = '/main'}
+              style={{ width: '100%' }}
+            >
+              CONTINUER
+            </Button>
+            <Button
+              variant="secondary"
+              size="large"
+              onClick={() => console.log('Settings clicked')}
+              style={{ width: '100%' }}
+            >
+              PARAMÈTRES
+            </Button>
+          </div>
+        </Section>
+      )}
     </div>
   );
 };

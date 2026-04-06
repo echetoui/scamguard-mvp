@@ -174,8 +174,8 @@ const SettingsBranding = ({ institutionId }) => {
               <div
                 className="preview-card"
                 style={{
-                  backgroundColor: settings.primaryColor,
-                  color: 'white'
+                  '--primary-color': settings.primaryColor,
+                  '--secondary-color': settings.secondaryColor
                 }}
               >
                 <img
@@ -187,8 +187,8 @@ const SettingsBranding = ({ institutionId }) => {
                 <h2>{settings.institutionName}</h2>
                 <p>Votre texte personnalisé ici</p>
                 <button
-                  style={{ backgroundColor: settings.secondaryColor }}
                   className="preview-button"
+                  style={{ '--secondary-color': settings.secondaryColor }}
                 >
                   Bouton Principal
                 </button>

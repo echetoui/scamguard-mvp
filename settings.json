@@ -1,0 +1,212 @@
+{
+  "model": "haiku",
+  "context": {
+    "cache": {
+      "enabled": true,
+      "strategy": "aggressive"
+    },
+    "stableFiles": [
+      ".claude/CLAUDE.md",
+      ".claude/projects/-Users-echetoui-scamguard-mvp/memory/MEMORY.md",
+      ".claude/projects/-Users-echetoui-scamguard-mvp/memory/ACTIVE_RULES.md",
+      ".claude/projects/-Users-echetoui-scamguard-mvp/memory/HOW_TO_USE.md",
+      "docs/architecture.md",
+      "backend/README.md",
+      "README.md",
+      ".claudeignore"
+    ]
+  },
+  "hooks": {
+    "beforeSessionStart": {
+      "enabled": true,
+      "commands": [
+        {
+          "trigger": "session-init",
+          "command": "echo '📖 Loading stable context: CLAUDE.md + Memory system'",
+          "loadFiles": [
+            ".claude/CLAUDE.md",
+            ".claude/projects/-Users-echetoui-scamguard-mvp/memory/MEMORY.md",
+            ".claude/projects/-Users-echetoui-scamguard-mvp/memory/ACTIVE_RULES.md"
+          ]
+        }
+      ]
+    }
+  },
+  "contextOptimization": {
+    "cacheTTL": "7d",
+    "compressionEnabled": true,
+    "deduplication": true,
+    "excludeFromCache": [
+      "node_modules/",
+      "venv/",
+      "__pycache__/",
+      ".git/",
+      "dist/",
+      "build/",
+      "*.log"
+    ]
+  },
+  "compaction": {
+    "enabled": true,
+    "description": "Automatic context compaction when session exceeds token thresholds",
+    "triggers": {
+      "sessionTokens": {
+        "enabled": true,
+        "threshold": 100000,
+        "description": "Compress session context when exceeding 100K tokens"
+      },
+      "observationAge": {
+        "enabled": true,
+        "archiveAfterDays": 28,
+        "escalateAfterConfirmations": 5,
+        "description": "Archive 4-week-old observations, escalate patterns with 5+ confirmations"
+      },
+      "taskArchive": {
+        "enabled": true,
+        "keepRecentCount": 10,
+        "archiveAfterSessions": 20,
+        "description": "Archive completed tasks after 20 sessions, keep last 10 detailed"
+      }
+    },
+    "summaryModel": "haiku",
+    "summaryPrompt": "Summarize session progress for archival: (1) Completed tasks with outcomes, (2) Key decisions made, (3) Current state and in-progress work, (4) Next steps. Format as <summary>...</summary>. Omit raw tool output.",
+    "archiveFormat": "markdown-table",
+    "preserveTokenMetrics": true,
+    "monthlyReview": true,
+    "costSavingsTarget": "70-85%",
+    "estimatedMonthlySavings": "720K tokens (~$14.40)"
+  },
+  "tokenUsage": {
+    "trackingEnabled": true,
+    "budgetPerSession": 100000,
+    "alerts": {
+      "threshold": 0.8,
+      "enabled": true
+    }
+  },
+  "rag": {
+    "enabled": true,
+    "indexFile": "RAG_INDEX.md",
+    "strategy": "keyword-based",
+    "contextBudget": 30000,
+    "defaultRetrievalStrategy": "relevant-files-only"
+  },
+  "workflow": {
+    "beforeCodeQuestion": [
+      "1. Consult RAG_INDEX.md for relevant files",
+      "2. Load only mapped files (not entire codebase)",
+      "3. Provide targeted context"
+    ],
+    "beforeArchitectureChange": [
+      "1. Consult DECISIONS.md",
+      "2. Check if decision affects other systems",
+      "3. Verify no contradictions with ACTIVE_RULES"
+    ],
+    "beforeStartingTask": [
+      "1. Read task file (scope, files, success criteria)",
+      "2. Consult RAG_INDEX.md for file locations",
+      "3. Load only 2-5 files listed (not entire codebase)",
+      "4. Estimate tokens based on files affected",
+      "5. Execute within token budget"
+    ],
+    "whenCompleteTask": [
+      "1. Verify all success criteria are met",
+      "2. Record actual tokens used (vs estimate)",
+      "3. Move task from IN_PROGRESS to DONE",
+      "4. Check BLOCKED.md for newly unblocked tasks",
+      "5. Propose next task from BACKLOG"
+    ]
+  },
+  "taskSystem": {
+    "enabled": true,
+    "baseDir": "tasks/",
+    "files": {
+      "backlog": "tasks/BACKLOG.md",
+      "inProgress": "tasks/IN_PROGRESS.md",
+      "done": "tasks/DONE.md",
+      "blocked": "tasks/BLOCKED.md"
+    },
+    "constraints": {
+      "maxFilesPerTask": 5,
+      "minFilesPerTask": 1,
+      "tokenBudgetTarget": "3-8K",
+      "tokenBudgetMax": 15000,
+      "singleConcern": true,
+      "noCompoundTasks": true
+    },
+    "estimationTracking": true,
+    "successCriteriaRequired": true
+  },
+  "guardrails": {
+    "enabled": true,
+    "configFile": ".guardrailsrc.json",
+    "strictMode": true,
+    "failOnFirstViolation": true,
+    "categories": {
+      "immutableFiles": { "enabled": true, "severity": "CRITICAL" },
+      "secrets": { "enabled": true, "severity": "CRITICAL" },
+      "codeQuality": { "enabled": true, "severity": "MODERATE" },
+      "architecture": { "enabled": true, "severity": "MODERATE" },
+      "scamguardSpecific": { "enabled": true, "severity": "MODERATE" },
+      "tokenBudget": { "enabled": true, "severity": "CRITICAL" }
+    },
+    "hooks": {
+      "beforeEdit": true,
+      "beforeCommit": true,
+      "beforeLoadContext": true
+    }
+  },
+  "multiAgentSystem": {
+    "enabled": true,
+    "orchestratorConfig": "agents/orchestrator.json",
+    "agents": [
+      {
+        "name": "search",
+        "role": "Find relevant code files",
+        "tokenBudget": 2000,
+        "priority": 1
+      },
+      {
+        "name": "analysis",
+        "role": "Understand problem and identify root cause",
+        "tokenBudget": 1500,
+        "priority": 2
+      },
+      {
+        "name": "code",
+        "role": "Implement fix or feature",
+        "tokenBudget": 3500,
+        "priority": 3
+      },
+      {
+        "name": "test",
+        "role": "Validate solution and check success criteria",
+        "tokenBudget": 2000,
+        "priority": 4
+      },
+      {
+        "name": "review",
+        "role": "Final code review and approval",
+        "tokenBudget": 1500,
+        "priority": 5,
+        "optional": true
+      }
+    ],
+    "communication": {
+      "protocol": "JSON structured messages",
+      "errorHandling": "Collect details, escalate or retry"
+    },
+    "tokenBudget": {
+      "total": 13500,
+      "vs_singleAgent": 50000,
+      "savings": "73%"
+    },
+    "integrations": {
+      "taskSystem": true,
+      "ragSystem": true,
+      "guardrails": true,
+      "memory": true,
+      "caching": true
+    }
+  }
+}

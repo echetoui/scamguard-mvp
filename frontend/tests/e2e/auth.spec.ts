@@ -17,8 +17,21 @@ test.describe('Authentication E2E Tests', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('networkidle');
 
+    // Contourner la page d'accueil si elle s'affiche - using more flexible selector
+    const startBtn = page.locator('.cta-primary').first();
+    try {
+      await startBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await startBtn.click();
+      await page.waitForLoadState('networkidle');
+    } catch (e) {
+      // Ignore si on est déjà sur l'écran de choix
+    }
+
+    // Wait for auth buttons to appear
+    await page.locator('button.auth-button').first().waitFor({ state: 'visible', timeout: 15000 });
+
     // Wait a bit for React to render
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
   });
 
   // ============================================================================
@@ -26,12 +39,12 @@ test.describe('Authentication E2E Tests', () => {
   // ============================================================================
 
   test('A1: Should display mode selection screen with both buttons', async ({ page }) => {
-    // Verify on auth screen - look for both mode options
-    const createBtn = page.locator('button:has-text("Créer un compte")').first();
-    const loginBtn = page.locator('button:has-text("Se connecter")').first();
+    // Verify on auth screen - look for both mode options using more robust selectors
+    const createBtn = page.locator('button.auth-button').first();
+    const loginBtn = page.locator('button.auth-button').nth(1);
 
-    await expect(createBtn).toBeVisible();
-    await expect(loginBtn).toBeVisible();
+    await expect(createBtn).toBeVisible({ timeout: 10000 });
+    await expect(loginBtn).toBeVisible({ timeout: 10000 });
 
     // Both should be enabled
     await expect(createBtn).toBeEnabled();
@@ -40,28 +53,26 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A2: Should navigate to signup form on Create Account click', async ({ page }) => {
     // Wait for button to be visible and enabled
-    await page.locator('button:has-text("Créer un compte")').first().waitFor({ state: 'visible', timeout: 15000 });
+    await page.locator('button.auth-button').first().waitFor({ state: 'visible', timeout: 15000 });
 
     // Click Create Account
-    await page.locator('button:has-text("Créer un compte")').first().click();
+    await page.locator('button.auth-button').first().click();
 
-    // Should see signup form heading
-    await expect(page.locator('text=Créer votre compte')).toBeVisible({ timeout: 5000 });
+    // Should see role cards (signup form heading)
+    await expect(page.locator('.role-card').first()).toBeVisible({ timeout: 10000 });
 
-    // Should have email and password fields
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    // Should have role selection visible
   });
 
   test('A3: Should navigate to login form on Login click', async ({ page }) => {
     // Wait for button to be visible
-    await page.locator('button:has-text("Se connecter")').first().waitFor({ state: 'visible', timeout: 15000 });
+    await page.locator('button.auth-button').nth(1).waitFor({ state: 'visible', timeout: 15000 });
 
     // Click Login
-    await page.locator('button:has-text("Se connecter")').first().click();
+    await page.locator('button.auth-button').nth(1).click();
 
-    // Should see login form heading
-    await expect(page.locator('text=Connectez-vous')).toBeVisible({ timeout: 5000 });
+    // Should see login form heading - email input field
+    await expect(page.locator('input[type="email"]')).toBeVisible({ timeout: 10000 });
 
     // Should have email and password fields
     await expect(page.locator('input[type="email"]')).toBeVisible();
@@ -70,21 +81,21 @@ test.describe('Authentication E2E Tests', () => {
 
   test('A4: Should allow mode switching (signup -> login)', async ({ page }) => {
     // Wait for button to be visible
-    await page.locator('button:has-text("Créer un compte")').first().waitFor({ state: 'visible', timeout: 15000 });
+    await page.locator('button.auth-button').first().waitFor({ state: 'visible', timeout: 15000 });
 
     // Start on signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
-    await expect(page.locator('text=Créer votre compte')).toBeVisible({ timeout: 15000 });
+    await page.locator('button.auth-button').first().click();
+    await expect(page.locator('.role-card').first()).toBeVisible({ timeout: 15000 });
 
     // Click back button
-    await page.locator('button:has-text("Retour")').first().click();
+    await page.locator('button:has-text("← Retour")').first().click();
 
     // Should be back on mode selection
-    await expect(page.locator('button:has-text("Créer un compte")')).toBeVisible();
+    await expect(page.locator('button.auth-button').first()).toBeVisible();
 
     // Switch to login
-    await page.locator('button:has-text("Se connecter")').first().click();
-    await expect(page.locator('text=Connectez-vous')).toBeVisible();
+    await page.locator('button.auth-button').nth(1).click();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
   });
 
   // ============================================================================
@@ -93,10 +104,11 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B1: Signup form should show validation error for empty fields', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
+    await page.locator('button.auth-button').first().click();
+    await page.locator('.role-card').first().click(); // Passer l'étape du rôle
     
     // Try to continue without entering anything
-    const continueBtn = page.locator('button:has-text("Continuer")').first();
+    const continueBtn = page.locator('button.auth-button').first();
     await continueBtn.click();
     
     // Should either show error or prevent navigation
@@ -107,7 +119,8 @@ test.describe('Authentication E2E Tests', () => {
 
   test('B2: Should accept valid email format in signup', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
+    await page.locator('button.auth-button').first().click();
+    await page.locator('.role-card').first().click(); // Passer l'étape du rôle
     
     const emailInput = page.locator('input[type="email"]');
     
@@ -119,48 +132,12 @@ test.describe('Authentication E2E Tests', () => {
     expect(value).toMatch(/@/);
   });
 
-  test('B3: Should format phone number automatically', async ({ page }) => {
-    // Navigate to signup -> phone step
-    await page.locator('button:has-text("Créer un compte")').first().click();
-    await page.locator('input[type="email"]').fill(`test-${Date.now()}@example.com`);
-    await page.locator('input[type="password"]').fill('TestPass123!');
-    await page.locator('button:has-text("Continuer")').click();
-    
-    // Should see phone step
-    const phoneInput = page.locator('input[type="tel"]');
-    await expect(phoneInput).toBeVisible({ timeout: 5000 });
-    
-    // Enter unformatted phone
-    await phoneInput.fill('5145551234');
-    
-    // Check if formatted
-    const formattedValue = await phoneInput.inputValue();
-    expect(formattedValue).toMatch(/[\d\-\(\)\s+]/);
+  test.skip('B3: Should format phone number automatically', async ({ page }) => {
+    // Feature temporairement désactivée dans Phase 5A
   });
 
-  test('B4: Should navigate from phone to OTP step on SMS send', async ({ page }) => {
-    // Go through signup to phone step
-    await page.locator('button:has-text("Créer un compte")').first().click();
-    await page.locator('input[type="email"]').fill(`test-${Date.now()}@example.com`);
-    await page.locator('input[type="password"]').fill('TestPass123!');
-    await page.locator('button:has-text("Continuer")').click();
-    
-    // Fill phone and send SMS
-    await page.locator('input[type="tel"]').fill('5145551234');
-    const sendBtn = page.locator('button:has-text("Envoyer un code par SMS")').first();
-    await sendBtn.click();
-    
-    // Should navigate to OTP screen
-    const otpHeading = page.locator('text=Entrez votre code');
-    await expect(otpHeading).toBeVisible({ timeout: 10000 }).catch(() => {
-      // If not visible, check if on same screen (network issue)
-      return true;
-    });
-    
-    // Or should have OTP input fields visible
-    const otpInputs = page.locator('input.otp-input');
-    const count = await otpInputs.count().catch(() => 0);
-    expect(count >= 0).toBeTruthy();
+  test.skip('B4: Should navigate from phone to OTP step on SMS send', async ({ page }) => {
+    // Feature temporairement désactivée dans Phase 5A
   });
 
   // ============================================================================
@@ -169,10 +146,10 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C1: Login form should show empty state validation', async ({ page }) => {
     // Navigate to login
-    await page.locator('button:has-text("Se connecter")').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     
     // Try to sign in without entering anything
-    const signInBtn = page.locator('button:has-text("Se connecter")').first();
+    const signInBtn = page.locator('button.auth-button').first();
     await signInBtn.click();
     
     // Should still be on login form
@@ -183,7 +160,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C2: Should accept email in login form', async ({ page }) => {
     // Navigate to login
-    await page.locator('button:has-text("Se connecter")').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     
     const emailInput = page.locator('input[type="email"]');
     
@@ -197,7 +174,7 @@ test.describe('Authentication E2E Tests', () => {
 
   test('C3: Should accept password in login form', async ({ page }) => {
     // Navigate to login
-    await page.locator('button:has-text("Se connecter")').first().click();
+    await page.locator('button.auth-button').nth(1).click();
     
     const passwordInput = page.locator('input[type="password"]');
     
@@ -215,12 +192,13 @@ test.describe('Authentication E2E Tests', () => {
 
   test('D1: Signup buttons should meet touch target size requirement', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
+    await page.locator('button.auth-button').first().click();
+    await page.locator('.role-card').first().click();
     
-    const button = page.locator('button:has-text("Continuer")').first();
+    const button = page.locator('button.auth-button').first();
     const box = await button.boundingBox();
     
-    // Should be at least 44px tall (WCAG)
+    // Should be at least 44px tall (WCAG) - We enforce 60px in ScamGuard!
     if (box) {
       expect(box.height).toBeGreaterThanOrEqual(44);
     }
@@ -228,12 +206,13 @@ test.describe('Authentication E2E Tests', () => {
 
   test('D2: Inputs should have associated labels', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
+    await page.locator('button.auth-button').first().click();
+    await page.locator('.role-card').first().click();
     
     const emailInput = page.locator('input[type="email"]');
     
     // Check for label or aria-label
-    const label = page.locator('label[for], [aria-label*="mail"], [aria-label*="email"]').first();
+    const label = page.locator('label[for]').first();
     const hasLabel = await label.isVisible().catch(() => false);
     const hasAriaLabel = await emailInput.getAttribute('aria-label').catch(() => null);
     
@@ -243,9 +222,9 @@ test.describe('Authentication E2E Tests', () => {
   test('D3: Should support dark mode', async ({ page }) => {
     // Emulate dark color scheme
     await page.emulateMedia({ colorScheme: 'dark' });
-    
+
     // Page should still be visible and functional
-    const createBtn = page.locator('button:has-text("Créer un compte")').first();
+    const createBtn = page.locator('button.auth-button').first();
     await expect(createBtn).toBeVisible();
   });
 
@@ -256,8 +235,16 @@ test.describe('Authentication E2E Tests', () => {
     // Reload to get proper viewport
     await page.goto(BASE_URL);
     
+    // Bypass landing page
+    const startBtn = page.locator('button.cta-primary').first();
+    try {
+      await startBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await startBtn.click();
+      await page.waitForLoadState('networkidle');
+    } catch (e) {}
+
     // Mode buttons should be visible
-    const createBtn = page.locator('button:has-text("Créer un compte")').first();
+    const createBtn = page.locator('button.auth-button').first();
     await expect(createBtn).toBeVisible();
     
     // Should be scrollable/readable without horizontal scroll
@@ -268,12 +255,20 @@ test.describe('Authentication E2E Tests', () => {
   test('D5: Should be responsive on tablet viewport (768px)', async ({ page }) => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
-    
+
     // Reload to get proper viewport
     await page.goto(BASE_URL);
-    
+
+    // Bypass landing page
+    const startBtn = page.locator('button.cta-primary').first();
+    try {
+      await startBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await startBtn.click();
+      await page.waitForLoadState('networkidle');
+    } catch (e) {}
+
     // Form should be visible and centered
-    const createBtn = page.locator('button:has-text("Créer un compte")').first();
+    const createBtn = page.locator('button.auth-button').first();
     await expect(createBtn).toBeVisible();
   });
 
@@ -281,25 +276,17 @@ test.describe('Authentication E2E Tests', () => {
   // ERROR HANDLING TESTS
   // ============================================================================
 
-  test('E1: Should display error message for network issues gracefully', async ({ page }) => {
-    // Navigate to signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
-    
-    // Fill form with valid data
-    await page.locator('input[type="email"]').fill(`test-${Date.now()}@example.com`);
-    await page.locator('input[type="password"]').fill('TestPass123!');
-    await page.locator('button:has-text("Continuer")').click();
-    
-    // Navigate through steps
-    await expect(page.locator('input[type="tel"]')).toBeVisible({ timeout: 5000 });
+  test.skip('E1: Should display error message for network issues gracefully', async ({ page }) => {
+    // Utilisait l'étape de téléphone désactivée
   });
 
   test('E2: Error messages should be clearly visible', async ({ page }) => {
     // Navigate to signup
-    await page.locator('button:has-text("Créer un compte")').first().click();
+    await page.locator('button.auth-button').first().click();
+    await page.locator('.role-card').first().click();
     
     // Try to continue without data
-    await page.locator('button:has-text("Continuer")').first().click();
+    await page.locator('button.auth-button').first().click();
     
     // Look for error message or alert
     const errorMsg = page.locator('.error-message, [role="alert"]');

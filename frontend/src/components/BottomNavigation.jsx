@@ -72,6 +72,13 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange, hasFamily = fal
       description: 'Menaces actuelles et alertes',
       route: '/threats'
     },
+    {
+      id: 'signaler',
+      label: 'Signaler',
+      icon: '📢',
+      description: 'Signaler une arnaque à la communauté',
+      route: '/report'
+    },
     ...(hasFamily ? [{
       id: 'famille',
       label: 'Famille',
@@ -85,6 +92,13 @@ const BottomNavigation = ({ activeTab = 'securite', onTabChange, hasFamily = fal
       icon: '⚙️',
       description: 'Vos paramètres et profil',
       route: '/settings'
+    },
+    {
+      id: 'design',
+      label: 'Design',
+      icon: '🎨',
+      description: 'Composants du design system',
+      route: '/design'
     }
   ];
 

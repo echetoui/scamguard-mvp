@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@/design-system';
+import QuebecFraudAlerts from './QuebecFraudAlerts';
 import './DashboardStyles.css';
 
 /**
@@ -78,10 +80,10 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
     }
   };
 
-  const getRiskColor = (score) => {
-    if (score >= 80) return '#d32f2f'; // Red - High risk
-    if (score >= 50) return '#f57c00'; // Orange - Medium risk
-    return '#388e3c'; // Green - Low risk
+  const getRiskClass = (score) => {
+    if (score >= 80) return 'high-risk';
+    if (score >= 50) return 'medium-risk';
+    return 'low-risk';
   };
 
   const getRiskLabel = (score) => {
@@ -92,12 +94,12 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
 
   const getBadgeName = (badgeId) => {
     const badgeMap = {
-      'first_analysis': { name: 'First Step', icon: '🎯', color: '#2196F3' },
-      'fraud_fighter': { name: 'Fraud Fighter', icon: '🛡️', color: '#4CAF50' },
-      'trusted_user': { name: 'Trusted User', icon: '⭐', color: '#FFC107' },
-      'shield_master': { name: 'Shield Master', icon: '👑', color: '#9C27B0' }
+      'first_analysis': { name: 'First Step', icon: '🎯', color: 'var(--color-primary)' },
+      'fraud_fighter': { name: 'Fraud Fighter', icon: '🛡️', color: 'var(--color-safe)' },
+      'trusted_user': { name: 'Trusted User', icon: '⭐', color: 'var(--color-warning)' },
+      'shield_master': { name: 'Shield Master', icon: '👑', color: 'var(--color-secondary)' }
     };
-    return badgeMap[badgeId] || { name: 'Badge', icon: '🏆', color: '#757575' };
+    return badgeMap[badgeId] || { name: 'Badge', icon: '🏆', color: 'var(--color-text-secondary)' };
   };
 
   const calculateProgress = () => {
@@ -177,7 +179,7 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
             <span className="progress-xp">{userStats.xpPoints % 500} / 500 XP</span>
           </div>
           <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${calculateProgress()}%` }}></div>
+            <div className="progress-fill" style={{ '--progress': `${calculateProgress()}%` }}></div>
           </div>
         </div>
 
@@ -203,12 +205,13 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
       <section className="dashboard__section">
         <div className="section-header">
           <h2 className="dashboard__section-title">📋 Recent Analyses</h2>
-          <button
-            className="btn btn--small btn--primary"
+          <Button
+            variant="primary"
+            size="small"
             onClick={onAnalyzeClick}
           >
             + New Analysis
-          </button>
+          </Button>
         </div>
 
         {userStats.recentAnalyses.length > 0 ? (
@@ -227,10 +230,7 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
                     <span className="analysis-date">{analysis.date}</span>
                   </div>
                   <div className="analysis-risk">
-                    <div
-                      className="risk-score"
-                      style={{ backgroundColor: getRiskColor(analysis.riskScore) }}
-                    >
+                    <div className={`risk-score ${getRiskClass(analysis.riskScore)}`}>
                       {analysis.riskScore}%
                     </div>
                     <span className="risk-label">{getRiskLabel(analysis.riskScore)}</span>
@@ -267,12 +267,12 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
         ) : (
           <div className="empty-state">
             <p className="empty-state-text">No analyses yet. Start by analyzing a potential scam.</p>
-            <button
-              className="btn btn--primary"
+            <Button
+              variant="primary"
               onClick={onAnalyzeClick}
             >
               Analyze a Scam
-            </button>
+            </Button>
           </div>
         )}
       </section>
@@ -298,6 +298,11 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
             <span className="action-text">Help & FAQ</span>
           </button>
         </div>
+      </section>
+
+      {/* Quebec Fraud Alerts Section */}
+      <section className="dashboard__section dashboard__section--alerts">
+        <QuebecFraudAlerts />
       </section>
 
       {/* Privacy & Data Control Section */}
@@ -332,9 +337,9 @@ const Dashboard = ({ userEmail, userId, onAnalyzeClick, onSettingsClick }) => {
             </div>
           </div>
         </div>
-        <button className="btn btn--secondary" onClick={onSettingsClick}>
+        <Button variant="secondary" onClick={onSettingsClick}>
           Manage Privacy Settings
-        </button>
+        </Button>
       </section>
 
       {/* Footer Section */}

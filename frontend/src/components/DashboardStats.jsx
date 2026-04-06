@@ -105,7 +105,7 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
                   aria-valuenow={Math.round((safe / total) * 100)}
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  style={{ width: `${(safe / total) * 100}%` }}
+                  style={{ '--progress': `${(safe / total) * 100}%` }}
                 />
               </div>
               <div className="risk-bar-percentage" aria-hidden="true">
@@ -127,7 +127,7 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
                   aria-valuenow={Math.round((moderate / total) * 100)}
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  style={{ width: `${(moderate / total) * 100}%` }}
+                  style={{ '--progress': `${(moderate / total) * 100}%` }}
                 />
               </div>
               <div className="risk-bar-percentage" aria-hidden="true">
@@ -149,7 +149,7 @@ export default function DashboardStats({ statistics = {}, analyses = [] }) {
                   aria-valuenow={Math.round((danger / total) * 100)}
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  style={{ width: `${(danger / total) * 100}%` }}
+                  style={{ '--progress': `${(danger / total) * 100}%` }}
                 />
               </div>
               <div className="risk-bar-percentage" aria-hidden="true">

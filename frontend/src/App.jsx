@@ -2,7 +2,8 @@ import { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { useTheme } from './hooks/useTheme';
 import { useVoiceGuidance } from './hooks/useVoiceGuidance';
 import './App.css';
-import './styles/design-tokens.css';
+import './styles/design-tokens-m3.css';
+import './styles/utility-classes.css';
 import './styles/animations.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import SecurityHeartDashboard from './components/SecurityHeartDashboard';
@@ -14,7 +15,7 @@ import QuizAcademie from './components/QuizAcademie';
 import useCreditSystem from './hooks/useCreditSystem';
 import useAccountProfile from './hooks/useAccountProfile';
 import useAuth from './hooks/useAuth';
-import ModernAuthPage from './components/ModernAuthPage';
+import AuthFlow from './screens/Auth/AuthFlow'; // Remplacer le chemin selon ta structure exacte
 import useFamilyDashboard from './hooks/useFamilyDashboard';
 import OnboardingWizard from './components/OnboardingWizard';
 import { analysisAPI } from './services/api';
@@ -29,6 +30,8 @@ const ToolsTab = lazy(() => import('./components/ToolsTab'));
 const FamilyDashboard = lazy(() => import('./components/FamilyDashboard'));
 const AccountProfile = lazy(() => import('./components/AccountProfile'));
 const CreditSystem = lazy(() => import('./components/CreditSystem'));
+const ScamReportingSystem = lazy(() => import('./components/ScamReportingSystem'));
+const DesignSystemDemo = lazy(() => import('./components/DesignSystemDemo'));
 
 // Loading placeholder component
 const LoadingPlaceholder = () => (
@@ -80,7 +83,7 @@ export default function App() {
   const { isVoiceGuidanceEnabled, toggleVoiceGuidance } = useVoiceGuidance();
 
   // Phase 1 Sprint 3: Check for and send daily reminder notification on app mount
-  React.useEffect(() => {
+  useEffect(() => {
     if (shouldSendDailyNotification('QUIZ_REMINDER')) {
       sendNotification('QUIZ_REMINDER', {});
     }
@@ -95,7 +98,9 @@ export default function App() {
       'ressources': 'Ressources',
       'outils': 'Outils',
       'famille': 'Famille',
-      'parametres': 'Paramètres'
+      'parametres': 'Paramètres',
+      'signaler': 'Signaler',
+      'design': 'Design'
     };
     if (isVoiceGuidanceEnabled) {
       speak(`Onglet ${tabNames[activeTab]}`);
@@ -110,11 +115,20 @@ export default function App() {
   }, [activeTab, view, isVoiceGuidanceEnabled]);
 
   // Phase 4.0.5: Handle quiz completion and award credits
-  const handleQuizComplete = useCallback((score, passed) => {
-    const creditsEarned = passed ? 20 : 5;
-    const description = passed
-      ? 'Quiz réussi - félicitations!'
-      : 'Quiz tenté - continuez votre apprentissage!';
+  const handleQuizComplete = useCallback((score, passed, difficulty = 'intermediaire') => {
+    let creditsEarned = 5; // Default for failed attempts
+    let description = 'Quiz tenté - continuez votre apprentissage!';
+
+    if (passed) {
+      if (difficulty === 'expert') {
+        creditsEarned = 30; // Expert bonus
+        description = 'Quiz Expert réussi - excellent travail!';
+      } else {
+        creditsEarned = 20; // Standard pass
+        description = 'Quiz réussi - félicitations!';
+      }
+    }
+
     earnCredits(creditsEarned, 'quiz', description);
   }, [earnCredits]);
 
@@ -141,7 +155,7 @@ export default function App() {
   // DEV MODE: Bypass auth if REACT_APP_BYPASS_AUTH is set
   const bypassAuth = process.env.REACT_APP_BYPASS_AUTH === 'true';
   if (!auth.isAuthenticated && !bypassAuth) {
-    return <ModernAuthPage />;
+    return <AuthFlow onLoginSuccess={(user, token) => auth.loginWithToken(user, token)} />;
   }
 
   // Synthèse vocale (Le téléphone lit le texte)
@@ -269,16 +283,19 @@ export default function App() {
           <button
             onClick={auth.logout}
             style={{
-              padding: '8px 16px',
-              backgroundColor: '#f0f0f0',
-              border: '2px solid #ddd',
-              borderRadius: '6px',
+              padding: '12px 20px',
+              backgroundColor: '#F3F4F6',
+              color: '#1E40AF',
+              border: '2px solid #1E40AF',
+              borderRadius: '8px',
               cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500'
+              fontSize: '16px',
+              fontWeight: '600',
+              minHeight: '60px',
+              fontFamily: 'var(--font-body, "Lora", serif)'
             }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#e0e0e0'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#f0f0f0'}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#dbeafe'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#F3F4F6'}
           >
             🚪 Déconnexion
           </button>
@@ -418,6 +435,13 @@ export default function App() {
           </div>
         </TabPanel>
 
+        {/* Tab 8: Signaler - Scam Reporting System (Phase 5B) */}
+        <TabPanel tabId="signaler" activeTab={activeTab}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <ScamReportingSystem />
+          </Suspense>
+        </TabPanel>
+
         {/* Tab 7: Paramètres - Account & Credit Settings (Phase 4.2 + 4.0.4) */}
         <TabPanel tabId="parametres" activeTab={activeTab}>
           {/* Phase 4.2: Account Profile Section */}
@@ -446,6 +470,13 @@ export default function App() {
               stats={creditStats}
               formatTimeAgo={formatTimeAgo}
             />
+          </Suspense>
+        </TabPanel>
+
+        {/* Tab: Design System Demo */}
+        <TabPanel tabId="design" activeTab={activeTab}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <DesignSystemDemo />
           </Suspense>
         </TabPanel>
       </div>

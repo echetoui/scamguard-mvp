@@ -4,7 +4,7 @@ Auto-generated file, do not edit by hand.
 """
 from ..util import u
 
-# Copyright (C) 2011-2026 The Libphonenumber Authors
+# Copyright (C) 2011-2024 The Libphonenumber Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -3384,7 +3384,6 @@ data = {
  '1256971':{'en': 'Huntsville, AL'},
  '1256974':{'en': 'Moulton, AL'},
  '1256997':{'en': 'Fort Payne, AL'},
- '1257':{'en': 'British Colombia'},
  '1260':{'en': 'Indiana'},
  '1260244':{'en': 'Columbia City, IN'},
  '1260248':{'en': 'Columbia City, IN'},
@@ -3809,7 +3808,6 @@ data = {
  '1270982':{'en': 'Elizabethtown, KY'},
  '1270988':{'en': 'Salem, KY'},
  '1272':{'en': 'Pennsylvania'},
- '1274':{'en': 'Wisconsin'},
  '1276':{'en': 'Virginia'},
  '1276223':{'en': 'Wytheville, VA'},
  '1276228':{'en': 'Wytheville, VA'},
@@ -6914,7 +6912,6 @@ data = {
  '1323971':{'en': 'Los Angeles, CA'},
  '1323980':{'en': 'Los Angeles, CA'},
  '1323982':{'en': 'Los Angeles, CA'},
- '1324':{'en': 'Florida'},
  '1325':{'en': 'Texas'},
  '1325223':{'en': 'San Angelo, TX'},
  '1325224':{'en': 'San Angelo, TX'},
@@ -6971,7 +6968,6 @@ data = {
  '1325947':{'en': 'San Angelo, TX'},
  '1325949':{'en': 'San Angelo, TX'},
  '1326':{'en': 'Ohio'},
- '1327':{'en': 'Arkansas'},
  '1329':{'en': 'New York'},
  '1330':{'en': 'Ohio'},
  '1330220':{'en': 'Brunswick, OH'},
@@ -7579,12 +7575,8 @@ data = {
  '1339':{'en': 'Massachusetts'},
  '1340200':{'en': 'Chtamstths, VI'},
  '1340203':{'en': 'Chtamstths, VI'},
- '1340204':{'en': 'Chtamstths, VI'},
- '1340205':{'en': 'Chtamstths, VI'},
  '1340206':{'en': 'St. Croix, VI'},
- '1340207':{'en': 'Chtamstths, VI'},
  '1340208':{'en': 'St. Croix, VI'},
- '1340209':{'en': 'Chtamstths, VI'},
  '1340423':{'en': 'Chtamstths, VI'},
  '134044':{'en': 'Chtamstths, VI'},
  '1340725':{'en': 'Chtamstths, VI'},
@@ -7599,7 +7591,7 @@ data = {
  '13457':{'en': 'Cayman Islands'},
  '134580':{'en': 'Cayman Islands'},
  '134581':{'en': 'Cayman Islands'},
- '134584':{'en': 'Cayman Islands'},
+ '1345848':{'en': 'Cayman Islands'},
  '134588':{'en': 'Cayman Islands'},
  '1345914':{'en': 'Cayman Islands'},
  '134594':{'en': 'Cayman Islands'},
@@ -7778,7 +7770,6 @@ data = {
  '1352872':{'en': 'Gainesville, FL'},
  '1352873':{'en': 'Ocala, FL'},
  '1352955':{'en': 'Gainesville, FL'},
- '1353':{'en': 'Wisconsin'},
  '1354':{'en': 'Quebec'},
  '1360':{'en': 'Washington State'},
  '1360210':{'en': 'Camas, WA'},
@@ -10019,4 +10010,13 @@ data = {
  '1414777':{'en': 'Milwaukee, WI'},
  '1414778':{'en': 'Milwaukee, WI'},
  '1414805':{'en': 'Milwaukee, WI'},
+ '1414817':{'en': 'Milwaukee, WI'},
+ '1414831':{'en': 'Milwaukee, WI'},
+ '1414871':{'en': 'Milwaukee, WI'},
+ '1414873':{'en': 'Milwaukee, WI'},
+ '1414875':{'en': 'Milwaukee, WI'},
+ '1414906':{'en': 'Milwaukee, WI'},
+ '1414908':{'en': 'Milwaukee, WI'},
+ '1414933':{'en': 'Milwaukee, WI'},
+ '1414961':{'en': 'Milwaukee, WI'},
 }

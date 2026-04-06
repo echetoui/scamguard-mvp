@@ -16,7 +16,8 @@ psutil==5.9.6
 
 # Environment & Config
 python-dotenv==1.0.0
-pydantic==2.5.0
+pydantic
+
 
 # Async
 httpx==0.25.0

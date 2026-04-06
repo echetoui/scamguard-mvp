@@ -15,8 +15,10 @@ import {
   getModuleState,
   saveModuleResult,
   getEarnedBadges,
+  getStreakData,
 } from '../utils/quizStorage';
 import '../styles/QuizAcademie.css';
+import '../styles/utility-classes.css';
 
 // Module definitions
 const MODULES = [
@@ -56,20 +58,24 @@ const MODULES = [
 
 export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEnabled }) {
   const [activeModule, setActiveModule] = useState(null);
+  const [pendingModule, setPendingModule] = useState(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState('intermediaire');
   const [badgeAnimation, setBadgeAnimation] = useState(null);
   const [earnedBadges, setEarnedBadges] = useState([]);
+  const [streakData, setStreakData] = useState(getStreakData());
 
   // Load earned badges on mount
   useEffect(() => {
     setEarnedBadges(getEarnedBadges());
+    setStreakData(getStreakData());
   }, []);
 
   // Handle quiz completion
   const handleQuizComplete = useCallback(
-    (score, passed) => {
+    (score, passed, durationSec) => {
       if (activeModule) {
         // Save result to localStorage
-        saveModuleResult(activeModule, score, passed);
+        saveModuleResult(activeModule, score, passed, selectedDifficulty, durationSec);
 
         // Trigger badge animation if newly earned
         if (passed) {
@@ -77,16 +83,17 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
           setTimeout(() => setBadgeAnimation(null), 3000);
         }
 
-        // Update badges list
+        // Update badges list and streak
         setEarnedBadges(getEarnedBadges());
+        setStreakData(getStreakData());
 
         // Call parent onComplete callback if provided (for credit system)
         if (onQuizComplete) {
-          onQuizComplete(score, passed);
+          onQuizComplete(score, passed, selectedDifficulty);
         }
       }
     },
-    [activeModule, onQuizComplete]
+    [activeModule, selectedDifficulty, onQuizComplete]
   );
 
   // Handle simulator completion
@@ -120,7 +127,69 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
   // Handle back from quiz
   const handleBackFromQuiz = useCallback(() => {
     setActiveModule(null);
+    setPendingModule(null);
+    setSelectedDifficulty('intermediaire');
   }, []);
+
+  // Handle difficulty selection
+  const handleDifficultySelect = useCallback((difficulty) => {
+    setSelectedDifficulty(difficulty);
+    setActiveModule(pendingModule);
+    setPendingModule(null);
+  }, [pendingModule]);
+
+  const handleDifficultyCancel = useCallback(() => {
+    setPendingModule(null);
+    setSelectedDifficulty('intermediaire');
+  }, []);
+
+  // Render difficulty selector if a module is pending
+  if (pendingModule) {
+    const currentModule = MODULES.find(m => m.id === pendingModule);
+    return (
+      <div className="quiz-module-wrapper">
+        <div className="p-lg max-w-md mx-auto">
+          <h3 className="text-xl font-bold mb-xl text-center">
+            Choisissez votre niveau
+          </h3>
+          <div className="flex-col gap-sm">
+            <button
+              onClick={() => handleDifficultySelect('debutant')}
+              className="p-lg text-lg font-medium bg-success-light border-success rounded-sm min-h-60"
+            >
+              🟢 Débutant - Questions faciles
+            </button>
+            <button
+              onClick={() => handleDifficultySelect('intermediaire')}
+              className="p-lg text-lg font-medium bg-warning-light border-warning rounded-sm min-h-60"
+            >
+              🟡 Intermédiaire (Recommandé) - Questions mixtes
+            </button>
+            <button
+              onClick={() => handleDifficultySelect('expert')}
+              className="p-lg text-lg font-medium bg-error-light border-error rounded-sm min-h-60"
+            >
+              🔴 Expert - Questions difficiles
+            </button>
+            <button
+              onClick={handleDifficultyCancel}
+              className="p-lg text-lg font-semibold bg-light border-primary rounded-sm min-h-60"
+              style={{
+                backgroundColor: '#F3F4F6',
+                color: '#1E40AF',
+                border: '2px solid #1E40AF',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                minHeight: '60px',
+              }}
+            >
+              ← Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Render quiz or simulator screen if a module is selected
   if (activeModule) {
@@ -129,19 +198,10 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
     if (currentModule && currentModule.type === 'simulator') {
       return (
         <div className="quiz-module-wrapper">
-          <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+          <div className="p-lg max-w-xl mx-auto">
             <button
               onClick={handleBackFromQuiz}
-              style={{
-                marginBottom: '20px',
-                padding: '8px 16px',
-                backgroundColor: '#f0f0f0',
-                border: '2px solid #ddd',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
+              className="mb-xl px-lg py-md bg-light text-primary border-primary rounded-sm text-lg font-semibold min-h-60"
             >
               ← Retour
             </button>
@@ -158,6 +218,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
       <div className="quiz-module-wrapper">
         <QuizModule
           moduleId={activeModule}
+          difficultyFilter={selectedDifficulty}
           onComplete={handleQuizComplete}
           onBack={handleBackFromQuiz}
           speak={speak}
@@ -177,6 +238,13 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
           Complétez les modules de formation pour maîtriser la détection des arnaque
         </p>
       </div>
+
+      {/* Streak Indicator */}
+      {streakData.currentStreak > 0 && (
+        <div className="flex justify-center mb-lg p-md bg-warning-light rounded-sm text-lg font-semibold">
+          🔥 Série: {streakData.currentStreak} jour{streakData.currentStreak > 1 ? 's' : ''} consécutif{streakData.currentStreak > 1 ? 's' : ''}
+        </div>
+      )}
 
       {/* Earned Badges Section */}
       {earnedBadges.length > 0 && (
@@ -209,7 +277,13 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
             <div
               key={module.id}
               className={`module-card module-${state}`}
-              onClick={() => setActiveModule(module.id)}
+              onClick={() => {
+                if (module.type === 'quiz') {
+                  setPendingModule(module.id);
+                } else {
+                  setActiveModule(module.id);
+                }
+              }}
             >
               {/* Module Icon */}
               <div className="module-icon">{module.icon}</div>
@@ -259,10 +333,13 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
       {/* Completion Summary */}
       <div className="completion-summary">
         <p>
-          Modules complétés: <strong>{earnedBadges.length}/{MODULES.length}</strong>
+          Modules complétés: <strong>{Math.min(earnedBadges.filter(b => ['phishing_defender', 'phone_vigilant', 'online_expert'].includes(b.id)).length, 3)}/3</strong>
         </p>
-        {earnedBadges.length === MODULES.length && (
-          <p className="completion-message">🏆 Félicitations! Vous avez complété tous les modules!</p>
+        <p>
+          Succès obtenus: <strong>{earnedBadges.length}</strong>
+        </p>
+        {earnedBadges.filter(b => ['phishing_defender', 'phone_vigilant', 'online_expert'].includes(b.id)).length === 3 && (
+          <p className="completion-message">🏆 Félicitations! Vous avez complété tous les modules de base!</p>
         )}
       </div>
     </div>

@@ -1,0 +1,105 @@
+/*
+ * Design System - Button Styles (Material Design 3)
+ * MD3 Implementation
+ *
+ * Uses CSS variables from design-tokens-m3.css for consistency.
+ */
+
+@import '../styles/design-tokens-m3.css';
+
+.ds-button {
+  /* Core Principles: Font size and Touch Target */
+  font-size: var(--font-size-label-lg);
+  min-height: var(--spacing-6xl); /* 48dp */
+  min-width: var(--spacing-6xl); /* 48dp */
+
+  /* Basic Styling */
+  font-weight: var(--font-weight-label-lg);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0 var(--spacing-2xl);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: var(--line-height-label-lg);
+
+  /* Smooth transition for interactions */
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+/* --- Variants --- */
+
+/* Primary Button */
+.ds-button--primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.ds-button--primary:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  opacity: 0.92;
+}
+
+.ds-button--primary:active:not(:disabled) {
+  transform: scale(0.97);
+  background-color: var(--color-primary);
+  opacity: 0.88;
+}
+
+/* Secondary Button */
+.ds-button--secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-outline);
+}
+
+.ds-button--secondary:hover:not(:disabled) {
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary);
+}
+
+.ds-button--secondary:active:not(:disabled) {
+  transform: scale(0.97);
+  background-color: var(--color-primary-container);
+}
+
+
+/* --- States --- */
+
+.ds-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.ds-button:disabled {
+  background-color: var(--color-outline);
+  color: var(--color-on-surface);
+  cursor: not-allowed;
+  border-color: var(--color-outline);
+  opacity: 0.38;
+}
+
+.ds-button:disabled:hover,
+.ds-button:disabled:active {
+  transform: none;
+}
+
+/* Accessibility: Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ds-button {
+    transition: none;
+  }
+  .ds-button:active {
+    transform: none;
+  }
+}
+
+/* --- Sizes --- */
+
+.ds-button--small {
+  font-size: var(--font-size-label-md);
+  min-height: 40px;
+  padding: 0 var(--spacing-md);
+}
