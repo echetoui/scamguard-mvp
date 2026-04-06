@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import QuebecFraudAlerts from '../QuebecFraudAlerts';
 
@@ -97,9 +97,9 @@ describe('QuebecFraudAlerts Component', () => {
       render(<QuebecFraudAlerts />);
 
       await waitFor(() => {
-        const subtitle = screen.getByText(/alertes actuelles/i);
+        const subtitle = screen.getByRole('heading', { level: 2 }).nextElementSibling;
         expect(subtitle).toBeInTheDocument();
-        expect(subtitle.textContent).toMatch(/\d+ alerte/i);
+        expect(subtitle.textContent).toMatch(/\d+ alerte.*actuell.*de fraude au Québec/i);
       });
     });
 
@@ -139,22 +139,25 @@ describe('QuebecFraudAlerts Component', () => {
     });
 
     it('should toggle prevention tips when clicked', async () => {
-      const user = userEvent.setup();
       render(<QuebecFraudAlerts />);
 
+      // Wait for alerts to load
       await waitFor(() => {
         expect(screen.getByText(/alerte/i)).toBeInTheDocument();
-      }, { timeout: 2000 });
+      });
 
-      const toggleButtons = screen.queryAllByText(/Conseil de prévention/i);
-      if (toggleButtons.length > 0) {
-        await user.click(toggleButtons[0]);
+      // Find the first toggle button and click it
+      const toggleButtons = screen.getAllByRole('button', { name: /Conseil de prévention/i });
+      expect(toggleButtons.length).toBeGreaterThan(0);
 
-        await waitFor(() => {
-          const tipsText = screen.queryByText(/Ne cliquez jamais|prévention/i);
-          expect(tipsText).toBeInTheDocument();
-        }, { timeout: 1000 });
-      }
+      // Click to expand
+      fireEvent.click(toggleButtons[0]);
+
+      // The tips should now be visible
+      await waitFor(() => {
+        const tips = screen.queryAllByText(/Ne cliquez jamais sur les liens|Les banques ne demandent jamais/);
+        expect(tips.length).toBeGreaterThan(0);
+      });
     });
 
     it('should display report buttons with correct links', async () => {

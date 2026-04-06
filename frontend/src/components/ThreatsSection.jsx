@@ -55,6 +55,15 @@ const ThreatsSection = ({
     }
   };
 
+  const mapThreatLevelToSeverity = (threatLevel) => {
+    const map = {
+      'high': 'danger',
+      'medium': 'medium',
+      'low': 'low'
+    };
+    return map[threatLevel] || 'medium';
+  };
+
   return (
     <div className="threats-section">
       {/* Section Header */}
@@ -100,9 +109,10 @@ const ThreatsSection = ({
           {filteredThreats.map((threat) => (
             <div key={threat.id} role="listitem">
               <ThreatCard
-                threat={threat}
-                onSelect={handleThreatSelect}
-                expandable={true}
+                severity={mapThreatLevelToSeverity(threat.threat_level)}
+                title={threat.institution}
+                description={threat.message}
+                onAction={() => handleThreatSelect(threat)}
               />
             </div>
           ))}

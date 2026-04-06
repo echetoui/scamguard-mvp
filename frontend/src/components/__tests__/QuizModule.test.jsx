@@ -50,10 +50,11 @@ describe('QuizModule Component', () => {
     });
 
     it('should display question category', () => {
-      render(<QuizModule moduleId="phishing" />);
+      const { container } = render(<QuizModule moduleId="phishing" />);
 
-      const container = screen.getByText(/Phishing|Bancaire/i);
-      expect(container).toBeTruthy();
+      const category = container.querySelector('.question-category');
+      expect(category).toBeTruthy();
+      expect(category.textContent).toMatch(/Phishing|Bancaire|Hameçonnage/i);
     });
 
     it('should display question difficulty', () => {
@@ -308,7 +309,7 @@ describe('QuizModule Component', () => {
         fireEvent.click(nextButton);
       }
 
-      expect(mockOnComplete).toHaveBeenCalledWith(100, true);
+      expect(mockOnComplete).toHaveBeenCalledWith(100, true, expect.any(Number));
     });
 
     it('should pass passed status to onComplete callback', () => {
@@ -323,7 +324,7 @@ describe('QuizModule Component', () => {
         fireEvent.click(nextButton);
       }
 
-      expect(mockOnComplete).toHaveBeenCalledWith(100, true);
+      expect(mockOnComplete).toHaveBeenCalledWith(100, true, expect.any(Number));
     });
   });
 
@@ -730,7 +731,7 @@ describe('QuizModule Component', () => {
         fireEvent.click(nextButton);
       }
 
-      expect(mockOnComplete).toHaveBeenCalledWith(80, true);
+      expect(mockOnComplete).toHaveBeenCalledWith(80, true, expect.any(Number));
     });
   });
 });
