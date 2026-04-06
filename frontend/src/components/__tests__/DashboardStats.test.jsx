@@ -177,7 +177,7 @@ describe('DashboardStats Component', () => {
       const safeBars = container.querySelectorAll('.risk-bar-fill.safe');
       const safeBar = safeBars[0];
       expect(safeBar).toBeTruthy();
-      expect(safeBar.style.width).toBe('60%');
+      expect(safeBar.style.getPropertyValue('--progress')).toBe('60%');
     });
 
     it('should display risk percentages', () => {
@@ -346,7 +346,8 @@ describe('DashboardStats Component', () => {
       const safeBar = safeBars[0];
       // Should be approximately 33.33%
       expect(safeBar).toBeTruthy();
-      expect(safeBar.style.width).toMatch(/33\.3+%/);
+      const progressValue = safeBar.style.getPropertyValue('--progress');
+      expect(parseFloat(progressValue)).toBeCloseTo(33.33, 1);
     });
   });
 
