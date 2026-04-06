@@ -215,7 +215,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
     }
 
     return (
-      <div className="quiz-module-wrapper">
+      <div className="quiz-module-wrapper" data-testid="quiz-module">
         <QuizModule
           moduleId={activeModule}
           difficultyFilter={selectedDifficulty}
