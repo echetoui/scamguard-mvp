@@ -19,6 +19,16 @@ vi.mock('../QuizModule', () => ({
   ),
 }));
 
+// Mock the SMSSimulator component
+vi.mock('../SMSSimulator', () => ({
+  default: ({ onComplete, onBack }) => (
+    <div data-testid="sms-simulator">
+      <button onClick={() => onComplete(80, true)}>Complete Simulator</button>
+      <button onClick={onBack}>Back</button>
+    </div>
+  ),
+}));
+
 // Mock the quizStorage module
 vi.mock('../../utils/quizStorage', () => ({
   getModuleHighScore: vi.fn(() => 0),
@@ -27,6 +37,7 @@ vi.mock('../../utils/quizStorage', () => ({
   getModuleState: vi.fn(() => 'not-started'),
   saveModuleResult: vi.fn(),
   getEarnedBadges: vi.fn(() => []),
+  getStreakData: vi.fn(() => ({ currentStreak: 0, longestStreak: 0 })),
 }));
 
 describe('QuizAcademie Component', () => {
