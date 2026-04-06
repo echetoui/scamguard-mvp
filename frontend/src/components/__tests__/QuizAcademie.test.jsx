@@ -51,6 +51,11 @@ vi.mock('../SMSSimulator', () => ({
   ),
 }));
 
+// Mock the Leaderboard component
+vi.mock('../Leaderboard', () => ({
+  default: ({ moduleId, title }) => <div data-testid={`leaderboard-${moduleId}`}>{title}</div>,
+}));
+
 // Mock the quizStorage module
 vi.mock('../../utils/quizStorage', () => ({
   getModuleHighScore: vi.fn(() => 0),
@@ -60,6 +65,8 @@ vi.mock('../../utils/quizStorage', () => ({
   saveModuleResult: vi.fn(),
   getEarnedBadges: vi.fn(() => []),
   getStreakData: vi.fn(() => ({ currentStreak: 0, longestStreak: 0 })),
+  getXpData: vi.fn(() => ({ totalXp: 0, level: 1, xpInLevel: 0, xpNeeded: 500 })),
+  getAllBadges: vi.fn(() => []),
 }));
 
 describe('QuizAcademie Component', () => {
@@ -317,6 +324,85 @@ describe('QuizAcademie Component', () => {
       render(<QuizAcademie />);
 
       expect(screen.getByText(/2 tentatives/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('XP Bar Display', () => {
+    it('should render XP level bar', () => {
+      const { container } = render(<QuizAcademie />);
+      expect(container.querySelector('.xp-level-bar')).toBeInTheDocument();
+    });
+
+    it('should display current level', () => {
+      render(<QuizAcademie />);
+      expect(screen.getByText(/Niveau 1/)).toBeInTheDocument();
+    });
+
+    it('should display XP progress', () => {
+      render(<QuizAcademie />);
+      expect(screen.getByText(/0 \/ 500 XP/)).toBeInTheDocument();
+    });
+  });
+
+  describe('Leaderboard Toggle', () => {
+    it('should show leaderboard toggle button', () => {
+      render(<QuizAcademie />);
+      const toggleButtons = screen.getAllByRole('button', { name: /Voir scores|Masquer scores/i });
+      expect(toggleButtons.length).toBeGreaterThan(0);
+    });
+
+    it('should toggle leaderboard visibility on click', async () => {
+      render(<QuizAcademie />);
+      const toggleButton = screen.getAllByRole('button', { name: /Voir scores/i })[0];
+      await userEvent.click(toggleButton);
+      expect(screen.getByText(/Scores -/i)).toBeInTheDocument();
+    });
+
+    it('should close leaderboard when toggle is clicked again', async () => {
+      render(<QuizAcademie />);
+      const toggleButton = screen.getAllByRole('button', { name: /Voir scores/i })[0];
+      await userEvent.click(toggleButton);
+      const closeButton = screen.getByRole('button', { name: /Masquer scores/i });
+      await userEvent.click(closeButton);
+      expect(screen.queryByText(/Scores - Phishing/i)).not.toBeInTheDocument();
+    });
+
+    it('should not open quiz when leaderboard toggle is clicked', async () => {
+      render(<QuizAcademie />);
+      const toggleButton = screen.getAllByRole('button', { name: /Voir scores/i })[0];
+      await userEvent.click(toggleButton);
+      // Module selection should still be visible (difficulty selector should not appear)
+      expect(screen.getByText(/Académie de Sécurité/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('Locked Badges', () => {
+    it('should show locked badges section when badges exist', () => {
+      const allBadges = [
+        { id: 'phishing_defender', name: 'Défenseur Numérique', emoji: '🛡️', description: 'Test', moduleId: 'phishing' },
+        { id: 'locked_badge', name: 'Badge Verrouillé', emoji: '🔒', description: 'Test' },
+      ];
+      vi.mocked(quizStorage.getAllBadges).mockReturnValue(allBadges);
+      vi.mocked(quizStorage.getEarnedBadges).mockReturnValue([]); // No badges earned
+
+      render(<QuizAcademie />);
+      expect(screen.getByText(/À débloquer/i)).toBeInTheDocument();
+    });
+
+    it('should apply locked style to locked badges', () => {
+      const allBadges = [
+        { id: 'locked_badge', name: 'Badge Verrouillé', emoji: 'Test', description: 'Test' },
+      ];
+      vi.mocked(quizStorage.getAllBadges).mockReturnValue(allBadges);
+      vi.mocked(quizStorage.getEarnedBadges).mockReturnValue([]); // No badges earned
+
+      const { container } = render(<QuizAcademie />);
+      expect(container.querySelector('.badge-item--locked')).toBeInTheDocument();
+    });
+
+    it('should call getAllBadges on mount', () => {
+      render(<QuizAcademie />);
+      expect(quizStorage.getAllBadges).toHaveBeenCalled();
     });
   });
 

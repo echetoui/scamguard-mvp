@@ -8,6 +8,7 @@
 
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { QUIZ_MODULES } from '../data/quizModules';
+import { addXp } from '../utils/quizStorage';
 import '../styles/QuizModule.css';
 
 export default function QuizModule({ moduleId = null, difficultyFilter = 'intermediaire', onComplete, onBack, speak, isVoiceGuidanceEnabled })  {
@@ -79,6 +80,7 @@ export default function QuizModule({ moduleId = null, difficultyFilter = 'interm
       const durationSec = Math.round((Date.now() - startTimeRef.current) / 1000);
       setShowResults(true);
       if (onComplete) onComplete(finalScore, passed, durationSec);
+      addXp(Math.round((finalScore / 100) * 100));
     }
   }, [selectedAnswer, currentQuestion, currentQuizIndex, answers, onComplete]);
 

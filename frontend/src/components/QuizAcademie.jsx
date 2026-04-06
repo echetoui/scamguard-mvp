@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QuizModule from './QuizModule';
 import SMSSimulator from './SMSSimulator';
+import Leaderboard from './Leaderboard';
 import {
   getModuleHighScore,
   isModulePassed,
@@ -16,6 +17,8 @@ import {
   saveModuleResult,
   getEarnedBadges,
   getStreakData,
+  getXpData,
+  getAllBadges,
 } from '../utils/quizStorage';
 import '../styles/QuizAcademie.css';
 import '../styles/utility-classes.css';
@@ -63,6 +66,9 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
   const [badgeAnimation, setBadgeAnimation] = useState(null);
   const [earnedBadges, setEarnedBadges] = useState([]);
   const [streakData, setStreakData] = useState(getStreakData());
+  const [activeLeaderboardModule, setActiveLeaderboardModule] = useState(null);
+  const [xpData, setXpData] = useState(getXpData());
+  const [allBadges] = useState(getAllBadges());
 
   // Load earned badges on mount
   useEffect(() => {
@@ -77,15 +83,20 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
         // Save result to localStorage
         saveModuleResult(activeModule, score, passed, selectedDifficulty, durationSec);
 
+        // Update badges list and streak
+        const prevBadgeIds = earnedBadges.map(b => b.id);
+        const newBadgeList = getEarnedBadges();
+        const newlyEarned = newBadgeList.filter(b => !prevBadgeIds.includes(b.id));
+
         // Trigger badge animation if newly earned
-        if (passed) {
-          setBadgeAnimation(activeModule);
+        if (newlyEarned.length > 0) {
+          setBadgeAnimation(newlyEarned[0].id);
           setTimeout(() => setBadgeAnimation(null), 3000);
         }
 
-        // Update badges list and streak
-        setEarnedBadges(getEarnedBadges());
+        setEarnedBadges(newBadgeList);
         setStreakData(getStreakData());
+        setXpData(getXpData());
 
         // Call parent onComplete callback if provided (for credit system)
         if (onQuizComplete) {
@@ -93,7 +104,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
         }
       }
     },
-    [activeModule, selectedDifficulty, onQuizComplete]
+    [activeModule, selectedDifficulty, onQuizComplete, earnedBadges]
   );
 
   // Handle simulator completion
@@ -106,14 +117,19 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
         // Save result to localStorage
         saveModuleResult(activeModule, result.percentage, passed);
 
+        // Update badges list
+        const prevBadgeIds = earnedBadges.map(b => b.id);
+        const newBadgeList = getEarnedBadges();
+        const newlyEarned = newBadgeList.filter(b => !prevBadgeIds.includes(b.id));
+
         // Trigger badge animation if newly earned
-        if (passed) {
-          setBadgeAnimation(activeModule);
+        if (newlyEarned.length > 0) {
+          setBadgeAnimation(newlyEarned[0].id);
           setTimeout(() => setBadgeAnimation(null), 3000);
         }
 
-        // Update badges list
-        setEarnedBadges(getEarnedBadges());
+        setEarnedBadges(newBadgeList);
+        setXpData(getXpData());
 
         // Call parent onComplete callback if provided (for credit system)
         if (onQuizComplete) {
@@ -121,7 +137,7 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
         }
       }
     },
-    [activeModule, onQuizComplete]
+    [activeModule, onQuizComplete, earnedBadges]
   );
 
   // Handle back from quiz
@@ -239,6 +255,18 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
         </p>
       </div>
 
+      {/* XP Level Bar */}
+      <div className="xp-level-bar" role="progressbar" aria-valuenow={xpData.xpInLevel} aria-valuemax={xpData.xpNeeded}>
+        <div className="xp-level-header">
+          <span>Niveau {xpData.level}</span>
+          <span>{xpData.xpInLevel} / {xpData.xpNeeded} XP</span>
+        </div>
+        <div className="xp-progress-track">
+          <div className="xp-progress-fill"
+            style={{ '--xp-progress': `${(xpData.xpInLevel / xpData.xpNeeded) * 100}%` }} />
+        </div>
+      </div>
+
       {/* Streak Indicator */}
       {streakData.currentStreak > 0 && (
         <div className="flex justify-center mb-lg p-md bg-warning-light rounded-sm text-lg font-semibold">
@@ -246,22 +274,42 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
         </div>
       )}
 
-      {/* Earned Badges Section */}
-      {earnedBadges.length > 0 && (
+      {/* Badges Section */}
+      {(earnedBadges.length > 0 || allBadges.length > 0) && (
         <div className="earned-badges-section">
-          <h3 className="badges-title">✨ Vos Badges</h3>
-          <div className="badges-container">
-            {earnedBadges.map((badge) => (
-              <div
-                key={badge.id}
-                className={`badge-item ${badgeAnimation === badge.moduleId ? 'animate' : ''}`}
-                title={badge.description}
-              >
-                <span className="badge-emoji">{badge.emoji}</span>
-                <span className="badge-name">{badge.name}</span>
+          {earnedBadges.length > 0 && (
+            <>
+              <h3 className="badges-title">✨ Vos Badges</h3>
+              <div className="badges-container">
+                {earnedBadges.map((badge) => (
+                  <div
+                    key={badge.id}
+                    className={`badge-item ${badgeAnimation === badge.id ? 'animate' : ''}`}
+                    title={badge.description}
+                  >
+                    <span className="badge-emoji">{badge.emoji}</span>
+                    <span className="badge-name">{badge.name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
+
+          {/* Locked Badges Section */}
+          {allBadges.filter(b => !earnedBadges.find(e => e.id === b.id)).length > 0 && (
+            <div className={earnedBadges.length > 0 ? 'locked-badges-container' : ''}>
+              {earnedBadges.length > 0 && <p className="locked-badges-label">À débloquer :</p>}
+              {earnedBadges.length === 0 && <h3 className="badges-title">🔒 Badges à débloquer</h3>}
+              <div className="badges-container">
+                {allBadges.filter(b => !earnedBadges.find(e => e.id === b.id)).map(badge => (
+                  <div key={badge.id} className="badge-item badge-item--locked" title={badge.description}>
+                    <span className="badge-emoji">🔒</span>
+                    <span className="badge-name">{badge.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -325,6 +373,22 @@ export default function QuizAcademie({ onQuizComplete, speak, isVoiceGuidanceEna
               <button className="module-cta">
                 {isPassed ? '🔄 Refaire' : '▶ Commencer'}
               </button>
+
+              {/* Leaderboard Toggle */}
+              <button
+                className="module-leaderboard-toggle"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveLeaderboardModule(activeLeaderboardModule === module.id ? null : module.id);
+                }}
+              >
+                {activeLeaderboardModule === module.id ? '▲ Masquer scores' : '📊 Voir scores'}
+              </button>
+
+              {/* Leaderboard */}
+              {activeLeaderboardModule === module.id && (
+                <Leaderboard moduleId={module.id} title={`Scores - ${module.title}`} />
+              )}
             </div>
           );
         })}

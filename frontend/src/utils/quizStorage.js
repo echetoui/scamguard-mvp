@@ -313,3 +313,28 @@ export const getModuleState = (moduleId) => {
   if (module.passed) return 'completed';
   return 'in-progress';
 };
+
+/**
+ * Add XP to player total
+ * @param {number} xp - Amount of XP to add
+ */
+export const addXp = (xp) => {
+  if (typeof xp !== 'number' || xp < 0) return;
+  const progress = getQuizProgress();
+  if (!progress._xp) progress._xp = { totalXp: 0 };
+  progress._xp.totalXp = (progress._xp.totalXp || 0) + xp;
+  localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(progress));
+};
+
+/**
+ * Get XP data (total, level, progress in level)
+ * @returns {Object} { totalXp, level, xpInLevel, xpNeeded }
+ */
+export const getXpData = () => {
+  const progress = getQuizProgress();
+  const totalXp = progress._xp?.totalXp || 0;
+  const level = Math.floor(totalXp / 500) + 1;
+  const xpInLevel = totalXp % 500;
+  const xpNeeded = level * 500;
+  return { totalXp, level, xpInLevel, xpNeeded };
+};
