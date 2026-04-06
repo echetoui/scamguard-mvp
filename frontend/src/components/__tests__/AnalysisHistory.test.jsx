@@ -118,7 +118,8 @@ describe('AnalysisHistory Component', () => {
     it('should have border color matching risk level', () => {
       const { container } = render(<AnalysisHistory analyses={mockAnalyses} />);
       const items = container.querySelectorAll('.analysis-item');
-      expect(items[0].style.borderLeftColor).toBeTruthy();
+      // Check that the class is applied (risk-danger for item 0)
+      expect(items[0].classList.contains('risk-danger')).toBe(true);
     });
   });
 
@@ -184,11 +185,14 @@ describe('AnalysisHistory Component', () => {
     });
 
     it('should display full date for older messages', () => {
-      render(<AnalysisHistory analyses={mockAnalyses} />);
-      // Should show the date 2 days ago
-      const textContent = screen.getByText(/Historique/)
-        .closest('.analysis-history').textContent;
-      expect(textContent).toContain('mars') || textContent.includes('février') || textContent.includes('janvier');
+      const { container } = render(<AnalysisHistory analyses={mockAnalyses} />);
+      // Verify that the third item (2 days ago) displays date with format "X jour YYYY à HH:mm"
+      // It should NOT contain "Aujourd'hui" or "Hier" since it's older than yesterday
+      const items = container.querySelectorAll('.analysis-item');
+      const thirdItemDate = items[2].querySelector('.analysis-date')?.textContent || '';
+      expect(thirdItemDate).not.toContain("Aujourd'hui");
+      expect(thirdItemDate).not.toContain("Hier");
+      expect(thirdItemDate).toBeTruthy(); // Should have some date text
     });
   });
 

@@ -205,18 +205,28 @@ describe('quizStorage utility', () => {
       saveModuleResult('online', 75, true);
 
       const badges = getEarnedBadges();
-      expect(badges).toHaveLength(3);
+      // Should include at least the 3 module badges
+      expect(badges.length).toBeGreaterThanOrEqual(3);
+      expect(badges.map((b) => b.id)).toContain('phishing_defender');
+      expect(badges.map((b) => b.id)).toContain('phone_vigilant');
+      expect(badges.map((b) => b.id)).toContain('online_expert');
     });
   });
 
   describe('getAllBadges', () => {
-    it('should return all 3 badges', () => {
+    it('should return all 9 badges', () => {
       const badges = getAllBadges();
-      expect(badges).toHaveLength(3);
+      expect(badges).toHaveLength(9);
       expect(badges.map((b) => b.id)).toEqual([
         'phishing_defender',
         'phone_vigilant',
         'online_expert',
+        'quiz_master',
+        'perfect_score',
+        'difficulty_expert',
+        'speed_learner',
+        'persistent_learner',
+        'simulator_ace',
       ]);
     });
 
@@ -227,7 +237,8 @@ describe('quizStorage utility', () => {
         expect(badge.name).toBeDefined();
         expect(badge.emoji).toBeDefined();
         expect(badge.description).toBeDefined();
-        expect(badge.moduleId).toBeDefined();
+        expect(badge.condition).toBeDefined();
+        // moduleId is optional - not all badges have a linked module
       });
     });
   });
