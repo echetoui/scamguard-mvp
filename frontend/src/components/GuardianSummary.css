@@ -1,0 +1,47 @@
+.guardian-summary {
+  margin-bottom: var(--spacing-md);
+}
+
+.guardian-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.guardian-summary-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.guardian-summary-count {
+  font-size: 16px;
+  color: var(--on-surface-variant);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.guardian-summary-safe {
+  font-size: 15px;
+  color: var(--secondary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.guardian-summary-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.guardian-summary-link:hover {
+  opacity: 0.8;
+}
+
+.guardian-summary-link:active {
+  opacity: 0.6;
+}

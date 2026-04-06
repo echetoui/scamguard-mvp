@@ -499,6 +499,91 @@
 }
 
 /* ============================================================================ */
+/* JOIN FAMILY SECTION                                                        */
+/* ============================================================================ */
+
+.join-family-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.join-code-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 320px;
+  margin-top: var(--spacing-md);
+}
+
+.join-code-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: left;
+}
+
+.join-code-input {
+  padding: var(--spacing-md);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  border: 2px solid var(--warm-primary);
+  border-radius: 8px;
+  background: var(--bg-card);
+  min-height: 60px;
+  text-transform: uppercase;
+  font-family: 'Courier New', monospace;
+}
+
+.join-code-input:focus {
+  outline: 3px solid var(--warm-primary);
+  outline-offset: 2px;
+}
+
+.btn-join {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--warm-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 56px;
+  transition: all 0.3s ease;
+}
+
+.btn-join:hover:not(:disabled) {
+  background: var(--warm-depth);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(200, 90, 42, 0.2);
+}
+
+.btn-join:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-join:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.join-error {
+  color: var(--accent-red);
+  font-size: 15px;
+  padding: var(--spacing-sm);
+  background: rgba(193, 68, 13, 0.1);
+  border-radius: 4px;
+  margin: 0;
+}
+
+/* ============================================================================ */
 /* RESPONSIVE DESIGN                                                          */
 /* ============================================================================ */
 
@@ -647,6 +732,25 @@
     background: #3a2a1a;
     color: #f0d9a8;
     border-left-color: var(--accent-red);
+  }
+
+  .join-code-input {
+    background: #2d2d2d;
+    color: var(--warm-secondary);
+    border-color: var(--warm-secondary);
+  }
+
+  .btn-join {
+    background: var(--warm-primary);
+  }
+
+  .btn-join:hover:not(:disabled) {
+    background: var(--warm-depth);
+  }
+
+  .join-error {
+    background: rgba(193, 68, 13, 0.2);
+    color: #f0d9a8;
   }
 
   .role-badge {

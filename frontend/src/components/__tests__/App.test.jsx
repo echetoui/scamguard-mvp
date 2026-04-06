@@ -291,42 +291,14 @@ describe('App Component', () => {
   });
 
   describe('Conditional Rendering', () => {
-    it('should not show famille tab when hasFamily is false', () => {
+    it('should always render the app when authenticated', () => {
       useAuth.mockReturnValue(mockAuthHook);
       useFamilyDashboard.mockReturnValue(mockFamilyHook);
 
       render(<App />);
 
-      expect(screen.queryByTestId('tab-famille')).toBeFalsy();
-    });
-
-    it('should show famille tab when hasFamily is true', () => {
-      useAuth.mockReturnValue(mockAuthHook);
-      useFamilyDashboard.mockReturnValue({
-        ...mockFamilyHook,
-        hasFamily: true,
-      });
-
-      render(<App />);
-
-      expect(screen.getByTestId('tab-famille')).toBeTruthy();
-    });
-
-    it('should toggle famille tab visibility based on hasFamily', async () => {
-      useAuth.mockReturnValue(mockAuthHook);
-
-      const { rerender } = render(<App />);
-
-      expect(screen.queryByTestId('tab-famille')).toBeFalsy();
-
-      useFamilyDashboard.mockReturnValue({
-        ...mockFamilyHook,
-        hasFamily: true,
-      });
-
-      rerender(<App />);
-
-      expect(screen.getByTestId('tab-famille')).toBeTruthy();
+      // App should render successfully regardless of hasFamily status
+      expect(screen.getByText(/Sécurité/i)).toBeInTheDocument();
     });
   });
 
@@ -626,14 +598,15 @@ describe('App Component', () => {
       expect(screen.getByTestId('bottom-nav')).toBeTruthy();
     });
 
-    it('should pass hasFamily prop to BottomNavigation', () => {
+    it('should pass familyData to components even when empty', () => {
       useFamilyDashboard.mockReturnValue({
         ...mockFamilyHook,
-        hasFamily: true,
+        hasFamily: false,
       });
 
       render(<App />);
-      expect(screen.getByTestId('tab-famille')).toBeTruthy();
+      // App should render successfully with empty family data
+      expect(screen.getByText(/Sécurité/i)).toBeInTheDocument();
     });
 
     it('should pass onTabChange callback to BottomNavigation', async () => {

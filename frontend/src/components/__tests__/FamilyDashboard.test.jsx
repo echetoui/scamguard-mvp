@@ -14,6 +14,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 // Mock authStorage BEFORE importing component
 vi.mock('../../utils/authStorage', () => ({
@@ -146,10 +147,10 @@ describe('FamilyDashboard Component', () => {
         status: 404
       });
 
-      const { container } = render(<FamilyDashboard />);
+      render(<FamilyDashboard />);
 
       await waitFor(() => {
-        expect(container.querySelector('.empty')).toBeTruthy();
+        expect(screen.getByText(/Rejoindre une famille/)).toBeInTheDocument();
       });
     });
   });
@@ -597,11 +598,10 @@ describe('FamilyDashboard Component', () => {
         status: 500
       });
 
-      const { container } = render(<FamilyDashboard />);
+      render(<FamilyDashboard />);
 
       await waitFor(() => {
-        const errorDiv = container.querySelector('[role="alert"]');
-        expect(errorDiv).toBeTruthy();
+        expect(screen.getByText(/Impossible de charger les données familiales/)).toBeInTheDocument();
       });
     });
 
@@ -892,6 +892,204 @@ describe('FamilyDashboard Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Membres du groupe \(3\)/)).toBeTruthy();
+      });
+    });
+  });
+
+  describe('Join Family Flow', () => {
+    beforeEach(() => {
+      global.fetch = vi.fn();
+    });
+
+    it('should show join section when user has no family (404 response)', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Rejoindre une famille/)).toBeInTheDocument();
+      });
+    });
+
+    it('should have join code input with correct aria-label', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      await waitFor(() => {
+        const input = screen.getByLabelText(/Entrez le code d'invitation de 6 caractères/);
+        expect(input).toBeInTheDocument();
+      });
+    });
+
+    it('should force uppercase input in join code', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'abc123');
+
+      expect(input.value).toBe('ABC123');
+    });
+
+    it('should limit input to 6 characters maximum', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'ABCDEFG');
+
+      expect(input.value).toBe('ABCDEF');
+    });
+
+    it('should disable join button when input is less than 6 characters', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const button = await screen.findByRole('button', { name: /Rejoindre/i });
+      expect(button).toBeDisabled();
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'ABC');
+      expect(button).toBeDisabled();
+    });
+
+    it('should enable join button when input is exactly 6 characters', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'ABC123');
+
+      const button = screen.getByRole('button', { name: /Rejoindre/i });
+      expect(button).not.toBeDisabled();
+    });
+
+    it('should call POST /family/join with correct body when join button clicked', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'abc123');
+
+      const button = screen.getByRole('button', { name: /Rejoindre/i });
+
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
+
+      await user.click(button);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/family/join'),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ inviteCode: 'ABC123' }),
+        })
+      );
+    });
+
+    it('should show error message when join fails', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'BAD123');
+
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+      });
+
+      const button = screen.getByRole('button', { name: /Rejoindre/i });
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Code invalide ou expiré/)).toBeInTheDocument();
+      });
+    });
+
+    it('should show loading state while joining', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'ABC123');
+
+      global.fetch.mockImplementationOnce(
+        () => new Promise(resolve => setTimeout(() => resolve({ ok: true }), 100))
+      );
+
+      const button = screen.getByRole('button', { name: /Rejoindre/i });
+      await user.click(button);
+
+      expect(screen.getByRole('button', { name: /Connexion/i })).toBeInTheDocument();
+    });
+
+    it('should show success state after successful join', async () => {
+      const user = userEvent.setup();
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      render(<FamilyDashboard />);
+
+      const input = await screen.findByLabelText(/Entrez le code d'invitation de 6 caractères/);
+      await user.type(input, 'ABC123');
+
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true }),
+      });
+
+      const button = screen.getByRole('button', { name: /Rejoindre/i });
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Rejoint/i })).toBeInTheDocument();
       });
     });
   });

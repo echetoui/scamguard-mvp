@@ -7,6 +7,7 @@ import './styles/utility-classes.css';
 import './styles/animations.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import SecurityHeartDashboard from './components/SecurityHeartDashboard';
+import GuardianSummary from './components/GuardianSummary';
 import BottomNavigation, { TabPanel } from './components/BottomNavigation';
 import useAnalysisHistory from './hooks/useAnalysisHistory';
 import AnalysisHistory from './components/AnalysisHistory';
@@ -387,6 +388,14 @@ export default function App() {
           <div className="security-view" style={{paddingBottom: '40px'}}>
             {/* Phase 4.0: Dashboard Statistics */}
             <DashboardStats statistics={statistics} analyses={analyses} />
+            {/* Guardian Summary - Show if user has family */}
+            {hasFamily && (
+              <GuardianSummary
+                familyData={familyData}
+                loading={familyLoading}
+                onViewFamily={() => setActiveTab('famille')}
+              />
+            )}
             {/* Security Heart Dashboard */}
             <SecurityHeartDashboard userId="user-demo" />
           </div>
@@ -412,13 +421,11 @@ export default function App() {
         </TabPanel>
 
         {/* Tab 6: Famille - Family Protection Dashboard (Phase 5A) */}
-        {hasFamily && (
-          <TabPanel tabId="famille" activeTab={activeTab}>
-            <Suspense fallback={<LoadingPlaceholder />}>
-              <FamilyDashboard />
-            </Suspense>
-          </TabPanel>
-        )}
+        <TabPanel tabId="famille" activeTab={activeTab}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <FamilyDashboard />
+          </Suspense>
+        </TabPanel>
 
         {/* Tab 6b: Menaces - Threat Dashboard (Phase 2 Sprint 5) */}
         <TabPanel tabId="menaces" activeTab={activeTab}>
