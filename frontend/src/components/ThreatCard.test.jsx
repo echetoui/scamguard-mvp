@@ -16,7 +16,7 @@ describe('ThreatCard Component', () => {
       />
     );
     expect(screen.getByText('Unusual Login')).toBeInTheDocument();
-    expect(screen.getByText('Unusual Login from unfamiliar location')).toBeInTheDocument();
+    expect(screen.getByText('Login from unfamiliar location')).toBeInTheDocument();
   });
 
   it('renders threat card with medium severity', () => {
@@ -101,9 +101,7 @@ describe('ThreatCard Component', () => {
         description="Test description"
       />
     );
-    expect(screen.getByRole('article')).toHaveAttribute(
-      'aria-label',
-      /Test Threat/
-    );
+    const article = screen.getByRole('article');
+    expect(article.getAttribute('aria-label')).toContain('Test Threat');
   });
 });

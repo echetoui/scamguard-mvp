@@ -56,13 +56,19 @@ describe('ThreatsSection Component', () => {
 
     it('should display threat level statistics', () => {
       render(<ThreatsSection threats={mockThreats} />);
-      expect(screen.getByText(/Haute|Moyenne|Basse/)).toBeInTheDocument();
+      expect(screen.getByText('Haute')).toBeInTheDocument();
+      expect(screen.getByText('Moyenne')).toBeInTheDocument();
+      expect(screen.getByText('Basse')).toBeInTheDocument();
     });
 
     it('should show correct threat level counts', () => {
-      render(<ThreatsSection threats={mockThreats} />);
+      const { container } = render(<ThreatsSection threats={mockThreats} />);
       // High: 1, Medium: 1, Low: 1
-      expect(screen.getByText('1')).toBeInTheDocument();
+      const counts = container.querySelectorAll('.threats-section-stat-value');
+      expect(counts.length).toBe(3);
+      expect(counts[0].textContent).toBe('1'); // high
+      expect(counts[1].textContent).toBe('1'); // medium
+      expect(counts[2].textContent).toBe('1'); // low
     });
 
     it('should render all threat cards', () => {
@@ -143,9 +149,12 @@ describe('ThreatsSection Component', () => {
         { ...mockThreats[0], id: 'test2', threat_level: 'high' },
         { ...mockThreats[2], threat_level: 'low' },
       ];
-      render(<ThreatsSection threats={threats} />);
-      // Should show 2 high threats
-      expect(screen.getByText('2')).toBeInTheDocument();
+      const { container } = render(<ThreatsSection threats={threats} />);
+      // Should show 2 high threats, 0 medium, 1 low
+      const counts = container.querySelectorAll('.threats-section-stat-value');
+      expect(counts[0].textContent).toBe('2'); // high
+      expect(counts[1].textContent).toBe('0'); // medium
+      expect(counts[2].textContent).toBe('1'); // low
     });
   });
 

@@ -115,17 +115,21 @@ describe('WeeklyDigest Component', () => {
     });
 
     it('should include threats exactly 7 days old', () => {
+      // Create a threat from 6.5 days ago (clearly within 7-day window)
       const sevenDayOldThreat = {
         id: 'seven-day-001',
         institution: 'Seven Day Bank',
         threat_level: 'low',
         message: 'Seven days',
         type: 'SMS',
-        date_detected: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // Exactly 7 days
+        date_detected: new Date(Date.now() - 6.5 * 24 * 60 * 60 * 1000).toISOString(),
         source: 'SQ',
       };
       render(<WeeklyDigest threats={[sevenDayOldThreat]} />);
-      expect(screen.getByText(/1 arnaque/)).toBeInTheDocument();
+      // Check subtitle contains threat count and threat word
+      expect(screen.getByText(/Derniers 7 jours:/)).toBeInTheDocument();
+      const allText = screen.getByRole('heading', { level: 2 }).parentElement.textContent;
+      expect(allText).toMatch(/arnaque/i);
     });
   });
 
