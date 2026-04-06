@@ -47,10 +47,10 @@ vi.mock('../SecurityHeartDashboard', () => ({
   default: () => <div data-testid="security-dashboard">Security Dashboard</div>,
 }));
 
-vi.mock('../QuizModule', () => ({
-  default: ({ onComplete }) => (
+vi.mock('../QuizAcademie', () => ({
+  default: ({ onQuizComplete }) => (
     <div data-testid="quiz-module">
-      <button onClick={() => onComplete(100, true)}>Complete Quiz</button>
+      <button onClick={() => onQuizComplete(100, true)}>Complete Quiz</button>
     </div>
   ),
 }));
@@ -63,8 +63,8 @@ vi.mock('../DashboardStats', () => ({
   default: () => <div data-testid="dashboard-stats">Dashboard Stats</div>,
 }));
 
-vi.mock('../ModernAuthPage', () => ({
-  default: () => <div data-testid="auth-page">Modern Auth Page</div>,
+vi.mock('../../screens/Auth/AuthFlow', () => ({
+  default: () => <div data-testid="auth-page">Auth Flow</div>,
 }));
 
 vi.mock('../BottomNavigation', () => ({
@@ -382,8 +382,9 @@ describe('App Component', () => {
     });
 
     it('should have ScamGuard title in header', () => {
-      render(<App />);
-      expect(screen.getByText(/ScamGuard/)).toBeTruthy();
+      const { container } = render(<App />);
+      const header = container.querySelector('header');
+      expect(header?.textContent).toContain('ScamGuard');
     });
 
     it('should render error boundary wrapper', () => {
