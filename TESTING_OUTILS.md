@@ -89,11 +89,11 @@ python3 -m pytest tests/test_tools_handler.py -v --no-cov
 - [ ] Links have target="_blank" + rel="noopener noreferrer"
 
 ### 5. Design & Styling
-- [ ] Warm color palette applied:
-  - Terracotta (#C85A2A) - primary buttons, headers
-  - Gold (#D4A574) - secondary, accents
-  - Sage green (#7A9B7F) - success states
-  - Cream (#FFF9F3) - background
+- [ ] Design system "Bleu Gardien" appliqué (WCAG AAA) :
+  - Bleu Royal (#1E40AF) - Action principale, en-têtes
+  - Gris Clair (#F3F4F6) - Fond général
+  - Vert Profond (#166534) - Validation/Succès
+  - Rouge Danger (#B91C1C) - Danger/Alerte
 - [ ] Typography:
   - Display font: Cormorant Garamond (headings)
   - Body font: Lora (readable serif)

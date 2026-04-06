@@ -1,8 +1,21 @@
 # 🛡️ ScamGuard - Charte Graphique & Identité de Marque
 
-**Version:** 1.0
-**Date:** 22 février 2026
-**Statut:** Officiel
+**Version:** 2.0 (Material Design 3 System)
+**Date:** 4 avril 2026
+**Statut:** Officiel — Complete MD3 Refactor
+
+## 📖 Complete Brand Documentation
+
+This file is a summary. **For detailed specifications, see:**
+
+| Document | Purpose | Location |
+|----------|---------|----------|
+| **Brand Identity** | Mission, vision, values, positioning | `docs/brand/brand-identity.md` |
+| **Design Principles** | 5 non-negotiable principles + decision hierarchy | `docs/brand/design-principles.md` |
+| **Voice & Tone** | How ScamGuard speaks in different contexts | `docs/brand/voice-tone.md` |
+| **Terminology** | 30+ standard terms + Quebec French glossary | `docs/brand/terminology.md` |
+| **Brand Assets** | Logo, colors, typography, icons, patterns | `docs/brand/brand-assets.md` |
+| **Design Tokens (MD3)** | Complete CSS variable system | `frontend/src/styles/design-tokens-m3.css` |
 
 ---
 
@@ -31,17 +44,17 @@ La palette est conçue pour respecter les normes **WCAG AAA** (contraste maximal
 
 | Couleur | Hex | Nom | Usage | Signification |
 |---------|-----|-----|-------|---------------|
-| ![#0056b3](https://via.placeholder.com/15/0056b3/0056b3.png) | `#0056b3` | **Bleu Gardien** | Boutons principaux, En-têtes, Marque | Confiance, Stabilité, Technologie. |
-| !#f9f9f9 | `#f9f9f9` | **Blanc Cassé** | Arrière-plan général | Réduit l'éblouissement par rapport au blanc pur (#FFFFFF). |
-| !#1a1a1a | `#1a1a1a` | **Noir Encre** | Textes courants | Lisibilité maximale sans être agressif. |
+| !#1E40AF | `#1E40AF` | **Bleu Royal** | Boutons principaux, En-têtes, Marque | Sécurité bancaire et institutionnelle. |
+| !#F3F4F6 | `#F3F4F6` | **Gris Clair** | Arrière-plan général | Fait ressortir les cartes blanches par contraste. |
+| !#111827 | `#111827` | **Noir Encre** | Textes courants | Lisibilité maximale sans être agressif. |
 
 ### Couleurs Sémantiques (Feedback)
 
 | Couleur | Hex | Nom | Usage | Signification |
 |---------|-----|-----|-------|---------------|
-| !#2e7d32 | `#2e7d32` | **Vert Sûr** | Validation, Scores élevés (>50), Succès | "C'est sécuritaire", "Action réussie". |
-| !#d32f2f | `#d32f2f` | **Rouge Alerte** | Erreur, Danger, Arnaque détectée | "Attention", "Stop", "Danger". |
-| !#ff9800 | `#ff9800` | **Orange Vigilance** | Avertissements, Scores moyens | "Soyez prudent", "Doute". |
+| !#166534 | `#166534` | **Vert Sûr** | Validation, Scores élevés (>50), Succès | "C'est sécuritaire", "Action réussie". |
+| !#B91C1C | `#B91C1C` | **Rouge Danger** | Erreur, Danger, Arnaque détectée | "Attention", "Ceci est une arnaque". |
+| !#92400E | `#92400E` | **Ambre Alerte** | Avertissements, Scores moyens | "Soyez prudent", "Doute". |
 
 ### Couleurs Secondaires
 
@@ -98,6 +111,7 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
 ### Feedback Visuel & Sonore
 *   Chaque action doit avoir une réaction immédiate.
 *   Utiliser la double validation : Couleur + Icône + Texte (ex: Ne pas utiliser juste du rouge, mais Rouge + Icône Croix + Texte "Erreur").
+*   **Focus Clavier (Accessibilité) :** Tout élément interactif doit avoir un contour visible au focus (`outline: 3px solid var(--color-focus)`).
 
 ---
 
@@ -119,6 +133,8 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
 | Sign up | **M'inscrire** |
 | Phishing | **Hameçonnage** ou **Fraude** |
 | Scam | **Arnaque** |
+| Dashboard | **Mon Suivi** ou **Mon Tableau de bord** |
+| XP (Experience Points) | **Points** ou **Points de vigilance** |
 
 ---
 
@@ -127,14 +143,14 @@ Tous les éléments interactifs (boutons, champs de saisie) doivent avoir une ha
 ```css
 :root {
   /* Couleurs */
-  --color-primary: #0056b3;
-  --color-primary-dark: #004494;
-  --color-success: #2e7d32;
-  --color-danger: #d32f2f;
-  --color-warning: #ff9800;
-  --color-background: #f9f9f9;
+  --color-primary: #1E40AF;
+  --color-primary-dark: #1e3a8a;
+  --color-success: #166534;
+  --color-danger: #B91C1C;
+  --color-warning: #92400E;
+  --color-background: #F3F4F6;
   --color-surface: #ffffff;
-  --color-text-main: #1a1a1a;
+  --color-text-main: #111827;
   --color-text-secondary: #555555;
 
   /* Typographie */

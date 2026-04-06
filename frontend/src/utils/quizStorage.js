@@ -18,11 +18,13 @@ export const getQuizProgress = () => {
 
 /**
  * Save a module completion result
- * @param {string} moduleId - Module identifier (phishing, telephone, online)
+ * @param {string} moduleId - Module identifier (phishing, telephone, online, simulator)
  * @param {number} score - Final score (0-100)
  * @param {boolean} passed - Whether score >= 70
+ * @param {string} difficulty - Difficulty level ('debutant', 'intermediaire', 'expert')
+ * @param {number} durationSec - Time taken in seconds
  */
-export const saveModuleResult = (moduleId, score, passed) => {
+export const saveModuleResult = (moduleId, score, passed, difficulty = 'intermediaire', durationSec = null) => {
   if (!moduleId || typeof score !== 'number') {
     console.warn('Invalid arguments to saveModuleResult');
     return;
@@ -35,9 +37,121 @@ export const saveModuleResult = (moduleId, score, passed) => {
   moduleProgress.highScore = Math.max(moduleProgress.highScore || 0, score);
   moduleProgress.passed = moduleProgress.passed || passed; // Once passed, stay passed
   moduleProgress.lastAttempt = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  moduleProgress.lastDifficulty = difficulty;
+
+  // Track best difficulty achieved
+  if (passed) {
+    const difficultyRank = { 'debutant': 1, 'intermediaire': 2, 'expert': 3 };
+    const currentRank = difficultyRank[moduleProgress.bestDifficulty] || 0;
+    if (difficultyRank[difficulty] > currentRank) {
+      moduleProgress.bestDifficulty = difficulty;
+    }
+  }
+
+  // Track fastest completion
+  if (durationSec !== null) {
+    if (!moduleProgress.fastestDuration || durationSec < moduleProgress.fastestDuration) {
+      moduleProgress.fastestDuration = durationSec;
+    }
+  }
 
   progress[moduleId] = moduleProgress;
+
+  // Update streak on successful completion
+  if (passed) {
+    updateStreak(progress);
+  }
+
+  // Add leaderboard entry
+  if (durationSec !== null) {
+    addLeaderboardEntry(moduleId, score, difficulty, durationSec);
+  }
+
   localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(progress));
+};
+
+/**
+ * Update streak tracking
+ * @param {Object} progress - Current progress object
+ */
+const updateStreak = (progress) => {
+  if (!progress._meta) {
+    progress._meta = { currentStreak: 0, longestStreak: 0, lastPlayedDate: null };
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const lastDate = progress._meta.lastPlayedDate;
+
+  if (lastDate === today) {
+    // Same day - no change to streak
+    return;
+  }
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+  if (lastDate === yesterday) {
+    // Consecutive day - increment streak
+    progress._meta.currentStreak = (progress._meta.currentStreak || 0) + 1;
+  } else {
+    // Gap - reset streak to 1
+    progress._meta.currentStreak = 1;
+  }
+
+  // Update longest streak
+  progress._meta.longestStreak = Math.max(progress._meta.longestStreak || 0, progress._meta.currentStreak);
+  progress._meta.lastPlayedDate = today;
+};
+
+/**
+ * Get current streak data
+ * @returns {Object} Streak info { currentStreak, longestStreak, lastPlayedDate }
+ */
+export const getStreakData = () => {
+  const progress = getQuizProgress();
+  return progress._meta || { currentStreak: 0, longestStreak: 0, lastPlayedDate: null };
+};
+
+/**
+ * Add entry to leaderboard
+ * @param {string} moduleId - Module identifier
+ * @param {number} score - Score achieved
+ * @param {string} difficulty - Difficulty level
+ * @param {number} durationSec - Duration in seconds
+ */
+export const addLeaderboardEntry = (moduleId, score, difficulty, durationSec) => {
+  const progress = getQuizProgress();
+  if (!progress._leaderboard) {
+    progress._leaderboard = {};
+  }
+  if (!progress._leaderboard[moduleId]) {
+    progress._leaderboard[moduleId] = [];
+  }
+
+  const entry = {
+    score,
+    difficulty,
+    durationSec,
+    date: new Date().toISOString().split('T')[0],
+  };
+
+  progress._leaderboard[moduleId].push(entry);
+
+  // Sort by score desc, then by duration asc, keep top 10
+  progress._leaderboard[moduleId] = progress._leaderboard[moduleId]
+    .sort((a, b) => b.score - a.score || a.durationSec - b.durationSec)
+    .slice(0, 10);
+
+  localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(progress));
+};
+
+/**
+ * Get leaderboard for a module
+ * @param {string} moduleId - Module identifier
+ * @returns {Array} Top 10 scores [{ score, difficulty, durationSec, date }, ...]
+ */
+export const getLeaderboard = (moduleId) => {
+  const progress = getQuizProgress();
+  return progress._leaderboard?.[moduleId] || [];
 };
 
 /**
@@ -80,66 +194,103 @@ export const getCompletedModules = () => {
 };
 
 /**
- * Get earned badges based on completed modules
- * @returns {Array<Object>} Array of badge objects { id, name, emoji, description }
+ * All available badges definition (9 total: 3 legacy + 6 new)
+ */
+const ALL_BADGES_DEF = [
+  // Legacy badges - unlocked by module completion
+  {
+    id: 'phishing_defender',
+    name: 'Défenseur Numérique',
+    emoji: '🛡️',
+    description: 'Complétez le module Phishing & Arnaques Numériques',
+    moduleId: 'phishing',
+    condition: (progress) => progress.phishing?.passed,
+  },
+  {
+    id: 'phone_vigilant',
+    name: 'Vigilant Téléphonique',
+    emoji: '📞',
+    description: 'Complétez le module Arnaques Téléphoniques',
+    moduleId: 'telephone',
+    condition: (progress) => progress.telephone?.passed,
+  },
+  {
+    id: 'online_expert',
+    name: 'Expert Commerce',
+    emoji: '🛒',
+    description: 'Complétez le module Arnaques en Ligne',
+    moduleId: 'online',
+    condition: (progress) => progress.online?.passed,
+  },
+  // New achievement badges
+  {
+    id: 'quiz_master',
+    name: 'Maître Quiz',
+    emoji: '🏆',
+    description: 'Complétez les 3 modules de base (Phishing, Téléphone, En ligne)',
+    condition: (progress) =>
+      progress.phishing?.passed && progress.telephone?.passed && progress.online?.passed,
+  },
+  {
+    id: 'perfect_score',
+    name: 'Score Parfait',
+    emoji: '⭐',
+    description: 'Obtenez un score de 100% dans n\'importe quel module',
+    condition: (progress) =>
+      Object.values(progress).some(mod => mod?.highScore === 100),
+  },
+  {
+    id: 'difficulty_expert',
+    name: 'Expert Avancé',
+    emoji: '🎯',
+    description: 'Passez un module au niveau Expert',
+    condition: (progress) =>
+      Object.values(progress).some(mod => mod?.bestDifficulty === 'expert'),
+  },
+  {
+    id: 'speed_learner',
+    name: 'Apprenant Rapide',
+    emoji: '⚡',
+    description: 'Complétez un module en moins d\'une minute',
+    condition: (progress) =>
+      Object.values(progress).some(mod => mod?.fastestDuration && mod.fastestDuration < 60),
+  },
+  {
+    id: 'persistent_learner',
+    name: 'Apprenant Persévérant',
+    emoji: '💪',
+    description: 'Faites au moins 3 tentatives cumulées dans les modules',
+    condition: (progress) => {
+      const totalAttempts = Object.values(progress)
+        .reduce((sum, mod) => sum + (mod?.attempts || 0), 0);
+      return totalAttempts >= 3;
+    },
+  },
+  {
+    id: 'simulator_ace',
+    name: 'Simulateur As',
+    emoji: '📱',
+    description: 'Complétez le simulateur SMS avec succès',
+    moduleId: 'simulator',
+    condition: (progress) => progress.simulator?.passed,
+  },
+];
+
+/**
+ * Get earned badges based on progress
+ * @returns {Array<Object>} Array of earned badge objects
  */
 export const getEarnedBadges = () => {
-  const badges = [
-    {
-      id: 'phishing_defender',
-      name: 'Défenseur Numérique',
-      emoji: '🛡️',
-      description: 'Complétez le module Phishing & Arnaques Numériques',
-      moduleId: 'phishing',
-    },
-    {
-      id: 'phone_vigilant',
-      name: 'Vigilant Téléphonique',
-      emoji: '📞',
-      description: 'Complétez le module Arnaques Téléphoniques',
-      moduleId: 'telephone',
-    },
-    {
-      id: 'online_expert',
-      name: 'Expert Commerce',
-      emoji: '🛒',
-      description: 'Complétez le module Arnaques en Ligne',
-      moduleId: 'online',
-    },
-  ];
-
-  const completedModules = getCompletedModules();
-  return badges.filter((badge) => completedModules.includes(badge.moduleId));
+  const progress = getQuizProgress();
+  return ALL_BADGES_DEF.filter((badge) => badge.condition(progress));
 };
 
 /**
  * Get all available badges
- * @returns {Array<Object>} Array of all badge definitions
+ * @returns {Array<Object>} Array of all badge definitions (9 total)
  */
 export const getAllBadges = () => {
-  return [
-    {
-      id: 'phishing_defender',
-      name: 'Défenseur Numérique',
-      emoji: '🛡️',
-      description: 'Complétez le module Phishing & Arnaques Numériques',
-      moduleId: 'phishing',
-    },
-    {
-      id: 'phone_vigilant',
-      name: 'Vigilant Téléphonique',
-      emoji: '📞',
-      description: 'Complétez le module Arnaques Téléphoniques',
-      moduleId: 'telephone',
-    },
-    {
-      id: 'online_expert',
-      name: 'Expert Commerce',
-      emoji: '🛒',
-      description: 'Complétez le module Arnaques en Ligne',
-      moduleId: 'online',
-    },
-  ];
+  return ALL_BADGES_DEF;
 };
 
 /**

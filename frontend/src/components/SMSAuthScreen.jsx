@@ -14,20 +14,23 @@
 import React, { useState, useRef } from 'react';
 import Toast from './Toast';
 import RoleSelectionCards from './auth/RoleSelectionCards';
-import EmailAuthForm from './auth/EmailAuthForm';
-import PhoneOTPForm from './auth/PhoneOTPForm';
+import useAuth from '../hooks/useAuth';
 import { setAuth, setUserId } from '../utils/authStorage';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import './SMSAuthScreen.css';
 
+import '../../styles/utility-classes.css';
 export default function SMSAuthScreen() {
+  const auth = useAuth();
+  
   // State
   const [mode, setMode] = useState('choose'); // choose | signup | login
-  const [step, setStep] = useState('email'); // role | email | phone | otp | success
+  const [step, setStep] = useState('email'); // role | email | verify | phone | otp | success
   const [userRole, setUserRole] = useState(''); // senior | family | individual
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -39,68 +42,6 @@ export default function SMSAuthScreen() {
 
   // Use Lambda endpoint for testing, or mock server for local development
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
-
-  // Generate secure password
-  const generatePassword = () => {
-    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lower = 'abcdefghijklmnopqrstuvwxyz';
-    const digits = '0123456789';
-    const symbols = '!@#$%^&*';
-    const allChars = upper + lower + digits + symbols;
-
-    const getSecureRandomInt = (max) => {
-      if (max <= 0) {
-        throw new Error('max must be positive');
-      }
-      const cryptoObj = (typeof window !== 'undefined' && window.crypto)
-        || (typeof self !== 'undefined' && self.crypto);
-      if (!cryptoObj || !cryptoObj.getRandomValues) {
-        throw new Error('Secure randomness not available');
-      }
-      const array = new Uint32Array(1);
-      const limit = Math.floor(0x100000000 / max) * max;
-      while (true) {
-        cryptoObj.getRandomValues(array);
-        const rand = array[0];
-        if (rand < limit) {
-          return rand % max;
-        }
-      }
-    };
-
-    let password = '';
-    // Ensure at least one of each type
-    password += upper[getSecureRandomInt(upper.length)];
-    password += lower[getSecureRandomInt(lower.length)];
-    password += digits[getSecureRandomInt(digits.length)];
-    password += symbols[getSecureRandomInt(symbols.length)];
-
-    // Fill the rest randomly (16 chars total)
-    for (let i = password.length; i < 16; i++) {
-      password += allChars[getSecureRandomInt(allChars.length)];
-    }
-
-    // Shuffle password using Fisher–Yates algorithm with secure randomness
-    const chars = password.split('');
-    for (let i = chars.length - 1; i > 0; i--) {
-      const j = getSecureRandomInt(i + 1);
-      const tmp = chars[i];
-      chars[i] = chars[j];
-      chars[j] = tmp;
-    }
-    return chars.join('');
-  };
-
-  const handleGeneratePassword = () => {
-    const newPassword = generatePassword();
-    setPassword(newPassword);
-  };
-
-  const handleCopyPassword = () => {
-    navigator.clipboard.writeText(password);
-    setToastMessage('Mot de passe copié dans le presse-papiers!');
-    setShowToast(true);
-  };
 
   // Format phone number to E.164
   const formatPhone = (value) => {
@@ -128,68 +69,36 @@ export default function SMSAuthScreen() {
     return `+1${lastTen}`;
   };
 
-  // Handle email submission (signup: go to phone step; login: authenticate)
+  // Handle email submission
   const handleEmailSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setError('');
 
     if (!email || !password) {
       setError('Veuillez remplir tous les champs');
       return;
     }
+    
+    setLoading(true);
 
     if (mode === 'login') {
-      // Login mode: call /auth/login endpoint
-      setLoading(true);
-      try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email.toLowerCase(),
-            password
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          setError(data.error?.message || 'Identifiants invalides');
-          setLoading(false);
-          return;
-        }
-
-        // Store tokens
-        setAuth({
-          id_token: data.data.id_token,
-          access_token: data.data.access_token,
-          refresh_token: data.data.refresh_token,
-          expires_in: data.data.expires_in,
-        });
-
-        setUserId(data.data.user.sub);
-
+      const result = await auth.login(email.toLowerCase(), password);
+      if (result.success) {
         setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
         setStep('success');
-
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
-      } catch (err) {
-        setError(ERROR_MESSAGES.NETWORK_ERROR);
-        setLoading(false);
+        setTimeout(() => { window.location.href = '/'; }, 2000);
+      } else {
+        setError(result.error || 'Identifiants invalides');
       }
+      setLoading(false);
     } else {
-      // Signup mode: create account directly (OTP disabled for now)
-      setLoading(true);
+      // Signup mode
       try {
         const signupPayload = {
           email: email.toLowerCase(),
           password
         };
 
-        // Add role if selected (Phase 5A - Family Protection)
         if (userRole && userRole !== 'individual') {
           signupPayload.role = userRole;
         }
@@ -208,10 +117,6 @@ export default function SMSAuthScreen() {
           return;
         }
 
-        // Signup successful
-        setSuccessMessage('✅ Compte créé! Vous êtes connecté');
-
-        // Store tokens if provided
         if (data.data?.id_token) {
           setAuth({
             id_token: data.data.id_token,
@@ -220,19 +125,57 @@ export default function SMSAuthScreen() {
             expires_in: data.data.expires_in,
           });
           setUserId(data.data.user?.sub || 'anonymous');
+          setSuccessMessage('✅ Compte créé! Vous êtes connecté');
+          setStep('success');
+          setTimeout(() => { window.location.href = '/'; }, 2000);
+        } else {
+          setSuccessMessage('Inscription réussie! Un code a été envoyé à votre courriel.');
+          setStep('verify');
         }
-
-        setStep('success');
-
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
       } catch (err) {
         setError(ERROR_MESSAGES.NETWORK_ERROR);
+      } finally {
         setLoading(false);
       }
     }
+  };
+
+  // Handle email verification code submission
+  const handleVerifySubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setError('');
+
+    if (!verificationCode || verificationCode.length < 6) {
+      setError('Veuillez entrer le code à 6 chiffres.');
+      return;
+    }
+
+    setLoading(true);
+    const result = await auth.verifyEmail(email.toLowerCase(), verificationCode);
+
+    if (result.success) {
+      setSuccessMessage('Courriel vérifié avec succès! Veuillez vous connecter.');
+      setMode('login');
+      setStep('email');
+      setPassword('');
+      setVerificationCode('');
+    } else {
+      setError(result.error || 'Erreur lors de la vérification.');
+    }
+    setLoading(false);
+  };
+
+  // Handle resend verification code
+  const handleResendCode = async () => {
+    setError('');
+    setLoading(true);
+    const result = await auth.resendCode(email.toLowerCase());
+    if (result.success) {
+      setSuccessMessage('Code de vérification renvoyé! Vérifiez votre courriel.');
+    } else {
+      setError(result.error || 'Erreur lors du renvoi du code.');
+    }
+    setLoading(false);
   };
 
   // Handle phone submission
@@ -400,7 +343,7 @@ export default function SMSAuthScreen() {
               Choisissez entre créer un nouveau compte ou vous connecter
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="flex-gap-sm">
               <button
                 type="button"
                 className="auth-button"
@@ -447,7 +390,7 @@ export default function SMSAuthScreen() {
               type="button"
               className="auth-link-button"
               onClick={() => setMode('choose')}
-              style={{ marginTop: '20px' }}
+              className="mt-xl"
             >
               ← Retour
             </button>
@@ -456,37 +399,134 @@ export default function SMSAuthScreen() {
 
         {/* Step 2: Email & Password */}
         {step === 'email' && (
-          <>
-            <EmailAuthForm
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              mode={mode}
-              loading={loading}
-              error={error}
-              onGeneratePassword={handleGeneratePassword}
-              onCopyPassword={handleCopyPassword}
-              onSubmit={(submittedEmail, submittedPassword) => {
-                handleEmailSubmit({ preventDefault: () => {} });
-              }}
-              onModeChange={(newMode) => {
-                setMode(newMode);
-                setPassword('');
-                setError('');
-              }}
-            />
+          <div className="auth-form">
+            <h2>{mode === 'login' ? 'Connexion à votre compte' : 'Créer votre compte'}</h2>
+            {mode === 'signup' && (
+              <p className="step-description">Entrez vos informations pour sécuriser votre compte.</p>
+            )}
+
+            {error && <div className="error-message" role="alert">⚠️ {error}</div>}
+            {successMessage && (
+              <div className="success-banner">
+                ✅ {successMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleEmailSubmit}>
+              <div className="form-group">
+                <label htmlFor="auth-email">Adresse courriel</label>
+                <input
+                  id="auth-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="exemple@courriel.com"
+                  disabled={loading}
+                  aria-invalid={error.toLowerCase().includes('courriel')}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="auth-password">Mot de passe</label>
+                <input
+                  id="auth-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={mode === 'signup' ? 'Minimum 12 caractères' : 'Entrez votre mot de passe'}
+                  disabled={loading}
+                  aria-invalid={error.toLowerCase().includes('passe')}
+                />
+                {mode === 'signup' && (
+                  <small>Minimum 12 caractères, avec majuscule, chiffre et symbole (!@#$%^&*)</small>
+                )}
+              </div>
+
+              <button type="submit" className="auth-button" disabled={loading}>
+                {loading ? '⏳ Traitement...' : (mode === 'login' ? '✅ Se connecter' : '✅ M\'inscrire')}
+              </button>
+            </form>
+
+            <div className="divider-or">
+              <span className="divider-text">ou</span>
+              <div className="divider-line"></div>
+            </div>
 
             <button
               type="button"
               className="auth-link-button"
-              onClick={() => setMode('choose')}
+              onClick={() => {
+                if (mode === 'signup') {
+                  setStep('role');
+                } else {
+                  setMode('choose');
+                }
+              }}
               disabled={loading}
-              style={{ marginTop: '12px' }}
             >
               ← Retour
             </button>
-          </>
+          </div>
+        )}
+
+        {/* Step 3: Verify Email */}
+        {step === 'verify' && (
+          <div className="auth-form">
+            <h2>📧 Vérifier votre courriel</h2>
+            <p className="step-description">
+              Un code de vérification a été envoyé à <br/><strong>{email}</strong>
+            </p>
+
+            {error && <div className="error-message" role="alert">⚠️ {error}</div>}
+            {successMessage && (
+              <div className="success-banner">
+                ✅ {successMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleVerifySubmit}>
+              <div className="form-group">
+                <label htmlFor="verify-code">Code de vérification (6 chiffres)</label>
+                <input
+                  id="verify-code"
+                  type="text"
+                  className="text-otp"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  maxLength="6"
+                  inputMode="numeric"
+                  disabled={loading}
+                  aria-invalid={error.toLowerCase().includes('code')}
+                />
+              </div>
+
+              <button type="submit" className="auth-button" disabled={loading || verificationCode.length < 6}>
+                {loading ? '⏳ Vérification...' : '✅ Vérifier mon courriel'}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              className="auth-link-button"
+              onClick={handleResendCode}
+              disabled={loading}
+              className="mt-lg"
+            >
+              Vous n'avez pas reçu le code? Renvoyer
+            </button>
+            
+            <button
+              type="button"
+              className="link-text mt-md"
+              onClick={() => {
+                setStep('email');
+              }}
+              disabled={loading}
+            >
+              ← Revenir à l'inscription
+            </button>
+          </div>
         )}
 
         {/* Step 2: Phone Number (Signup only) */}

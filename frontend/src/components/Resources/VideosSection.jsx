@@ -136,7 +136,7 @@ const VideosSection = memo(() => {
               </div>
               <p className="placeholder-text">
                 🎬 Lecteur vidéo intégré<br/>
-                <span style={{fontSize: '12px', color: '#999'}}>
+                <span className="text-xs text-muted">
                   (Les vidéos seront hébergées sur YouTube ou Vimeo)
                 </span>
               </p>
@@ -159,7 +159,7 @@ const VideosSection = memo(() => {
       )}
 
       {/* Info Box */}
-      <div className="info-box" style={{marginTop: '30px'}}>
+      <div className="info-box mt-3xl">
         <span className="info-icon">ℹ️</span>
         <div>
           <h4>À Propos des Vidéos</h4>

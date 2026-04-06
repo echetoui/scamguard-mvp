@@ -124,13 +124,13 @@ scamguard/cognito-secret  → COGNITO_CLIENT_SECRET
 
 ---
 
-## 📊 URLs de Déploiement
+## 📊 URLs de Déploiement (Actualisées - 21 mars 2026)
 
 | Service | URL |
 |---------|-----|
 | **Frontend (CloudFront)** | https://dv04w7vjfnkg5.cloudfront.net |
-| **API (API Gateway)** | https://ymli0zyv6e.execute-api.us-east-1.amazonaws.com/dev/api/v1 |
-| **Cognito User Pool** | us-east-1_L35zaDPJn |
+| **API (API Gateway)** | https://528szyyu3k.execute-api.us-east-1.amazonaws.com/prod/ |
+| **Agents Webhook** | https://q83a9xbdxj.execute-api.us-east-1.amazonaws.com/prod/webhook/github |
 | **Région AWS** | us-east-1 |
 
 ---
@@ -216,19 +216,23 @@ See [BACKLOG.md](BACKLOG.md) and [ROADMAP_COMPLETE.md](ROADMAP_COMPLETE.md) for 
 
 ---
 
-## 💰 Coûts Estimés
+## 💰 Coûts Actuels (Réels - 21 mars 2026)
 
-**Budget mensuel:** $4-10/mois (MVP faible charge)
+**Budget mensuel actuel:** ~$16/mois (avant optimisation)
 
-| Service | Coût |
-|---------|------|
-| Lambda | $0.50 - $2.00 |
-| API Gateway | $1.00 |
-| DynamoDB | $1.00 - $5.00 |
-| S3 + CloudFront | $0.50 - $1.00 |
-| Cognito | $0.00 - $0.50 |
-| Secrets Manager | $0.40 |
-| CloudWatch | $0.30 |
+| Service | Coût | Statut |
+|---------|------|--------|
+| DynamoDB | $0.54/jour (~$16/mois) | Principal |
+| Lambda | $0.00 | Free tier |
+| API Gateway | $0.00 | Free tier |
+| S3 | ~$0.00 | Minimal |
+| Cognito | $0.00 | Optimisé |
+| Secrets Manager | $0.00 | Aucun secret |
+| CloudWatch | $0.00 | Free tier |
+
+**Après optimisation:** $3-5/mois (70-80% d'économie)
+
+Voir [AWS_OPTIMIZATION_ACTION_PLAN.md](AWS_OPTIMIZATION_ACTION_PLAN.md) pour le plan détaillé.
 
 ---
 
@@ -267,5 +271,5 @@ MIT
 
 ---
 
-**Dernière mise à jour:** 22 février 2026
-**Prochaine révision:** 23 février 2026
+**Dernière mise à jour:** 21 mars 2026 (Déploiement CDK + Optimisation AWS)
+**Prochaine révision:** 28 mars 2026

@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /* SSOLogin.css - Styles pour les boutons SSO */
 
 .sso-container {
@@ -17,14 +19,14 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #D4A574, transparent);
+  background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
 }
 
 .sso-divider span {
-  background: #FFF9F3;
+  background: #F3F4F6;
   padding: 0 1rem;
-  color: #7A9B7F;
-  font-size: 0.9rem;
+  color: #555555;
+  font-size: 16px;
   font-family: 'Lora', serif;
 }
 
@@ -39,16 +41,17 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 0.875rem 1.5rem;
-  border: 2px solid #E5E5E5;
-  border-radius: 12px;
-  background: white;
+  padding: 16px 24px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #111827;
   font-family: 'Lora', serif;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 52px;
+  min-height: 60px;
 }
 
 .sso-button:hover {
@@ -66,59 +69,62 @@
   transform: none;
 }
 
+/* Focus States - Keyboard Navigation */
+.sso-button:focus-visible {
+  outline: 3px solid #1E40AF;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
 .google-button {
-  border-color: #E8F0FE;
-  color: #3C4043;
+  border-color: #e0e0e0;
 }
 
 .google-button:hover {
-  background: #F8FBFF;
-  border-color: #4285F4;
+  background: #dbeafe;
+  border-color: #1E40AF;
 }
 
 .facebook-button {
-  border-color: #E7F3FF;
-  color: #1877F2;
+  border-color: #e0e0e0;
 }
 
 .facebook-button:hover {
-  background: #F0F8FF;
-  border-color: #1877F2;
+  background: #dbeafe;
+  border-color: #1E40AF;
 }
 
 .sso-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .sso-divider span {
-    background: #2A2A2A;
-    color: #A8C5AA;
+    background: #2a2420;
+    color: var(--color-tertiary);
   }
   
   .sso-button {
-    background: #3A3A3A;
-    border-color: #555;
-    color: white;
+    background: #322b26;
+    border-color: #6b5344;
+    color: var(--color-background);
   }
   
-  .google-button:hover {
-    background: #4A4A4A;
-  }
-  
+  .google-button:hover,
   .facebook-button:hover {
-    background: #4A4A4A;
+    background: rgba(200, 90, 42, 0.15);
+    border-color: var(--color-primary);
   }
 }
 
 /* Mobile responsive */
 @media (max-width: 480px) {
   .sso-button {
-    padding: 1rem;
-    font-size: 0.95rem;
+    padding: 16px;
+    font-size: 16px;
   }
   
   .sso-icon {

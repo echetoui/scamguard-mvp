@@ -36,9 +36,9 @@
 
 ## ✅ PHASE 5A - PROTECTION FAMILIALE (COMPLÉTÉE)
 
-### Design System - "Automne Québécois" ✅
-- **Concept:** Design chaleureux pour seniors québécois (65+)
-- **Couleurs:** Terracotta (#C85A2A), Or (#D4A574), Sauge (#7A9B7F), Crème (#FFF9F3)
+### Design System - "Bleu Gardien" ✅
+- **Concept:** Design sécurisant pour seniors québécois (65+)
+- **Couleurs:** Bleu Royal (#1E40AF), Gris Clair (#F3F4F6), Vert Profond (#166534), Rouge Danger (#B91C1C), Ambre Alerte (#92400E)
 - **Typographie:** Cormorant Garamond (display) + Lora (body) - Serif pour confiance
 - **Accessibilité:** WCAG AAA ready, contraste haut, grandes touches (120px+)
 - **Animations:** Entrées staggerées (0.1s/0.2s/0.3s), hover scale, transitions fluides
@@ -123,7 +123,7 @@
 ## 📋 DERNIÈRE FEATURE COMPLÉTÉE
 - ✅ Phase 5A: Family Protection (Complet)
   - Sélection rôle au signup ✅
-  - Design system Automne Québécois ✅
+  - Design system Bleu Gardien ✅
   - Frontend Family Dashboard ✅
   - Backend API endpoints ✅
   - Infrastructure déployable ✅
@@ -249,8 +249,8 @@ scamguard-mvp/
 │   │   │   └── useFamilyDashboard.js (Family API - Phase 5A)
 │   │   ├── styles/
 │   │   │   ├── ModernAuthPage.css
-│   │   │   ├── SMSAuthScreen.css (Automne Québécois)
-│   │   │   └── FamilyDashboard.css (Automne Québécois)
+│   │   │   ├── SMSAuthScreen.css (Bleu Gardien)
+│   │   │   └── FamilyDashboard.css (Bleu Gardien)
 │   │   └── App.jsx
 │   └── tests/
 │       ├── e2e/
@@ -304,13 +304,13 @@ scamguard-mvp/
 - **Coverage:** Signup, Login, SMS OTP, Token Refresh, Family Dashboard
 
 ## Design System ✅
-- **Automne Québécois:** Implémenté pour seniors québécois (65+)
-- **Accessibilité:** WCAG AAA ready - SMSAuthScreen, FamilyDashboard
+- **Bleu Gardien:** Implémenté pour inspirer confiance et sécurité (WCAG AAA)
+- **Accessibilité:** WCAG AAA ready strict - SMSAuthScreen, FamilyDashboard
 - **Typographie:** Serif fonts (Cormorant + Lora) pour confiance
 - **Animations:** Entrées staggerées, hover effects, respects prefers-reduced-motion
 
 ## Phase 5A Status ✅
-- **Frontend:** 100% complété (FamilyDashboard + design system)
+- **Frontend:** 100% complété (FamilyDashboard + Bleu Gardien)
 - **Backend:** 100% complété (family_handler + routing)
 - **Infrastructure:** 100% configurée (CDK + API Gateway routes)
 - **Tests:** 10/13 unit tests passing, E2E ready

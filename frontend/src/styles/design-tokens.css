@@ -172,8 +172,7 @@
 }
 
 /* ============ DARK MODE COLOR SCHEME ============ */
-@media (prefers-color-scheme: dark) {
-  :root {
+[data-theme="dark"] {
     /* Text colors (inverted for dark mode) */
     --color-text-primary: #F9F9F9;      /* Off-white on dark */
     --color-text-secondary: #CCCCCC;    /* Light gray on dark */

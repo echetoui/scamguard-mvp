@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /* Accessible Toast Notifications */
 
 .toast {
@@ -19,7 +21,7 @@
 
 /* Success Toast */
 .toast-success {
-  border-left: 4px solid #2e7d32;
+  border-left: 4px solid var(--color-secondary);
   background: #f1f8e9;
 }
 
@@ -53,7 +55,7 @@
 /* Message */
 .toast-message {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--color-on-background);
   line-height: 1.4;
   font-weight: 500;
 }
@@ -135,25 +137,25 @@
 
   .toast-success {
     border-left-color: #1b5e20;
-    background: #ffffff;
-    box-shadow: 0 0 0 2px #2e7d32;
+    background: var(--color-surface);
+    box-shadow: 0 0 0 2px var(--color-secondary);
   }
 
   .toast-error {
     border-left-color: #b71c1c;
-    background: #ffffff;
+    background: var(--color-surface);
     box-shadow: 0 0 0 2px #c62828;
   }
 
   .toast-info {
     border-left-color: #0d47a1;
-    background: #ffffff;
+    background: var(--color-surface);
     box-shadow: 0 0 0 2px #0066cc;
   }
 
   .toast-warning {
     border-left-color: #e65100;
-    background: #ffffff;
+    background: var(--color-surface);
     box-shadow: 0 0 0 2px #ff9800;
   }
 }

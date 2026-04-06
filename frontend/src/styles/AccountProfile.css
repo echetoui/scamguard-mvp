@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Account Profile Styles
  * Phase 4.2 - User profile and account management
@@ -15,7 +17,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
   border-radius: 12px;
   padding: 32px 24px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
   text-align: center;
   margin-bottom: 32px;
   box-shadow: var(--shadow-sm);
@@ -39,7 +41,7 @@
   height: 50px;
   border-radius: 8px;
   border: 2px solid transparent;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-surface);
   font-size: 28px;
   cursor: pointer;
   transition: all var(--transition-base);
@@ -49,7 +51,7 @@
 }
 
 .avatar-option:hover {
-  background-color: var(--color-hover-bg);
+  background-color: var(--color-surface-variant);
   transform: scale(1.1);
 }
 
@@ -74,14 +76,14 @@
 
 .name-label {
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   font-size: 14px;
 }
 
 .name-value {
   font-size: 18px;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 .btn-edit {
@@ -95,7 +97,7 @@
 }
 
 .btn-edit:hover {
-  background-color: var(--color-background-tertiary);
+  background-color: var(--color-surface-variant);
 }
 
 .name-input {
@@ -103,14 +105,14 @@
   font-size: 16px;
   border: 2px solid var(--color-primary);
   border-radius: 6px;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   background-color: white;
 }
 
 .name-input:focus {
   outline: none;
   border-color: var(--color-primary-dark);
-  box-shadow: var(--color-focus-shadow);
+  box-shadow: rgba(0, 95, 175, 0.2);
 }
 
 .btn-save,
@@ -126,7 +128,7 @@
 }
 
 .btn-save {
-  background-color: var(--color-safe);
+  background-color: var(--color-secondary);
   color: white;
 }
 
@@ -136,7 +138,7 @@
 }
 
 .btn-cancel {
-  background-color: var(--color-danger);
+  background-color: var(--color-error);
   color: white;
 }
 
@@ -147,7 +149,7 @@
 /* Join Date */
 .join-date {
   font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: var(--color-on-surface-variant);
   font-weight: 500;
 }
 
@@ -155,7 +157,7 @@
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
   margin-bottom: 16px;
   margin-top: 24px;
 }
@@ -176,7 +178,7 @@
   border-radius: 8px;
   padding: 16px;
   text-align: center;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
   transition: all var(--transition-base);
 }
 
@@ -202,7 +204,7 @@
 .stat-label {
   display: block;
   font-size: 11px;
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant);
   font-weight: 500;
 }
 
@@ -222,9 +224,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-surface);
   border-radius: 8px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline);
 }
 
 .pref-icon {
@@ -236,7 +238,7 @@
   flex: 1;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-on-background);
 }
 
 /* Toggle Switch */
@@ -260,7 +262,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--color-border);
+  background-color: var(--color-outline);
   border-radius: 28px;
   transition: all var(--transition-base);
 }
@@ -319,7 +321,7 @@
 
 .btn-reset {
   color: white;
-  background-color: var(--color-danger);
+  background-color: var(--color-error);
 }
 
 .btn-reset:hover {
@@ -360,7 +362,7 @@
   .profile-card,
   .stat-box {
     background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
-    border-color: var(--color-border);
+    border-color: var(--color-outline);
   }
 
   .avatar-option {
@@ -377,7 +379,7 @@
 
   .preference-item {
     background-color: rgba(255, 255, 255, 0.05);
-    border-color: var(--color-border);
+    border-color: var(--color-outline);
   }
 
   .name-input {

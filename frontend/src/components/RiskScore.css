@@ -1,0 +1,110 @@
+/**
+ * RiskScore Component Styles
+ * Material Design 3 Aligned
+ */
+
+@import '../styles/design-tokens-m3.css';
+
+.risk-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3xl); /* 32px */
+  padding: var(--spacing-3xl);
+  border-radius: 12px;
+  background-color: var(--color-surface-container);
+  min-width: 180px;
+}
+
+.risk-score--animated {
+  animation: slideInScale 0.6s ease-out;
+}
+
+@keyframes slideInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Circular Gauge */
+.risk-score__circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, var(--color-surface-container-highest), var(--color-surface-container));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Score Display */
+.risk-score__score {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.risk-score__score-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  line-height: 1;
+}
+
+.risk-score__score-unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+}
+
+/* Text Information */
+.risk-score__info {
+  text-align: center;
+}
+
+.risk-score__level {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.risk-score__description {
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .risk-score--animated {
+    animation: none;
+  }
+}
+
+/* Touch Target (Minimum 60px for small devices) */
+@media (max-width: 768px) {
+  .risk-score {
+    padding: var(--spacing-2xl);
+    gap: var(--spacing-2xl);
+  }
+
+  .risk-score__circle {
+    width: 100px;
+    height: 100px;
+    border-width: 5px;
+  }
+
+  .risk-score__score-value {
+    font-size: 28px;
+  }
+}

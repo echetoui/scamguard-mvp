@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * FamilyDashboard Styles
  * Phase 5A - Family Protection Dashboard
@@ -5,10 +7,10 @@
  * Design: "Automne Québécois" - Warm, accessible design for Quebec seniors
  *
  * Color Palette:
- *  🟠 Terracotta (#C85A2A) - Primary, family protection
- *  🟡 Gold (#D4A574) - Wisdom, member status
- *  🟢 Sage (#7A9B7F) - Balance, active status
- *  🟤 Cream (#FFF9F3) - Background
+ *  🟠 Bleu Royal (var(--color-primary)) - Primary, family protection
+ *  🟡 Gold (var(--color-tertiary)) - Wisdom, member status
+ *  🟢 Sage (var(--color-secondary)) - Balance, active status
+ *  🟤 Cream (var(--color-background)) - Background
  */
 
 /* ============================================================================ */
@@ -16,16 +18,16 @@
 /* ============================================================================ */
 
 :root {
-  --warm-primary: #C85A2A;
-  --warm-secondary: #D4A574;
+  --warm-primary: var(--color-primary);
+  --warm-secondary: var(--color-tertiary);
   --warm-accent: #E67E3C;
   --warm-depth: #8B4513;
 
   --accent-red: #C1440D;
-  --accent-green: #7A9B7F;
+  --accent-green: var(--color-secondary);
   --accent-gold: #F0D9A8;
 
-  --bg-light: #FFF9F3;
+  --bg-light: var(--color-background);
   --bg-card: #FFFFFF;
 
   --text-dark: #2C1810;
@@ -41,7 +43,7 @@
 /* ============================================================================ */
 
 .family-dashboard {
-  background: linear-gradient(135deg, #F5EDE5 0%, #FFF9F3 100%);
+  background: linear-gradient(135deg, #F5EDE5 0%, var(--color-background) 100%);
   min-height: 100vh;
   padding: 20px;
   font-family: var(--font-body);

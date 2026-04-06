@@ -108,7 +108,7 @@ const AnalyticsDashboard = ({ institutionId }) => {
           <div
             key={index}
             className="metric-card"
-            style={{ borderLeftColor: metric.color }}
+            style={{ '--metric-color': metric.color }}
           >
             <div className="metric-icon">{metric.icon}</div>
             <div className="metric-content">
@@ -130,11 +130,11 @@ const AnalyticsDashboard = ({ institutionId }) => {
           <div className="chart-placeholder">
             <p>📈 Graphique DAU/MAU (à implémenter avec Chart.js ou Recharts)</p>
             <div className="chart-bars">
-              <div className="bar" style={{ height: '30%' }}></div>
-              <div className="bar" style={{ height: '45%' }}></div>
-              <div className="bar" style={{ height: '60%' }}></div>
-              <div className="bar" style={{ height: '55%' }}></div>
-              <div className="bar" style={{ height: '70%' }}></div>
+              <div className="bar" style={{ '--bar-height': '30%' }}></div>
+              <div className="bar" style={{ '--bar-height': '45%' }}></div>
+              <div className="bar" style={{ '--bar-height': '60%' }}></div>
+              <div className="bar" style={{ '--bar-height': '55%' }}></div>
+              <div className="bar" style={{ '--bar-height': '70%' }}></div>
             </div>
           </div>
         </div>
@@ -144,10 +144,10 @@ const AnalyticsDashboard = ({ institutionId }) => {
           <div className="chart-placeholder">
             <p>🥧 Graphique camembert par type d'arnaque</p>
             <div className="pie-chart">
-              <div className="pie-segment" style={{ width: '40%', backgroundColor: '#3498db' }}></div>
-              <div className="pie-segment" style={{ width: '30%', backgroundColor: '#e74c3c' }}></div>
-              <div className="pie-segment" style={{ width: '20%', backgroundColor: '#f39c12' }}></div>
-              <div className="pie-segment" style={{ width: '10%', backgroundColor: '#2ecc71' }}></div>
+              <div className="pie-segment" style={{ '--segment-width': '40%', '--segment-color': '#3498db' }}></div>
+              <div className="pie-segment" style={{ '--segment-width': '30%', '--segment-color': '#e74c3c' }}></div>
+              <div className="pie-segment" style={{ '--segment-width': '20%', '--segment-color': '#f39c12' }}></div>
+              <div className="pie-segment" style={{ '--segment-width': '10%', '--segment-color': '#2ecc71' }}></div>
             </div>
           </div>
         </div>

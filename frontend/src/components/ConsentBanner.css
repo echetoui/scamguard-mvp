@@ -1,8 +1,10 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * ConsentBanner Styles
  *
  * WCAG AAA Compliance:
- * - Contrast ratio: 8.3:1 (text black #1A1A1A on white #F9F9F9)
+ * - Contrast ratio: 8.3:1 (text black var(--color-on-background) on white var(--color-background))
  * - Font size: 20px+ for all readable text
  * - Line height: 1.5 for improved readability
  * - Focus visible: 3px yellow outline
@@ -36,7 +38,7 @@
 
 /* Modal Container */
 .consent-modal {
-  background-color: #F9F9F9;
+  background-color: var(--color-background);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   max-width: 600px;
@@ -71,7 +73,7 @@
   font-size: 28px;
   font-weight: 700;
   margin: 0;
-  color: #FFFFFF;
+  color: var(--color-surface);
   line-height: 1.2;
 }
 
@@ -90,14 +92,14 @@
 .section-title {
   font-size: 20px;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--color-on-background);
   margin: 0 0 12px 0;
   line-height: 1.3;
 }
 
 .consent-text {
   font-size: 20px;
-  color: #1A1A1A;
+  color: var(--color-on-background);
   margin: 0;
   line-height: 1.5;
   letter-spacing: 0.3px;
@@ -114,7 +116,7 @@
   display: flex;
   align-items: flex-start;
   font-size: 20px;
-  color: #1A1A1A;
+  color: var(--color-on-background);
   line-height: 1.5;
   margin-bottom: 12px;
   padding-left: 10px;
@@ -124,14 +126,14 @@
   flex-shrink: 0;
   margin-right: 12px;
   font-size: 22px;
-  color: #22863A;
+  color: var(--color-secondary);
 }
 
 /* Checkbox Wrapper */
 .consent-checkbox-wrapper {
   margin: 30px 0;
   padding: 20px;
-  background-color: #FFFFFF;
+  background-color: var(--color-surface);
   border: 2px solid #D4D4D4;
   border-radius: 8px;
 }
@@ -141,7 +143,7 @@
   align-items: center;
   cursor: pointer;
   font-size: 20px;
-  color: #1A1A1A;
+  color: var(--color-on-background);
   line-height: 1.5;
   margin: 0;
 }
@@ -161,29 +163,29 @@
   width: 28px;
   height: 28px;
   min-width: 28px;
-  border: 3px solid #1A1A1A;
+  border: 3px solid var(--color-on-background);
   border-radius: 4px;
   margin-right: 15px;
-  background-color: #FFFFFF;
+  background-color: var(--color-surface);
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Checkbox checked state */
 .consent-checkbox-input:checked + .checkbox-custom {
-  background-color: #22863A;
-  border-color: #22863A;
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
 }
 
 .consent-checkbox-input:checked + .checkbox-custom::after {
   content: '✓';
-  color: #FFFFFF;
+  color: var(--color-surface);
   font-size: 18px;
   font-weight: bold;
 }
 
 /* Checkbox focus state (keyboard navigation) */
 .consent-checkbox-input:focus + .checkbox-custom {
-  outline: 3px solid #FFD700;
+  outline: 3px solid var(--color-tertiary);
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
 }
@@ -201,7 +203,7 @@
 .btn-policy {
   background: none;
   border: none;
-  color: #0366D6;
+  color: var(--color-primary);
   cursor: pointer;
   font-size: 18px;
   font-weight: 500;
@@ -212,19 +214,19 @@
 }
 
 .btn-policy:hover {
-  color: #0256B8;
+  color: var(--color-primary);
 }
 
 .btn-policy:focus {
-  outline: 3px solid #FFD700;
+  outline: 3px solid var(--color-tertiary);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 /* Policy Content (Expandable) */
 .policy-content {
-  background-color: #FFFFFF;
-  border-left: 4px solid #0366D6;
+  background-color: var(--color-surface);
+  border-left: 4px solid var(--color-primary);
   padding: 20px;
   border-radius: 4px;
   margin: 20px 0;
@@ -245,13 +247,13 @@
 .policy-title {
   font-size: 20px;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--color-on-background);
   margin: 0 0 15px 0;
 }
 
 .policy-text {
   font-size: 18px;
-  color: #1A1A1A;
+  color: var(--color-on-background);
   line-height: 1.5;
   margin: 12px 0;
 }
@@ -263,7 +265,7 @@
 /* Footer */
 .consent-footer {
   padding: 25px 30px;
-  border-top: 2px solid #E0E0E0;
+  border-top: 2px solid var(--color-outline);
   text-align: center;
 }
 
@@ -272,9 +274,9 @@
   padding: 18px 20px;
   font-size: 20px;
   font-weight: 600;
-  color: #FFFFFF;
-  background-color: #22863A;
-  border: 2px solid #22863A;
+  color: var(--color-surface);
+  background-color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
   border-radius: 8px;
   cursor: pointer;
   line-height: 1.2;
@@ -283,12 +285,12 @@
 }
 
 .btn-accept:hover:not(:disabled) {
-  background-color: #1a6129;
-  border-color: #1a6129;
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
 }
 
 .btn-accept:focus {
-  outline: 3px solid #FFD700;
+  outline: 3px solid var(--color-tertiary);
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
 }
@@ -304,7 +306,7 @@
 /* Footer Note */
 .consent-note {
   font-size: 16px;
-  color: #666666;
+  color: var(--color-on-surface-variant);
   margin: 15px 0 0 0;
   line-height: 1.5;
 }

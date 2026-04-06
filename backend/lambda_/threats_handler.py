@@ -19,6 +19,16 @@ from typing import Dict, Any, List, Optional
 import boto3
 from botocore.exceptions import ClientError
 
+# Import Quebec fraud alerts
+try:
+    from quebec_fraud_alerts import get_recent_quebec_alerts, get_quebec_alerts_by_level
+except ImportError:
+    # Fallback for local testing
+    def get_recent_quebec_alerts(days: int = 7):
+        return []
+    def get_quebec_alerts_by_level(level: str = None):
+        return []
+
 # Configure logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -241,17 +251,19 @@ def handle_threat_match(event: Dict[str, Any]) -> Dict[str, Any]:
 def handle_threat_feed(event: Dict[str, Any]) -> Dict[str, Any]:
     """
     GET /api/threats/feed
-    Get threats from past 7 days for weekly digest
-    
+    Get threats from past 7 days + Quebec fraud alerts for weekly digest
+
     Query parameters:
     - user_id: filter to user's matched threats
+    - include_quebec: include Quebec fraud alerts (default: true)
     """
     try:
         query_params = event.get('queryStringParameters') or {}
         user_id = query_params.get('user_id')
-        
+        include_quebec = query_params.get('include_quebec', 'true').lower() == 'true'
+
         seven_days_ago = (datetime.utcnow() - timedelta(days=7)).isoformat() + 'Z'
-        
+
         if user_id:
             # Get user's matched threats from past 7 days
             response = user_threats_table.query(
@@ -263,42 +275,57 @@ def handle_threat_feed(event: Dict[str, Any]) -> Dict[str, Any]:
                 },
                 ScanIndexForward=False  # Most recent first
             )
-            
+
             user_matched = response.get('Items', [])
             threats = [convert_decimal(item) for item in user_matched]
-        
+
         else:
             # Get all threats from past 7 days
             response = threats_table.scan(
                 FilterExpression='date_detected > :date',
                 ExpressionAttributeValues={':date': seven_days_ago}
             )
-            
+
             items = response.get('Items', [])
             threats = [convert_decimal(item) for item in items]
-        
+
+        # Add Quebec fraud alerts if requested
+        if include_quebec:
+            quebec_alerts = get_recent_quebec_alerts(days=7)
+            threats.extend(quebec_alerts)
+
+        # Sort by date (most recent first)
+        threats.sort(
+            key=lambda x: x.get('date_detected', ''),
+            reverse=True
+        )
+
         # Calculate statistics
         by_level = {
             'high': len([t for t in threats if t.get('threat_level') == 'high']),
             'medium': len([t for t in threats if t.get('threat_level') == 'medium']),
             'low': len([t for t in threats if t.get('threat_level') == 'low'])
         }
-        
+
         by_type = {}
         for threat in threats:
             threat_type = threat.get('type', 'Unknown')
             by_type[threat_type] = by_type.get(threat_type, 0) + 1
-        
+
+        # Count Quebec alerts
+        quebec_count = len([t for t in threats if t.get('threat_id', '').startswith('QC_')])
+
         return success_response({
-            'threats': threats[:10],  # Return top 10
+            'threats': threats[:15],  # Return top 15 (8 Quebec + other threats)
             'total_count': len(threats),
+            'quebec_alerts_count': quebec_count,
             'statistics': {
                 'by_level': by_level,
                 'by_type': by_type
             },
             'period': 'last_7_days'
         })
-    
+
     except Exception as e:
         logger.error(f"Error getting threat feed: {str(e)}")
         return error_response(f'Failed to get threat feed: {str(e)}', 500)

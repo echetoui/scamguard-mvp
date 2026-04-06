@@ -1,3 +1,5 @@
+@import '../styles/design-tokens-m3.css';
+
 /**
  * Error Boundary Styles
  * Senior-friendly error recovery UI
@@ -9,8 +11,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #F3F4F6 0%, #ffffff 100%);
   padding: 20px;
+  font-family: 'Lora', serif;
+  color: #111827;
 }
 
 .error-boundary-content {
@@ -30,40 +34,41 @@
 }
 
 .error-title {
+  font-family: 'Cormorant Garamond', serif;
   font-size: 28px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #111827;
   margin: 0 0 16px 0;
   line-height: 1.3;
 }
 
 .error-message {
-  font-size: 16px;
-  color: #666;
+  font-size: 18px;
+  color: #555555;
   line-height: 1.6;
   margin: 0 0 28px 0;
 }
 
 /* Technical details (dev only) */
 .error-details {
-  background: #f5f5f5;
+  background: #fdfdfd;
   padding: 16px;
   border-radius: 8px;
   margin: 20px 0;
   text-align: left;
-  border-left: 4px solid #ff6b6b;
+  border-left: 4px solid #B91C1C;
 }
 
 .error-details summary {
   cursor: pointer;
   font-weight: 600;
-  color: #333;
+  color: #111827;
   padding: 8px;
   user-select: none;
 }
 
 .error-details summary:hover {
-  color: #0056b3;
+  color: #1E40AF;
 }
 
 .error-stack {
@@ -80,13 +85,13 @@
 
 /* Error warning */
 .error-warning {
-  background: #fff3cd;
-  border-left: 4px solid #ffc107;
+  background: #fef3c7;
+  border-left: 4px solid #92400E;
   padding: 12px 16px;
   border-radius: 6px;
   margin: 20px 0;
   font-size: 14px;
-  color: #856404;
+  color: #92400E;
   text-align: left;
 }
 
@@ -101,8 +106,9 @@
 .btn-reset,
 .btn-reload {
   padding: 14px 24px;
-  min-height: 48px;
-  font-size: 16px;
+  min-height: 60px;
+  font-family: 'Lora', serif;
+  font-size: 18px;
   font-weight: 600;
   border: none;
   border-radius: 8px;
@@ -115,35 +121,35 @@
 }
 
 .btn-reset {
-  background: #0056b3;
+  background: #1E40AF;
   color: white;
 }
 
 .btn-reset:hover {
-  background: #003d82;
+  background: #1e3a8a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
 .btn-reset:focus-visible {
-  outline: 3px solid #0056b3;
+  outline: 3px solid #1E40AF;
   outline-offset: 2px;
 }
 
 .btn-reload {
-  background: #f0f0f0;
-  color: #0056b3;
-  border: 2px solid #0056b3;
+  background: #F3F4F6;
+  color: #1E40AF;
+  border: 2px solid #1E40AF;
 }
 
 .btn-reload:hover {
-  background: #e8f0ff;
+  background: #dbeafe;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
 }
 
 .btn-reload:focus-visible {
-  outline: 3px solid #0056b3;
+  outline: 3px solid #1E40AF;
   outline-offset: 2px;
 }
 
@@ -153,15 +159,15 @@
   padding-top: 24px;
   border-top: 1px solid #e0e0e0;
   text-align: left;
-  background: #f9f9f9;
+  background: #F3F4F6;
   padding: 20px;
   border-radius: 8px;
 }
 
 .support-text {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #111827;
   margin: 0 0 12px 0;
 }
 
@@ -172,8 +178,8 @@
 }
 
 .support-list li {
-  font-size: 14px;
-  color: #666;
+  font-size: 16px;
+  color: #555555;
   padding: 6px 0 6px 24px;
   position: relative;
   line-height: 1.5;
@@ -183,7 +189,7 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #2e7d32;
+  color: var(--color-secondary);
   font-weight: bold;
 }
 
@@ -207,8 +213,8 @@
 
   .btn-reset,
   .btn-reload {
-    padding: 12px 20px;
-    font-size: 14px;
+    padding: 16px 20px;
+    font-size: 16px;
   }
 
   .error-actions {
@@ -220,57 +226,57 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .error-boundary-container {
-    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    background: linear-gradient(135deg, #2a2420 0%, #1e1e1e 100%);
   }
 
   .error-boundary-content {
-    background: #2a2a2a;
+    background: #2d2d2d;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 
   .error-title {
-    color: #f5f5f5;
+    color: #f5ede5;
   }
 
   .error-message {
-    color: #b0b0b0;
+    color: #b0a090;
   }
 
   .error-details {
-    background: #1e1e1e;
-    border-left-color: #ff8787;
+    background: #3a2a1a;
+    border-left-color: #D32F2F;
   }
 
   .error-details summary {
-    color: #e0e0e0;
+    color: #e8d4c0;
   }
 
   .error-stack {
-    background: #0d0d0d;
+    background: #1e1e1e;
     color: #ff8787;
   }
 
   .error-support {
-    background: #1e1e1e;
-    border-top-color: #404040;
+    background: #3a3229;
+    border-top-color: #6b5344;
   }
 
   .support-text {
-    color: #e0e0e0;
+    color: #e8d4c0;
   }
 
   .support-list li {
-    color: #b0b0b0;
+    color: #b0a090;
   }
 
   .btn-reload {
-    background: #3a3a3a;
-    color: #4a9eff;
-    border-color: #4a9eff;
+    background: #322b26;
+    color: var(--color-tertiary);
+    border-color: var(--color-tertiary);
   }
 
   .btn-reload:hover {
-    background: #454545;
+    background: rgba(212, 165, 116, 0.15);
   }
 }
 
