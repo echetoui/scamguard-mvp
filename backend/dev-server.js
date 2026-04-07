@@ -33,6 +33,8 @@ app.use(express.json());
 // In-memory stores for development (replace with DynamoDB in production)
 const otpStore = new Map(); // phone -> { code, createdAt, attempts }
 const userStore = new Map(); // userId -> userProfile
+const familyStore = new Map(); // familyId -> { name, inviteCode, members: [], threats: [] }
+const userFamilyMap = new Map(); // userId -> familyId
 
 // Helper functions
 function generateOTP() {
@@ -240,6 +242,202 @@ app.post('/api/v1/auth/verify-sms-otp', (req, res) => {
     console.error('Error in verify-sms-otp:', error);
     res.status(500).json({
       error: { code: 'INTERNAL_ERROR', message: 'Error verifying OTP: ' + error.message }
+    });
+  }
+});
+
+// Family Protection Endpoints (Phase 5A)
+
+// Helper: Extract userId from Bearer token
+function extractUserIdFromToken(authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return 'dev-user-' + Math.random().toString(36).substr(2, 9);
+  }
+  try {
+    const token = authHeader.substring(7); // Remove "Bearer "
+    const payload = JSON.parse(Buffer.from(token, 'base64').toString());
+    return payload.userId || 'dev-user';
+  } catch {
+    return 'dev-user-' + Math.random().toString(36).substr(2, 9);
+  }
+}
+
+// Helper: Generate 6-char alphanumeric invite code
+function generateInviteCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
+ * GET /api/v1/family/dashboard
+ * Fetch family data for authenticated user
+ */
+app.get('/api/v1/family/dashboard', (req, res) => {
+  try {
+    const userId = extractUserIdFromToken(req.headers.authorization);
+    const familyId = userFamilyMap.get(userId);
+
+    if (!familyId) {
+      return res.status(404).json({
+        error: { code: 'NO_FAMILY', message: 'User does not belong to a family' }
+      });
+    }
+
+    const family = familyStore.get(familyId);
+    if (!family) {
+      return res.status(404).json({
+        error: { code: 'FAMILY_NOT_FOUND', message: 'Family not found' }
+      });
+    }
+
+    const userEmail = userStore.get(userId)?.email || userId + '@example.com';
+    const userMember = family.members.find(m => m.userId === userId);
+
+    res.json({
+      data: {
+        familyName: family.name,
+        members: family.members,
+        threats: family.threats || [],
+        inviteCode: family.inviteCode,
+        currentUserRole: userMember?.role || 'senior',
+        currentUserEmail: userEmail
+      }
+    });
+  } catch (error) {
+    console.error('Error in GET /family/dashboard:', error);
+    res.status(500).json({
+      error: { code: 'INTERNAL_ERROR', message: error.message }
+    });
+  }
+});
+
+/**
+ * POST /api/v1/family/create
+ * Create a new family
+ */
+app.post('/api/v1/family/create', (req, res) => {
+  try {
+    const userId = extractUserIdFromToken(req.headers.authorization);
+    const { familyName } = req.body;
+
+    // Check if user already in a family
+    if (userFamilyMap.has(userId)) {
+      return res.status(400).json({
+        error: { code: 'ALREADY_IN_FAMILY', message: 'User is already in a family' }
+      });
+    }
+
+    // Generate family ID and invite code
+    const familyId = 'family_' + Math.random().toString(36).substr(2, 9);
+    const inviteCode = generateInviteCode();
+
+    // Store family
+    familyStore.set(familyId, {
+      id: familyId,
+      name: familyName || 'My Family',
+      inviteCode: inviteCode,
+      createdBy: userId,
+      members: [
+        {
+          userId: userId,
+          email: userStore.get(userId)?.email || userId + '@example.com',
+          role: 'family',
+          joinedAt: new Date().toISOString(),
+          lastActive: new Date().toISOString()
+        }
+      ],
+      threats: [],
+      createdAt: new Date().toISOString()
+    });
+
+    // Map user to family
+    userFamilyMap.set(userId, familyId);
+
+    console.log(`[FAMILY] Created family ${familyId} by ${userId}`);
+
+    res.status(201).json({
+      data: {
+        familyId: familyId,
+        inviteCode: inviteCode,
+        message: 'Family created successfully'
+      }
+    });
+  } catch (error) {
+    console.error('Error in POST /family/create:', error);
+    res.status(500).json({
+      error: { code: 'INTERNAL_ERROR', message: error.message }
+    });
+  }
+});
+
+/**
+ * POST /api/v1/family/join
+ * Join an existing family with invite code
+ */
+app.post('/api/v1/family/join', (req, res) => {
+  try {
+    const userId = extractUserIdFromToken(req.headers.authorization);
+    const { inviteCode } = req.body;
+
+    if (!inviteCode) {
+      return res.status(400).json({
+        error: { code: 'MISSING_INVITE_CODE', message: 'Invite code is required' }
+      });
+    }
+
+    // Check if user already in a family
+    if (userFamilyMap.has(userId)) {
+      return res.status(400).json({
+        error: { code: 'ALREADY_IN_FAMILY', message: 'User is already in a family' }
+      });
+    }
+
+    // Find family by invite code
+    let targetFamily = null;
+    let targetFamilyId = null;
+    for (const [fid, family] of familyStore.entries()) {
+      if (family.inviteCode === inviteCode.toUpperCase()) {
+        targetFamily = family;
+        targetFamilyId = fid;
+        break;
+      }
+    }
+
+    if (!targetFamily) {
+      return res.status(404).json({
+        error: { code: 'INVALID_INVITE_CODE', message: 'Invite code not found' }
+      });
+    }
+
+    // Add user to family as 'senior'
+    const userEmail = userStore.get(userId)?.email || userId + '@example.com';
+    targetFamily.members.push({
+      userId: userId,
+      email: userEmail,
+      role: 'senior',
+      joinedAt: new Date().toISOString(),
+      lastActive: new Date().toISOString()
+    });
+
+    // Map user to family
+    userFamilyMap.set(userId, targetFamilyId);
+
+    console.log(`[FAMILY] User ${userId} joined family ${targetFamilyId}`);
+
+    res.json({
+      data: {
+        familyId: targetFamilyId,
+        message: 'Successfully joined family'
+      }
+    });
+  } catch (error) {
+    console.error('Error in POST /family/join:', error);
+    res.status(500).json({
+      error: { code: 'INTERNAL_ERROR', message: error.message }
     });
   }
 });

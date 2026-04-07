@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { getAuthToken, getAuth } from '../utils/authStorage';
 
-const API_URL = 'http://localhost:3001/api/v1';
+const API_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 export default function useFamilyDashboard() {
   const [familyData, setFamilyData] = useState({

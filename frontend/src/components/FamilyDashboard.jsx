@@ -32,7 +32,7 @@ export default function FamilyDashboard({ onAnalyzeMessage, onReportScam }) {
   const [createError, setCreateError] = useState('');
   const [createSuccess, setCreateSuccess] = useState(false);
 
-  const API_URL = 'http://localhost:3001/api/v1';
+  const API_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
   const handleCopyInviteCode = () => {
     if (familyData.inviteCode) {
