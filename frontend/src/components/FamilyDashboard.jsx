@@ -198,6 +198,7 @@ export default function FamilyDashboard({ onAnalyzeMessage, onReportScam }) {
                 <button
                   onClick={handleJoinFamily}
                   className="btn-join"
+                  aria-label={joinLoading ? 'Connexion en cours' : joinSuccess ? 'Famille rejointe' : 'Rejoindre la famille'}
                   disabled={joinLoading || joinCode.length !== 6 || joinSuccess}
                 >
                   {joinLoading ? '⏳ Connexion...' : joinSuccess ? '✅ Rejoint!' : '🤝 Rejoindre'}

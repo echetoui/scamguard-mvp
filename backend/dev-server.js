@@ -35,6 +35,7 @@ const otpStore = new Map(); // phone -> { code, createdAt, attempts }
 const userStore = new Map(); // userId -> userProfile
 const familyStore = new Map(); // familyId -> { name, inviteCode, members: [], threats: [] }
 const userFamilyMap = new Map(); // userId -> familyId
+const reportsStore = new Map(); // reportId -> report
 
 // Helper functions
 function generateOTP() {
@@ -436,6 +437,163 @@ app.post('/api/v1/family/join', (req, res) => {
     });
   } catch (error) {
     console.error('Error in POST /family/join:', error);
+    res.status(500).json({
+      error: { code: 'INTERNAL_ERROR', message: error.message }
+    });
+  }
+});
+
+// Scam Reporting Endpoint (Phase 5C)
+
+/**
+ * POST /api/v1/scam-reports
+ * Submit a scam report
+ */
+app.post('/api/v1/scam-reports', (req, res) => {
+  try {
+    const { scamType, description, evidence, contactInfo } = req.body;
+
+    if (!scamType || !description) {
+      return res.status(400).json({
+        error: { code: 'MISSING_FIELDS', message: 'scamType and description are required' }
+      });
+    }
+
+    // Generate report ID and confirmation number
+    const reportId = 'report_' + Math.random().toString(36).substr(2, 9);
+    const confirmationNumber = 'SGR-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+    // Store report
+    reportsStore.set(reportId, {
+      id: reportId,
+      confirmationNumber: confirmationNumber,
+      scamType: scamType,
+      description: description,
+      evidence: evidence || null,
+      contactInfo: contactInfo || null,
+      reportedAt: new Date().toISOString(),
+      status: 'received'
+    });
+
+    console.log(`[SCAM-REPORT] ${confirmationNumber} - Type: ${scamType}, Status: received`);
+
+    res.status(201).json({
+      data: {
+        reportId: reportId,
+        confirmationNumber: confirmationNumber,
+        message: 'Scam report submitted successfully',
+        status: 'received'
+      }
+    });
+  } catch (error) {
+    console.error('Error in POST /scam-reports:', error);
+    res.status(500).json({
+      error: { code: 'INTERNAL_ERROR', message: error.message }
+    });
+  }
+});
+
+// Tools Endpoints (Phase 5C)
+
+/**
+ * POST /api/v1/tools/check-email
+ * Check if email has been breached
+ */
+app.post('/api/v1/tools/check-email', (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: { code: 'MISSING_EMAIL', message: 'Email is required' }
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: { code: 'INVALID_EMAIL', message: 'Invalid email format' }
+      });
+    }
+
+    // Simulate breach check - in production, call Have I Been Pwned API
+    const emailLower = email.toLowerCase();
+    const isBreach = emailLower.includes('test') || emailLower.includes('breach');
+
+    let breaches = [];
+    if (isBreach) {
+      breaches = [
+        {
+          name: 'Data Breach 2024',
+          date: '2024-01-15',
+          description: 'Large-scale credential leak affecting multiple services'
+        },
+        {
+          name: 'Email Service Breach',
+          date: '2024-02-20',
+          description: 'Email provider security incident'
+        }
+      ];
+    }
+
+    console.log(`[EMAIL-CHECK] ${email} - Breached: ${isBreach}, Count: ${breaches.length}`);
+
+    res.json({
+      data: {
+        email: email,
+        breached: isBreach,
+        count: breaches.length,
+        breaches: breaches,
+        message: isBreach
+          ? `Found ${breaches.length} breach(es) associated with this email`
+          : 'No breaches found for this email'
+      }
+    });
+  } catch (error) {
+    console.error('Error in POST /tools/check-email:', error);
+    res.status(500).json({
+      error: { code: 'INTERNAL_ERROR', message: error.message }
+    });
+  }
+});
+
+/**
+ * POST /api/v1/tools/check-advisor
+ * Verify financial advisor credentials with AMF
+ */
+app.post('/api/v1/tools/check-advisor', (req, res) => {
+  try {
+    const { name, licenseNumber, firmName } = req.body;
+
+    if (!name && !licenseNumber && !firmName) {
+      return res.status(400).json({
+        error: { code: 'MISSING_FIELDS', message: 'At least one identifier is required' }
+      });
+    }
+
+    // Simulate advisor verification - in production, query AMF registry
+    const searchTerm = (name || licenseNumber || firmName || '').toLowerCase();
+    const isVerified = !searchTerm.includes('arnaque') && !searchTerm.includes('fraud');
+
+    const response = {
+      verified: isVerified,
+      name: name || 'Unknown',
+      registrationNumber: isVerified ? 'AMF-' + Math.random().toString(36).substr(2, 6).toUpperCase() : null,
+      status: isVerified ? 'REGISTERED' : 'NOT_VERIFIED',
+      firm: firmName || null,
+      message: isVerified
+        ? 'Advisor is registered with AMF'
+        : 'Advisor could not be verified - exercise caution'
+    };
+
+    console.log(`[ADVISOR-CHECK] ${name || licenseNumber} - Verified: ${isVerified}`);
+
+    res.json({
+      data: response
+    });
+  } catch (error) {
+    console.error('Error in POST /tools/check-advisor:', error);
     res.status(500).json({
       error: { code: 'INTERNAL_ERROR', message: error.message }
     });

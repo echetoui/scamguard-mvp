@@ -158,20 +158,27 @@ describe('ResourcesTab Component', () => {
     });
   });
 
-  // TODO: Content sections tests depend on specific component structure
-  // Need to update category class names and section selectors
-  describe.skip('Content Sections', () => {
-    it('should display Blocking Guides section initially', () => {
+  // Content sections tests - button indices updated for urgence category prepended
+  describe('Content Sections', () => {
+    it('should display Urgence section initially or when clicked', async () => {
       const { container } = render(<ResourcesTab />);
-      expect(container.querySelector('.blocking-guides-mock')).toBeTruthy();
+      const buttons = container.querySelectorAll('.category-btn');
+
+      if (buttons.length > 0) {
+        fireEvent.click(buttons[0]); // Urgence button (first)
+
+        await waitFor(() => {
+          expect(container.querySelector('[class*="urgence"]') || container.querySelector('[class*="emergency"]')).toBeTruthy();
+        });
+      }
     });
 
     it('should display By Type section on click', async () => {
       const { container } = render(<ResourcesTab />);
       const buttons = container.querySelectorAll('.category-btn');
 
-      if (buttons.length > 1) {
-        fireEvent.click(buttons[1]); // By Type button
+      if (buttons.length > 2) {
+        fireEvent.click(buttons[2]); // By Type button (shifted from [1] to [2])
 
         await waitFor(() => {
           expect(container.querySelector('.by-type-section-mock')).toBeTruthy();
@@ -183,8 +190,8 @@ describe('ResourcesTab Component', () => {
       const { container } = render(<ResourcesTab />);
       const buttons = container.querySelectorAll('.category-btn');
 
-      if (buttons.length > 2) {
-        fireEvent.click(buttons[2]); // Conseils button
+      if (buttons.length > 3) {
+        fireEvent.click(buttons[3]); // Conseils button (shifted from [2] to [3])
 
         await waitFor(() => {
           expect(container.querySelector('.security-tips-mock')).toBeTruthy();
@@ -196,8 +203,8 @@ describe('ResourcesTab Component', () => {
       const { container } = render(<ResourcesTab />);
       const buttons = container.querySelectorAll('.category-btn');
 
-      if (buttons.length > 3) {
-        fireEvent.click(buttons[3]); // Vidéos button
+      if (buttons.length > 4) {
+        fireEvent.click(buttons[4]); // Vidéos button (shifted from [3] to [4])
 
         await waitFor(() => {
           expect(container.querySelector('.videos-section-mock')).toBeTruthy();
@@ -209,8 +216,8 @@ describe('ResourcesTab Component', () => {
       const { container } = render(<ResourcesTab />);
       const buttons = container.querySelectorAll('.category-btn');
 
-      if (buttons.length > 4) {
-        fireEvent.click(buttons[4]); // FAQ button
+      if (buttons.length > 5) {
+        fireEvent.click(buttons[5]); // FAQ button (shifted from [4] to [5])
 
         await waitFor(() => {
           expect(container.querySelector('.faq-section-mock')).toBeTruthy();
@@ -222,8 +229,8 @@ describe('ResourcesTab Component', () => {
       const { container } = render(<ResourcesTab />);
       const buttons = container.querySelectorAll('.category-btn');
 
-      if (buttons.length > 5) {
-        fireEvent.click(buttons[5]); // Ressources button
+      if (buttons.length > 6) {
+        fireEvent.click(buttons[6]); // Ressources button (shifted from [5] to [6])
 
         await waitFor(() => {
           expect(container.querySelector('.external-links-mock')).toBeTruthy();
