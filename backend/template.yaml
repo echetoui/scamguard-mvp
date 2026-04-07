@@ -418,6 +418,17 @@ Resources:
       Layers:
         - !Ref PythonDependenciesLayer
 
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub 'scamguard-sms-${Environment}'
+      DisplayName: ScamGuard SMS OTP
+      Tags:
+        - Key: Application
+          Value: ScamGuard
+        - Key: Environment
+          Value: !Ref Environment
+
   AuthHandler:
     Type: AWS::Serverless::Function
     DependsOn: AuthHandlerLogGroup
@@ -433,6 +444,8 @@ Resources:
           COGNITO_USER_POOL_ID: !Ref UserPool
           COGNITO_CLIENT_ID: !Ref UserPoolClient
           DYNAMODB_TABLE: !Ref DataTable
+          SNS_TOPIC_ARN: !Ref SNSTopic
+          AWS_REGION: !Ref AWS::Region
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DataTable
@@ -442,6 +455,10 @@ Resources:
               Action:
                 - cognito-idp:*
               Resource: !GetAtt UserPool.Arn
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Ref SNSTopic
             - Effect: Allow
               Action:
                 - logs:CreateLogGroup

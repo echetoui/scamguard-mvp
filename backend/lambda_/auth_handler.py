@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 
 # Initialize AWS clients
 cognito_client = boto3.client("cognito-idp")
+sns_client = boto3.client("sns", region_name=os.environ.get("AWS_REGION", "us-east-1"))
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE", "ScamGuardData-dev"))
 
@@ -57,12 +58,16 @@ def validate_phone_number(phone):
     """
     Validate phone number format (Canadian format: 10+ digits).
     Removes non-digit characters and validates.
+    Returns tuple: (is_valid, cleaned_phone_digits_only)
     """
-    # Remove all non-digit characters
-    cleaned = re.sub(r'[^\d+]', '', phone)
+    # Remove all non-digit characters (including +)
+    digits_only = re.sub(r'[^\d]', '', phone)
     # Must have at least 10 digits
-    digits_only = re.sub(r'[^\d]', '', cleaned)
-    return len(digits_only) >= 10, cleaned
+    # If starts with 1 (country code), that counts toward the 10
+    # Standardize to last 10 digits (remove leading 1 if 11 digits)
+    if len(digits_only) == 11 and digits_only[0] == '1':
+        digits_only = digits_only[1:]  # Remove leading 1
+    return len(digits_only) >= 10, digits_only  # Return ONLY digits
 
 
 def generate_otp():
@@ -483,7 +488,7 @@ def post_request_sms_otp(event, context):
     Request SMS OTP for phone-based authentication.
 
     Generates a 4-digit code and stores it in DynamoDB with TTL (5 minutes).
-    In production, this would send via SNS or Twilio.
+    Sends OTP via AWS SNS.
     For development, the code is returned in response.
     """
     try:
@@ -519,12 +524,39 @@ def post_request_sms_otp(event, context):
             }
         )
 
+        # Send OTP via AWS SNS
+        sns_topic_arn = os.environ.get("SNS_TOPIC_ARN")
+        sms_sent = False
+
+        if sns_topic_arn:
+            try:
+                # Convert to E.164 format (+1 country code)
+                e164_phone = f"+1{cleaned_phone[-10:]}"
+                message = f"Your ScamGuard verification code is: {otp}. This code expires in 5 minutes."
+
+                sns_client.publish(
+                    TopicArn=sns_topic_arn,
+                    Subject="ScamGuard Verification Code",
+                    Message=message,
+                    MessageAttributes={
+                        "AWS.SNS.SMS.SMSType": {
+                            "DataType": "String",
+                            "StringValue": "Transactional"
+                        }
+                    }
+                )
+                print(f"[SNS] SMS OTP sent to {e164_phone}")
+                sms_sent = True
+            except Exception as sns_error:
+                print(f"[SNS] Error sending SMS: {str(sns_error)}")
+                # Don't fail the request if SNS fails - user can still verify with the code
+
         # In development, return the code for testing
-        # In production, send via SNS/Twilio and don't return the code
         is_dev = os.environ.get("ENVIRONMENT", "dev") == "dev"
         response_data = {
             "message": "OTP sent to your phone number.",
-            "phone_masked": f"***{cleaned_phone[-4:]}"
+            "phone_masked": f"***{cleaned_phone[-4:]}",
+            "sms_sent": sms_sent
         }
         if is_dev:
             response_data["otp"] = otp  # Development only
@@ -589,8 +621,9 @@ def post_verify_sms_otp(event, context):
             table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
             return error_response(429, "TOO_MANY_ATTEMPTS", "Too many failed attempts. Please request a new code.")
 
-        # Verify code
-        if stored_code != code:
+        # Verify code (ensure both are strings for comparison)
+        print(f"DEBUG SMS OTP: stored='{stored_code}' (type={type(stored_code).__name__}), input='{code}' (type={type(code).__name__}), cleaned_phone='{cleaned_phone}'")
+        if str(stored_code).strip() != str(code).strip():
             # Increment attempts
             table.update_item(
                 Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"},

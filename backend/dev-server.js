@@ -12,12 +12,19 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
+const AWS = require('aws-sdk');
 
 // Load environment variables
 require('dotenv').config({ path: '.env.local' });
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+
+// Configure AWS SDK
+AWS.config.update({
+  region: process.env.AWS_REGION || 'us-east-1'
+});
+const sns = new AWS.SNS();
 
 // Middleware
 app.use(cors());
@@ -39,60 +46,39 @@ function validatePhone(phone) {
 }
 
 /**
- * Send OTP via Twilio Verify API
+ * Send OTP via AWS SNS
  */
-async function sendTwilioOTP(phoneNumber, otp) {
-  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_VERIFY_SERVICE_ID) {
-    console.warn('[TWILIO] Credentials not configured. OTP will not be sent.');
+async function sendSNSOTP(phoneNumber, otp) {
+  const topicArn = process.env.SNS_TOPIC_ARN;
+  if (!topicArn) {
+    console.warn('[SNS] Topic ARN not configured. OTP will not be sent.');
     return false;
   }
 
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const serviceId = process.env.TWILIO_VERIFY_SERVICE_ID;
-
   // Convert to E.164 format (+1 country code)
   const e164Phone = '+1' + phoneNumber.replace(/\D/g, '').slice(-10);
+  const message = `Your ScamGuard verification code is: ${otp}. This code expires in 5 minutes.`;
 
-  const auth = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
-
-  const postData = `To=${encodeURIComponent(e164Phone)}&Channel=sms&Code=${otp}`;
-
-  return new Promise((resolve) => {
-    const options = {
-      hostname: 'verify.twilio.com',
-      port: 443,
-      path: `/v2/Services/${serviceId}/Verifications`,
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(postData),
-      },
+  try {
+    const params = {
+      TopicArn: topicArn,
+      Subject: 'ScamGuard Verification Code',
+      Message: message,
+      MessageAttributes: {
+        'AWS.SNS.SMS.SMSType': {
+          DataType: 'String',
+          StringValue: 'Transactional'
+        }
+      }
     };
 
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          console.log(`[TWILIO] SMS OTP sent to ${e164Phone}`);
-          resolve(true);
-        } else {
-          console.error(`[TWILIO] Error: ${res.statusCode} - ${data}`);
-          resolve(false);
-        }
-      });
-    });
-
-    req.on('error', (error) => {
-      console.error('[TWILIO] Request error:', error.message);
-      resolve(false);
-    });
-
-    req.write(postData);
-    req.end();
-  });
+    const result = await sns.publish(params).promise();
+    console.log(`[SNS] SMS OTP sent to ${e164Phone} (MessageId: ${result.MessageId})`);
+    return true;
+  } catch (error) {
+    console.error('[SNS] Error sending SMS:', error.message);
+    return false;
+  }
 }
 
 // Routes
@@ -103,9 +89,16 @@ async function sendTwilioOTP(phoneNumber, otp) {
  */
 app.post('/api/v1/auth/request-sms-otp', async (req, res) => {
   try {
-    const { phoneNumber } = req.body;
+    // Debug: log what we received
+    console.log(`[DEBUG] Received body:`, JSON.stringify(req.body));
+
+    // Accept both 'phone' and 'phoneNumber' for backwards compatibility
+    const phoneNumber = req.body.phone || req.body.phoneNumber;
+
+    console.log(`[DEBUG] phoneNumber extracted:`, phoneNumber);
 
     if (!phoneNumber) {
+      console.log(`[DEBUG] Missing phoneNumber - rejecting with 400`);
       return res.status(400).json({
         error: { code: 'MISSING_PHONE', message: 'Phone number is required.' }
       });
@@ -117,8 +110,9 @@ app.post('/api/v1/auth/request-sms-otp', async (req, res) => {
       });
     }
 
-    // Clean phone number
-    const cleaned = phoneNumber.replace(/[^\d]/g, '').slice(-10);
+    // Clean phone number - extract only digits, then take last 10 (handles country codes)
+    const digitsOnly = phoneNumber.replace(/[^\d]/g, '');
+    const cleaned = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : digitsOnly;
 
     // Generate OTP
     const otp = generateOTP();
@@ -133,8 +127,8 @@ app.post('/api/v1/auth/request-sms-otp', async (req, res) => {
 
     console.log(`[DEV] OTP for ${cleaned}: ${otp} (expires in 5 min)`);
 
-    // Try to send via Twilio if configured
-    const twilioSent = await sendTwilioOTP(phoneNumber, otp);
+    // Try to send via AWS SNS
+    const snsSent = await sendSNSOTP(phoneNumber, otp);
 
     res.json({
       data: {
@@ -142,7 +136,7 @@ app.post('/api/v1/auth/request-sms-otp', async (req, res) => {
         phone_masked: `***${cleaned.slice(-4)}`,
         // In development, return OTP for testing (remove in production)
         otp: process.env.NODE_ENV === 'production' ? undefined : otp,
-        twilio_sent: twilioSent
+        sms_sent: snsSent
       }
     });
   } catch (error) {
@@ -159,7 +153,9 @@ app.post('/api/v1/auth/request-sms-otp', async (req, res) => {
  */
 app.post('/api/v1/auth/verify-sms-otp', (req, res) => {
   try {
-    const { phoneNumber, code } = req.body;
+    // Accept both 'phone' and 'phoneNumber' for backwards compatibility
+    const phoneNumber = req.body.phone || req.body.phoneNumber;
+    const { code } = req.body;
 
     if (!phoneNumber || !code) {
       return res.status(400).json({
@@ -173,7 +169,9 @@ app.post('/api/v1/auth/verify-sms-otp', (req, res) => {
       });
     }
 
-    const cleaned = phoneNumber.replace(/[^\d]/g, '').slice(-10);
+    // Clean phone number - extract only digits, then take last 10 (handles country codes)
+    const digitsOnly = phoneNumber.replace(/[^\d]/g, '');
+    const cleaned = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : digitsOnly;
     const otpData = otpStore.get(cleaned);
 
     if (!otpData) {
@@ -198,8 +196,8 @@ app.post('/api/v1/auth/verify-sms-otp', (req, res) => {
       });
     }
 
-    // Verify code
-    if (otpData.code !== code) {
+    // Verify code (trim both for robustness)
+    if (String(otpData.code).trim() !== String(code).trim()) {
       otpData.attempts++;
       return res.status(400).json({
         error: { code: 'INVALID_OTP', message: 'Incorrect OTP code.' }
