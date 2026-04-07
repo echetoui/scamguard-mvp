@@ -11,6 +11,7 @@
 import React, { useState, useCallback } from 'react';
 import EmailBreachChecker from './EmailBreachChecker';
 import AdvisorVerifier from './AdvisorVerifier';
+import EmergencyPanel from './EmergencyPanel';
 import './ToolsTab.css';
 
 export default function ToolsTab() {
@@ -18,7 +19,7 @@ export default function ToolsTab() {
 
   // Handle keyboard navigation for tabs (arrow keys)
   const handleTabKeyDown = useCallback((e) => {
-    const tabs = ['email', 'advisor'];
+    const tabs = ['email', 'advisor', 'emergency'];
     const currentIndex = tabs.indexOf(activeSubTab);
 
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -55,6 +56,7 @@ export default function ToolsTab() {
   // Memoized tab click handlers
   const handleEmailTabClick = useCallback(() => setActiveSubTab('email'), []);
   const handleAdvisorTabClick = useCallback(() => setActiveSubTab('advisor'), []);
+  const handleEmergencyTabClick = useCallback(() => setActiveSubTab('emergency'), []);
 
   return (
     <div className="tools-tab">
@@ -90,6 +92,18 @@ export default function ToolsTab() {
         >
           💼 Conseiller autorisé
         </button>
+        <button
+          id="emergency-tab"
+          className={`sub-tab-btn ${activeSubTab === 'emergency' ? 'active' : ''}`}
+          onClick={handleEmergencyTabClick}
+          onKeyDown={handleTabKeyDown}
+          role="tab"
+          aria-selected={activeSubTab === 'emergency'}
+          aria-controls="emergency-panel"
+          tabIndex={activeSubTab === 'emergency' ? 0 : -1}
+        >
+          🚨 Urgence
+        </button>
       </div>
 
       {/* Email Breach Section */}
@@ -114,6 +128,18 @@ export default function ToolsTab() {
         tabIndex={0}
       >
         <AdvisorVerifier />
+      </div>
+
+      {/* Emergency Contacts Section */}
+      <div
+        id="emergency-panel"
+        role="tabpanel"
+        aria-labelledby="emergency-tab"
+        hidden={activeSubTab !== 'emergency'}
+        className="sub-tab-panel"
+        tabIndex={0}
+      >
+        <EmergencyPanel onClose={() => setActiveSubTab('email')} />
       </div>
     </div>
   );

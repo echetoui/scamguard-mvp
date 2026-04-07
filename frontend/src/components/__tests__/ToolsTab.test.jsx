@@ -89,7 +89,7 @@ describe('ToolsTab Component', () => {
       const { container } = render(<ToolsTab />);
 
       const tabs = container.querySelectorAll('[role="tab"]');
-      expect(tabs.length).toBe(2);
+      expect(tabs.length).toBe(3); // email, advisor, emergency
     });
   });
 
@@ -280,17 +280,17 @@ describe('ToolsTab Component', () => {
       const emailTab = container.querySelector('#email-tab');
       fireEvent.keyDown(emailTab, { key: 'ArrowLeft' });
 
-      expect(container.querySelector('#advisor-tab').getAttribute('aria-selected')).toBe('true');
+      expect(container.querySelector('#emergency-tab').getAttribute('aria-selected')).toBe('true');
     });
 
     it('should wrap around to first tab with ArrowRight from last', () => {
       const { container } = render(<ToolsTab />);
 
-      // Start from advisor
-      const advisorTab = screen.getByText('💼 Conseiller autorisé');
-      fireEvent.click(advisorTab);
+      // Start from emergency (last tab)
+      const emergencyTab = screen.getByText('🚨 Urgence');
+      fireEvent.click(emergencyTab);
 
-      fireEvent.keyDown(advisorTab, { key: 'ArrowRight' });
+      fireEvent.keyDown(emergencyTab, { key: 'ArrowRight' });
 
       expect(container.querySelector('#email-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -313,7 +313,7 @@ describe('ToolsTab Component', () => {
       const emailTab = container.querySelector('#email-tab');
       fireEvent.keyDown(emailTab, { key: 'End' });
 
-      expect(container.querySelector('#advisor-tab').getAttribute('aria-selected')).toBe('true');
+      expect(container.querySelector('#emergency-tab').getAttribute('aria-selected')).toBe('true');
     });
 
     it('should prevent default for arrow key navigation', () => {
@@ -397,16 +397,16 @@ describe('ToolsTab Component', () => {
       fireEvent.keyDown(emailTab, { key: 'ArrowRight' }); // to advisor
       expect(container.querySelector('#advisor-tab').getAttribute('aria-selected')).toBe('true');
 
-      fireEvent.keyDown(container.querySelector('#advisor-tab'), { key: 'ArrowRight' }); // back to email
-      expect(container.querySelector('#email-tab').getAttribute('aria-selected')).toBe('true');
+      fireEvent.keyDown(container.querySelector('#advisor-tab'), { key: 'ArrowRight' }); // to emergency
+      expect(container.querySelector('#emergency-tab').getAttribute('aria-selected')).toBe('true');
     });
 
     it('should render correctly without errors', () => {
       const { container } = render(<ToolsTab />);
 
       expect(container.querySelector('.tools-tab')).toBeTruthy();
-      expect(container.querySelectorAll('[role="tab"]').length).toBe(2);
-      expect(container.querySelectorAll('[role="tabpanel"]').length).toBe(2);
+      expect(container.querySelectorAll('[role="tab"]').length).toBe(3); // email, advisor, emergency
+      expect(container.querySelectorAll('[role="tabpanel"]').length).toBe(3);
     });
   });
 });
