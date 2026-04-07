@@ -18,7 +18,7 @@ export default function AuthFlow({ onLoginSuccess }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phoneNumber: phone }),
+        body: JSON.stringify({ phone }),
       });
 
       if (!response.ok) {
@@ -43,7 +43,7 @@ export default function AuthFlow({ onLoginSuccess }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phoneNumber, code }),
+        body: JSON.stringify({ phone: phoneNumber, code }),
       });
 
       if (!response.ok) {
