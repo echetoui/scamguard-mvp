@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import SecurityHeartDashboard from '../SecurityHeartDashboard';
@@ -204,6 +204,58 @@ describe('SecurityHeartDashboard - Refactored', () => {
         expect(card).toBeInTheDocument();
         expect(screen.getByText(/Niv\. 1/)).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('SOS Button - Emergency Services', () => {
+    it('should render SOS button', async () => {
+      render(<SecurityHeartDashboard userId="test-user" currentUserRole="senior" />);
+
+      await waitFor(() => {
+        const sosBtn = screen.getByRole('button', { name: /URGENCE/i });
+        expect(sosBtn).toBeInTheDocument();
+      });
+    });
+
+    it('should show emergency panel when SOS button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<SecurityHeartDashboard userId="test-user" currentUserRole="senior" />);
+
+      await waitFor(() => {
+        const sosBtn = screen.getByRole('button', { name: /URGENCE/i });
+        expect(sosBtn).toBeInTheDocument();
+      });
+
+      const sosBtn = screen.getByRole('button', { name: /URGENCE/i });
+      await user.click(sosBtn);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getByText(/Numéros d'Urgence/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should close emergency panel when close button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<SecurityHeartDashboard userId="test-user" currentUserRole="senior" />);
+
+      // Open emergency panel
+      await waitFor(() => {
+        const sosBtn = screen.getByRole('button', { name: /URGENCE/i });
+        fireEvent.click(sosBtn);
+      });
+
+      // Close emergency panel
+      await waitFor(() => {
+        const closeBtn = screen.getByRole('button', { name: /Fermer/i });
+        expect(closeBtn).toBeInTheDocument();
+      });
+
+      const closeBtn = screen.getByRole('button', { name: /Fermer/i });
+      await user.click(closeBtn);
+
+      // Verify emergency panel is closed
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 });

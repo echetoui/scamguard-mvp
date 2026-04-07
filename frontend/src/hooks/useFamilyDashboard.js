@@ -15,7 +15,9 @@ export default function useFamilyDashboard() {
     familyName: '',
     members: [],
     threats: [],
-    inviteCode: ''
+    inviteCode: '',
+    currentUserRole: 'senior',
+    currentUserEmail: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -62,7 +64,9 @@ export default function useFamilyDashboard() {
           familyName: data.data?.familyName || 'Ma Famille',
           members: data.data?.members || [],
           threats: data.data?.threats || [],
-          inviteCode: data.data?.inviteCode || ''
+          inviteCode: data.data?.inviteCode || '',
+          currentUserRole: data.data?.currentUserRole || 'senior',
+          currentUserEmail: data.data?.currentUserEmail || ''
         });
         setHasFamily(data.data?.members?.length > 0 || !!data.data?.familyName);
         setError('');

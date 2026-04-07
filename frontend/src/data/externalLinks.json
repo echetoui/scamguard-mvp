@@ -1,6 +1,42 @@
 {
   "categories": [
     {
+      "id": "quebec-reporting",
+      "title": "Signaler au Québec",
+      "icon": "⚖️",
+      "description": "Organismes de protection et de signalement québécois",
+      "links": [
+        {
+          "id": "cafc-quebec",
+          "country": "🇨🇦 Québec",
+          "organization": "Centre Antifraude du Canada",
+          "url": "https://www.antifraudcentre.ca/fr",
+          "description": "Signaler les fraudes et arnaques — organisme fédéral"
+        },
+        {
+          "id": "amf-quebec",
+          "country": "🇨🇦 Québec",
+          "organization": "Autorité des marchés financiers",
+          "url": "https://www.amf.gouv.qc.ca/fr",
+          "description": "Protection des consommateurs en matière financière au Québec"
+        },
+        {
+          "id": "sq-fraude",
+          "country": "🇨🇦 Québec",
+          "organization": "Sûreté du Québec",
+          "url": "https://www.sq.gouv.qc.ca",
+          "description": "Service de police du Québec — signalement des fraudes"
+        },
+        {
+          "id": "desjardins-fraude",
+          "country": "🇨🇦 Québec",
+          "organization": "Desjardins Protégez-Vous",
+          "url": "https://www.desjardins.com/fr/securite/arnaque",
+          "description": "Ressources de Desjardins contre les arnaques et fraudes"
+        }
+      ]
+    },
+    {
       "id": "police-reporting",
       "title": "Signaler à la Police",
       "icon": "🚨",
@@ -147,6 +183,14 @@
   ],
   "emergency": [
     {
+      "country": "🇨🇦 Canada (Québec)",
+      "police": "911 (urgence)",
+      "bank": "Contactez votre banque immédiatement",
+      "cafc": "1-888-495-8501",
+      "amf": "1-877-525-0337",
+      "website": "www.antifraudcentre.ca"
+    },
+    {
       "country": "🇧🇪 Belgique",
       "police": "101 (non-urgent) ou 112 (urgence)",
       "bank": "Contactez votre banque immédiatement",
@@ -169,12 +213,6 @@
       "police": "Police cantonale locale ou 112",
       "bank": "Contactez votre banque immédiatement",
       "website": "www.polizei.admin.ch"
-    },
-    {
-      "country": "🇨🇦 Canada",
-      "police": "911 (urgence) ou numéro local",
-      "bank": "Contactez votre banque immédiatement",
-      "website": "www.antifraudcentre.ca"
     }
   ]
 }

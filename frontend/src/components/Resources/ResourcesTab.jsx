@@ -6,11 +6,18 @@ import SecurityTipsSection from './SecurityTipsSection';
 import FAQSection from './FAQSection';
 import VideosSection from './VideosSection';
 import ExternalLinksSection from './ExternalLinksSection';
+import EmergencyPanel from '../EmergencyPanel';
 
 const ResourcesTab = () => {
   const [activeCategory, setActiveCategory] = useState('guides');
 
   const categories = [
+    {
+      id: 'urgence',
+      label: '🚨 Urgence',
+      icon: '🚨',
+      title: 'Numéros d\'Urgence'
+    },
     {
       id: 'guides',
       label: '🛡️ Guides de Blocage',
@@ -51,6 +58,12 @@ const ResourcesTab = () => {
 
   const renderContent = () => {
     switch (activeCategory) {
+      case 'urgence':
+        return (
+          <div style={{ padding: 'var(--spacing-lg)' }}>
+            <EmergencyPanel />
+          </div>
+        );
       case 'guides':
         return <BlockingGuidesSection />;
       case 'by-type':

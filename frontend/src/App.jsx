@@ -397,7 +397,7 @@ export default function App() {
               />
             )}
             {/* Security Heart Dashboard */}
-            <SecurityHeartDashboard userId="user-demo" />
+            <SecurityHeartDashboard userId="user-demo" currentUserRole={familyData?.currentUserRole || 'individual'} />
           </div>
         </TabPanel>
 
@@ -423,7 +423,10 @@ export default function App() {
         {/* Tab 6: Famille - Family Protection Dashboard (Phase 5A) */}
         <TabPanel tabId="famille" activeTab={activeTab}>
           <Suspense fallback={<LoadingPlaceholder />}>
-            <FamilyDashboard />
+            <FamilyDashboard
+              onAnalyzeMessage={() => setActiveTab('verifier')}
+              onReportScam={() => setActiveTab('signaler')}
+            />
           </Suspense>
         </TabPanel>
 

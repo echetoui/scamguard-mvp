@@ -583,6 +583,112 @@
   margin: 0;
 }
 
+/* Mode Toggle */
+.family-mode-toggle {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 320px;
+  margin: var(--spacing-md) auto 0;
+  justify-content: center;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--bg-card);
+  color: var(--text-dark);
+  border: 2px solid var(--warm-primary);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 48px;
+  transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+  background: var(--warm-primary-light);
+}
+
+.mode-btn.active {
+  background: var(--warm-primary);
+  color: white;
+}
+
+.mode-btn:focus {
+  outline: 3px solid var(--warm-primary);
+  outline-offset: 2px;
+}
+
+/* Create Family Form */
+.create-family-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 320px;
+  margin-top: var(--spacing-md);
+}
+
+.create-family-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: left;
+}
+
+.create-name-input {
+  padding: var(--spacing-md);
+  font-size: 16px;
+  border: 2px solid var(--warm-primary);
+  border-radius: 8px;
+  background: var(--bg-card);
+  min-height: 56px;
+}
+
+.create-name-input:focus {
+  outline: 3px solid var(--warm-primary);
+  outline-offset: 2px;
+}
+
+.btn-create {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--warm-secondary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 56px;
+  transition: all 0.3s ease;
+}
+
+.btn-create:hover:not(:disabled) {
+  background: var(--warm-secondary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(100, 150, 100, 0.2);
+}
+
+.btn-create:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.create-error {
+  color: var(--accent-red);
+  font-size: 15px;
+  padding: var(--spacing-sm);
+  background: rgba(193, 68, 13, 0.1);
+  border-radius: 4px;
+  margin: 0;
+}
+
 /* ============================================================================ */
 /* RESPONSIVE DESIGN                                                          */
 /* ============================================================================ */

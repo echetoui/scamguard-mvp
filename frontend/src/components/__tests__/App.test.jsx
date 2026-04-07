@@ -67,6 +67,26 @@ vi.mock('../../screens/Auth/AuthFlow', () => ({
   default: () => <div data-testid="auth-page">Auth Flow</div>,
 }));
 
+vi.mock('../GuardianSummary', () => ({
+  default: () => <div data-testid="guardian-summary">Guardian Summary</div>,
+}));
+
+vi.mock('../OnboardingWizard', () => ({
+  default: () => <div data-testid="onboarding-wizard">Onboarding</div>,
+}));
+
+vi.mock('../ThreatsSection', () => ({
+  default: () => <div data-testid="threats-section">Threats</div>,
+}));
+
+vi.mock('../WeeklyDigest', () => ({
+  default: () => <div data-testid="weekly-digest">Weekly Digest</div>,
+}));
+
+vi.mock('../ErrorBoundary', () => ({
+  default: ({ children }) => <div data-testid="error-boundary">{children}</div>,
+}));
+
 vi.mock('../BottomNavigation', () => ({
   default: ({ onTabChange, activeTab, hasFamily }) => (
     <nav data-testid="bottom-nav">
@@ -144,7 +164,11 @@ const mockProfileHook = {
 };
 
 const mockFamilyHook = {
-  familyData: null,
+  familyData: {
+    currentUserRole: 'individual',
+    familyId: null,
+    members: [],
+  },
   loading: false,
   error: null,
   hasFamily: false,
