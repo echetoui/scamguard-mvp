@@ -14,14 +14,34 @@
 -- Enable pgcrypto for gen_random_uuid() (available on Aurora PostgreSQL 15)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+
+-- ============================================================
+-- otp_tokens
+-- Phase 3: SMS OTP pre-auth state store.
+-- Rows are short-lived (5-min TTL); Lambda deletes on verify.
+-- A pg cron cleanup job (or VACUUM) handles stragglers.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS otp_tokens (
+    phone      VARCHAR(15)  PRIMARY KEY,
+    code       VARCHAR(6)   NOT NULL,
+    expires_at TIMESTAMPTZ  NOT NULL,
+    attempts   SMALLINT     NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_otp_expires ON otp_tokens(expires_at);
+
 -- ============================================================
 -- users
 -- Source: ScamGuardData USER#{userId}/PROFILE
+-- Note: cognito_sub is nullable to support SMS-only users who
+--       do not complete Cognito email registration.
 -- ============================================================
 CREATE TABLE IF NOT EXISTS users (
     user_id       UUID PRIMARY KEY,
-    cognito_sub   VARCHAR(256) UNIQUE NOT NULL,
+    cognito_sub   VARCHAR(256) UNIQUE,               -- nullable for SMS-only users
     email         VARCHAR(320) UNIQUE NOT NULL,
+    phone         VARCHAR(15),                        -- added Phase 3: SMS OTP users
     name          VARCHAR(256),
     family_name   VARCHAR(256),
     age_verified  BOOLEAN NOT NULL DEFAULT FALSE,
@@ -33,6 +53,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX IF NOT EXISTS idx_users_cognito_sub ON users(cognito_sub);
 CREATE INDEX IF NOT EXISTS idx_users_email       ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_phone       ON users(phone);
 
 
 -- ============================================================
@@ -53,10 +74,12 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 -- ============================================================
 -- sessions
 -- Source: ScamGuardData USER#{userId}/SESSION#{ts}
--- Critical: indexed on (user_id, created_at) for Phase 6 analytics
+-- Critical: indexed on (user_id, created_at) for Phase 6 analytics.
+-- session_id is TEXT (not UUID) to support the 64-char hex token
+-- used by the SMS OTP auth flow (secrets.token_hex(32)).
 -- ============================================================
 CREATE TABLE IF NOT EXISTS sessions (
-    session_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id      TEXT PRIMARY KEY,
     user_id         UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     scenario_id     VARCHAR(128),
     user_response   TEXT,
@@ -176,26 +199,53 @@ CREATE INDEX IF NOT EXISTS idx_threat_reports_user        ON threat_reports(user
 
 
 -- ============================================================
--- family_groups + family_members
--- Source: ScamGuardData FAMILY#{familyId}/MEMBER#{userId}
--- Phase 5A Family Protection feature
+-- families
+-- Phase 3/5A Family Protection feature.
+-- Renamed from family_groups for handler consistency.
 -- ============================================================
-CREATE TABLE IF NOT EXISTS family_groups (
-    family_id  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name       VARCHAR(256) NOT NULL,
-    created_by UUID NOT NULL REFERENCES users(user_id),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS families (
+    family_id   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        VARCHAR(256) NOT NULL,
+    invite_code VARCHAR(8)   NOT NULL UNIQUE,  -- 6-char alphanumeric
+    created_by  UUID         NOT NULL REFERENCES users(user_id),
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
+-- Keep family_groups as a view alias for backwards compat
+CREATE OR REPLACE VIEW family_groups AS SELECT * FROM families;
+
+CREATE INDEX IF NOT EXISTS idx_families_invite_code ON families(invite_code);
+
 CREATE TABLE IF NOT EXISTS family_members (
-    family_id  UUID NOT NULL REFERENCES family_groups(family_id) ON DELETE CASCADE,
+    family_id  UUID NOT NULL REFERENCES families(family_id) ON DELETE CASCADE,
     user_id    UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    role       VARCHAR(32) NOT NULL DEFAULT 'member',  -- admin | member
+    role       VARCHAR(32) NOT NULL DEFAULT 'senior',  -- family | senior
     joined_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (family_id, user_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_family_members_user ON family_members(user_id);
+
+
+-- ============================================================
+-- scam_reports
+-- Phase 3: user-submitted scam reports (replaces Express in-memory store).
+-- Screenshot files are stored in S3 in Phase 4; screenshot_url holds the key.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS scam_reports (
+    report_id      UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id        TEXT         NOT NULL,    -- UUID or 'anonymous' for legacy endpoint
+    scam_type      VARCHAR(32)  NOT NULL,
+    description    TEXT         NOT NULL DEFAULT '',
+    screenshot_url TEXT,
+    status         VARCHAR(32)  NOT NULL DEFAULT 'pending',
+    created_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_scam_reports_user_date ON scam_reports(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_scam_reports_type      ON scam_reports(scam_type);
+CREATE INDEX IF NOT EXISTS idx_scam_reports_status    ON scam_reports(status);
 
 
 -- ============================================================

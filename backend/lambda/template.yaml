@@ -397,6 +397,240 @@ Resources:
         - !Ref PythonDependenciesLayer
 
   # --------------------------------------------------------------------------
+  # Auth handler — SMS OTP pre-auth + Cognito signup/login
+  # Replaces Express dev-server.js auth routes + DynamoDB lambda_/auth_handler.py
+  # No VPC required: SNS + Cognito + Secrets Manager are all public endpoints.
+  # OTP state stored in Aurora otp_tokens table (5-min TTL rows, cheap).
+  # --------------------------------------------------------------------------
+  SmsAuthHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-sms-auth-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: auth_handler.lambda_handler
+      Description: SMS OTP + Cognito auth (Aurora-backed OTP store)
+      MemorySize: 512
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref ScamGuardUserPool
+          COGNITO_CLIENT_ID: !Ref ScamGuardUserPoolClient
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action: [sns:Publish]
+              Resource: '*'
+              # SNS direct publish to phone number — not topic-based, no ARN available
+            - Effect: Allow
+              Action: [cognito-idp:SignUp, cognito-idp:InitiateAuth,
+                       cognito-idp:ConfirmSignUp, cognito-idp:AdminGetUser,
+                       cognito-idp:ResendConfirmationCode]
+              Resource: !GetAtt ScamGuardUserPool.Arn
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostRequestOtp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/request-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostVerifyOtp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/verify-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostRequestPasswordReset:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/request-password-reset
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostResetPassword:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/reset-password
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostValidateSession:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/validate-session
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostRefreshSession:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/refresh-session
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        # Cognito signup/login override (replaces AuthHandler stubs)
+        PostSignupSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/signup
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostLoginSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/login
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostVerifyEmailSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/verify-email
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostResendCodeSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/resend-code
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostLogout:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/logout
+            Method: POST
+
+  # --------------------------------------------------------------------------
+  # Family handler — family group management (Phase 5A)
+  # Replaces Express dev-server.js family routes + DynamoDB lambda_/family_handler.py
+  # Requires Aurora for families + family_members tables.
+  # --------------------------------------------------------------------------
+  FamilyHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-family-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: family_handler.lambda_handler
+      Description: Family group management (Aurora-backed)
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        GetFamilyDashboard:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/family/dashboard
+            Method: GET
+        PostFamilyCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/family/create
+            Method: POST
+        PostFamilyJoin:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/family/join
+            Method: POST
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
+  # Reports + Tools handler
+  # Replaces Express dev-server.js scam-reports + tools routes.
+  # NOTE: multipart file upload is deferred to Phase 4 (pre-signed S3 URLs).
+  # --------------------------------------------------------------------------
+  ReportsToolsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-reports-tools-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: reports_tools_handler.lambda_handler
+      Description: Scam reports submission + email/advisor verification tools (Aurora-backed)
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action: [ssm:GetParameter]
+              Resource:
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/scamguard/hibp-key'
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostReport:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/reports
+            Method: POST
+        PostLegacyScamReport:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/scam-reports
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostCheckEmail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/tools/check-email
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostCheckAdvisor:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/tools/check-advisor
+            Method: POST
+            Auth:
+              Authorizer: NONE
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
   # CloudWatch Log Groups (3-day retention to minimize storage cost)
   # --------------------------------------------------------------------------
   MainHandlerLogGroup:
@@ -415,6 +649,24 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/lambda/scamguard-threats-aurora-${Environment}'
+      RetentionInDays: 3
+
+  SmsAuthHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-sms-auth-aurora-${Environment}'
+      RetentionInDays: 3
+
+  FamilyHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-family-aurora-${Environment}'
+      RetentionInDays: 3
+
+  ReportsToolsHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-reports-tools-aurora-${Environment}'
       RetentionInDays: 3
 
   # --------------------------------------------------------------------------
