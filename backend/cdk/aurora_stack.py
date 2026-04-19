@@ -15,11 +15,13 @@ from aws_cdk import (
     Duration,
     RemovalPolicy,
     CfnOutput,
+    ArnFormat,
     aws_rds as rds,
     aws_ec2 as ec2,
     aws_secretsmanager as secretsmanager,
     aws_lambda as lambda_,
     aws_iam as iam,
+    aws_logs as logs,
 )
 from constructs import Construct
 
@@ -129,7 +131,10 @@ class AuroraStack(Stack):
             "ScamGuardDB",
             cluster_identifier="scamguard-dev",
             engine=rds.DatabaseClusterEngine.aurora_postgres(
-                version=rds.AuroraPostgresEngineVersion.VER_15_4
+                # VER_15_4 not available in this account/region (us-east-1).
+                # Use VER_15_8 (latest 15.x available) via of() since CDK 2.120.0
+                # only has VER_15_5 as a named constant.
+                version=rds.AuroraPostgresEngineVersion.of("15.8", "15"),
             ),
             writer=rds.ClusterInstance.serverless_v2(
                 "writer",
@@ -158,12 +163,29 @@ class AuroraStack(Stack):
             backup=rds.BackupProps(retention=Duration.days(7)),
             removal_policy=RemovalPolicy.SNAPSHOT,
             deletion_protection=False,  # Set True before production promotion
-            enable_data_api=True,
+            # enable_data_api: not available in aws-cdk-lib 2.120.0 via DatabaseCluster.
+            # Data API can be enabled post-deploy via RDS console or CfnDBCluster escape hatch
+            # if needed. Primary access path for Lambda is VPC + psycopg2.
             # Storage encryption uses AWS-managed key (sufficient for MVP)
             storage_encrypted=True,
-            # CloudWatch logs for query auditing
+            # CloudWatch logs for query auditing (PostgreSQL slow query / error logs).
+            # cloudwatch_logs_retention omitted: it deploys a CDK Lambda + IAM role
+            # for automatic log group retention management, which requires IAM CreateRole
+            # permissions not available under the current root account policy.
+            # Set retention manually via AWS Console after stack deploys, or enable
+            # when running under a proper IAM user/role with iam:CreateRole permission.
             cloudwatch_logs_exports=["postgresql"],
-            cloudwatch_logs_retention_days=7,
+        )
+
+        # ------------------------------------------------------------------
+        # Construct cluster ARN explicitly (CDK 2.120.0: DatabaseCluster does
+        # not expose a cluster_arn property; must be built from account/region).
+        # ------------------------------------------------------------------
+        cluster_arn = self.format_arn(
+            service="rds",
+            resource="cluster",
+            resource_name="scamguard-dev",
+            arn_format=ArnFormat.COLON_RESOURCE_NAME,
         )
 
         # ------------------------------------------------------------------
@@ -174,7 +196,7 @@ class AuroraStack(Stack):
             self,
             "LambdaDBAccessPolicy",
             managed_policy_name="ScamGuardLambdaAuroraAccess-dev",
-            description="Allows Lambda to read Aurora credentials from Secrets Manager and use Data API",
+            description="Allows Lambda to read Aurora credentials from Secrets Manager",
             statements=[
                 iam.PolicyStatement(
                     actions=[
@@ -183,6 +205,8 @@ class AuroraStack(Stack):
                     ],
                     resources=[self.cluster.secret.secret_arn],
                 ),
+                # rds-data permissions kept for future Data API enablement.
+                # Primary Lambda access path is VPC + psycopg2 (no Data API).
                 iam.PolicyStatement(
                     actions=[
                         "rds-data:ExecuteStatement",
@@ -191,7 +215,7 @@ class AuroraStack(Stack):
                         "rds-data:CommitTransaction",
                         "rds-data:RollbackTransaction",
                     ],
-                    resources=[self.cluster.cluster_arn],
+                    resources=[cluster_arn],
                 ),
             ],
         )
@@ -201,7 +225,7 @@ class AuroraStack(Stack):
         # ------------------------------------------------------------------
         self.vpc = vpc
         self.lambda_security_group = lambda_security_group
-        self.db_endpoint = self.cluster.clusterEndpoint.hostname
+        self.db_endpoint = self.cluster.cluster_endpoint.hostname
 
         # ------------------------------------------------------------------
         # CloudFormation outputs (consumed by Lambda stack + runbook)
@@ -209,14 +233,14 @@ class AuroraStack(Stack):
         CfnOutput(
             self,
             "ClusterArn",
-            value=self.cluster.cluster_arn,
-            description="Aurora cluster ARN (used by Lambda Data API)",
+            value=cluster_arn,
+            description="Aurora cluster ARN (for rds-data / IAM policy reference)",
             export_name="ScamGuard-Dev-ClusterArn",
         )
         CfnOutput(
             self,
             "ClusterEndpoint",
-            value=self.cluster.clusterEndpoint.hostname,
+            value=self.cluster.cluster_endpoint.hostname,
             description="Aurora writer endpoint (used by psycopg2 in Lambda)",
             export_name="ScamGuard-Dev-ClusterEndpoint",
         )
