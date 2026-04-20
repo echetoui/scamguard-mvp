@@ -5,7 +5,7 @@ Phase 5A - Tests that validate actual DynamoDB structure and data.
 
 import json
 import pytest
-from moto import mock_aws
+from moto import mock_dynamodb
 import boto3
 from unittest.mock import patch, MagicMock
 import sys
@@ -19,7 +19,7 @@ os.environ['AWS_SESSION_TOKEN'] = 'testing'
 os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
 
 
-@mock_aws
+@mock_dynamodb
 def test_signup_family_role_creates_correct_dynamodb_records():
     """
     Test that family role signup creates exactly 3 DynamoDB records
@@ -136,7 +136,7 @@ def test_signup_family_role_creates_correct_dynamodb_records():
         print(f"\n✅ USER PROFILE: {json.dumps(user_profile, indent=2, default=str)}")
 
 
-@mock_aws
+@mock_dynamodb
 def test_signup_senior_role_does_not_create_family():
     """
     Test that senior role signup does NOT create family records,
@@ -194,7 +194,7 @@ def test_signup_senior_role_does_not_create_family():
         print(f"\n✅ SENIOR PROFILE: {json.dumps(profile, indent=2, default=str)}")
 
 
-@mock_aws
+@mock_dynamodb
 def test_signup_individual_role_default():
     """
     Test that signup without role defaults to 'individual' role
@@ -246,7 +246,7 @@ def test_signup_individual_role_default():
         print(f"\n✅ INDIVIDUAL PROFILE: {json.dumps(profile, indent=2, default=str)}")
 
 
-@mock_aws
+@mock_dynamodb
 def test_family_invite_code_uniqueness():
     """
     Test that each family gets a unique invite code.
