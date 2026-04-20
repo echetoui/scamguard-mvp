@@ -313,8 +313,9 @@ export default function useAuth() {
   /**
    * Login with token (SMS OTP or direct token)
    * Used for SMS-based authentication where we get token directly
+   * SEC.4: Stores session token for validation
    */
-  const loginWithToken = useCallback((userInfo, token) => {
+  const loginWithToken = useCallback((userInfo, token, sessionToken) => {
     try {
       // Store token (SMS tokens are base64-encoded JSON, not JWT with 3 parts)
       // For now, treat as simple token storage
@@ -322,6 +323,7 @@ export default function useAuth() {
         id_token: token,
         access_token: token,
         refresh_token: token,
+        session_token: sessionToken, // SEC.4: Store session token
         expires_in: 3600,
       });
 
@@ -351,6 +353,81 @@ export default function useAuth() {
     }
   }, [setupRefreshTimer]);
 
+  /**
+   * SEC.4: Request password reset
+   */
+  const requestPasswordReset = useCallback(async (phone) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await authAPI.requestPasswordReset(phone);
+      return {
+        success: true,
+        message: result.message,
+      };
+    } catch (err) {
+      const errorMsg = err.data?.error?.message || err.message || 'Password reset request failed';
+      setError(errorMsg);
+      return {
+        success: false,
+        error: errorMsg,
+        code: err.data?.error?.code,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * SEC.4: Reset password with token
+   */
+  const resetPassword = useCallback(async (resetToken, newPassword) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await authAPI.resetPassword(resetToken, newPassword);
+      return {
+        success: true,
+        message: result.message,
+      };
+    } catch (err) {
+      const errorMsg = err.data?.error?.message || err.message || 'Password reset failed';
+      setError(errorMsg);
+      return {
+        success: false,
+        error: errorMsg,
+        code: err.data?.error?.code,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * SEC.4: Validate current session
+   */
+  const validateSession = useCallback(async () => {
+    try {
+      const auth = getAuth();
+      const sessionToken = auth.session_token;
+
+      if (!sessionToken) {
+        return { valid: false };
+      }
+
+      const result = await authAPI.validateSession(sessionToken);
+      return {
+        valid: result.valid,
+        user: result.user,
+      };
+    } catch (err) {
+      console.error('Session validation failed:', err);
+      return { valid: false };
+    }
+  }, []);
+
   return {
     // State
     user,
@@ -365,6 +442,11 @@ export default function useAuth() {
     login,
     loginWithToken,
     logout,
+
+    // SEC.4: Password reset and session management
+    requestPasswordReset,
+    resetPassword,
+    validateSession,
 
     // Utilities
     clearError: () => setError(null),

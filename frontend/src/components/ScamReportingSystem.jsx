@@ -11,12 +11,17 @@
 import React, { useState, useRef } from 'react';
 import useScamReport from '../hooks/useScamReport';
 import './ScamReportingSystem.css';
+import './ScamReportingSystem.print.css';
 import '../styles/utility-classes.css';
 
 export default function ScamReportingSystem() {
   const { submitReport, isLoading, error } = useScamReport();
   const [currentStep, setCurrentStep] = useState(1);
   const [successMessage, setSuccessMessage] = useState('');
+  const [reportId, setReportId] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     scamType: '',
     description: '',
@@ -24,8 +29,9 @@ export default function ScamReportingSystem() {
     screenshotName: '',
     rawFile: null
   });
-  
+
   const fileInputRef = useRef(null);
+  const dragRef = useRef(null);
 
   const handleNext = () => setCurrentStep((prev) => Math.min(prev + 1, 3));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
@@ -38,6 +44,7 @@ export default function ScamReportingSystem() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      simulateUploadProgress(file);
       setFormData((prev) => ({
         ...prev,
         screenshot: URL.createObjectURL(file),
@@ -47,24 +54,77 @@ export default function ScamReportingSystem() {
     }
   };
 
+  const simulateUploadProgress = (file) => {
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        const newProgress = prev + Math.random() * 30;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 200);
+  };
+
   const triggerFileInput = () => {
     fileInputRef.current.click();
   };
 
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        simulateUploadProgress(file);
+        setFormData((prev) => ({
+          ...prev,
+          screenshot: URL.createObjectURL(file),
+          screenshotName: file.name,
+          rawFile: file
+        }));
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const result = await submitReport(formData);
-    
+
     if (result.success) {
+      setReportId(result.reportId || `REPORT-${Date.now()}`);
       setSuccessMessage("Signalement envoyé avec succès ! L'équipe ScamGuard analyse ce message. Merci de protéger la communauté.");
       // Réinitialisation après succès
       setTimeout(() => {
         setCurrentStep(1);
         setFormData({ scamType: '', description: '', screenshot: null, screenshotName: '', rawFile: null });
         setSuccessMessage('');
+        setReportId('');
       }, 5000);
     }
+  };
+
+  const handlePrintReceipt = () => {
+    window.print();
   };
 
   return (
@@ -134,29 +194,46 @@ export default function ScamReportingSystem() {
           <section className="step-content animate-fade-in" aria-labelledby="step2-heading">
             <h2 id="step2-heading">Ajouter une capture d'écran</h2>
             <p className="step-instruction">Une photo nous aide à mieux analyser et bloquer cette arnaque pour les autres.</p>
-            
-            <div 
-              className="upload-area" 
+
+            {isUploading && (
+              <div className="upload-progress-container" role="progressbar" aria-valuenow={Math.round(uploadProgress)} aria-valuemin="0" aria-valuemax="100">
+                <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+                <div className="progress-info">
+                  <span className="progress-text">{Math.round(uploadProgress)}%</span>
+                </div>
+              </div>
+            )}
+
+            <div
+              ref={dragRef}
+              className={`upload-area ${dragActive ? 'drag-active' : ''}`}
               onClick={triggerFileInput}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
               role="button"
               tabIndex="0"
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && triggerFileInput()}
-              aria-label="Cliquez pour ajouter une capture d'écran ou une photo"
+              aria-label="Glissez-déposez une image ou cliquez pour ajouter une capture d'écran ou une photo"
             >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileChange} 
-                accept="image/*" 
-                className="visually-hidden" 
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="visually-hidden"
                 tabIndex="-1"
               />
               <div className="upload-icon">📸</div>
               <span className="upload-text">
                 {formData.screenshotName ? formData.screenshotName : "Prendre une photo ou choisir un fichier"}
               </span>
+              {!formData.screenshotName && <span className="upload-hint">ou glissez votre fichier ici</span>}
             </div>
-            
+
             {formData.screenshot && (
               <div className="image-preview">
                 <p>Aperçu de votre image :</p>
@@ -184,10 +261,32 @@ export default function ScamReportingSystem() {
         
         {/* Feedbacks */}
         {error && (
-          <div className="error-message mt-xl" role="alert">⚠️ {error}</div>
+          <div className="error-message mt-xl" role="alert">
+            <div className="error-icon">⚠️</div>
+            <div className="error-content">
+              <strong>Une erreur s'est produite</strong>
+              <p>{error}</p>
+              <p className="error-action">Veuillez vérifier votre connexion et réessayer.</p>
+            </div>
+          </div>
         )}
         {successMessage && (
-          <div className="success-msg mt-xl" role="alert">✅ {successMessage}</div>
+          <div className="success-message mt-xl" role="alert">
+            <div className="success-checkmark animate-checkmark">✓</div>
+            <div className="success-content">
+              <strong>Signalement envoyé avec succès !</strong>
+              <p>{successMessage}</p>
+              {reportId && <p className="report-id">ID de signalement: <code>{reportId}</code></p>}
+              <button
+                type="button"
+                className="btn-print"
+                onClick={handlePrintReceipt}
+                aria-label="Imprimer le reçu de signalement"
+              >
+                🖨️ Imprimer le reçu
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Navigation Buttons */}

@@ -234,24 +234,420 @@
   display: block;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* ============================================================================ */
+/* RESPONSIVE DESIGN (Mobile-First 360px → 1024px+)                           */
+/* ============================================================================ */
+
+/* Mobile: 360px (Small phone, iPhone SE) */
+@media (max-width: 360px) {
+  .emergency-panel {
+    max-width: 100%;
+    border-radius: 12px;
+    max-height: 100vh;
+  }
+
   .emergency-panel-inner {
     padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+
+  .emergency-panel-header {
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-error);
+  }
+
+  .emergency-panel-header h2 {
+    font-size: 22px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .emergency-description {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .emergency-close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  .emergency-contacts {
+    gap: var(--spacing-sm);
   }
 
   .emergency-contact-row {
     flex-direction: column;
     align-items: stretch;
     min-height: auto;
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .contact-info {
+    width: 100%;
+    gap: var(--spacing-sm);
+  }
+
+  .emergency-contact-icon {
+    font-size: 40px;
+    min-width: 48px;
+    height: 48px;
+  }
+
+  .contact-details {
+    gap: var(--spacing-xs);
+  }
+
+  .emergency-contact-label {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .emergency-contact-number {
+    font-size: 19px;
+    letter-spacing: 0.5px;
+  }
+
+  .contact-description {
+    font-size: 12px;
+  }
+
+  .emergency-contact-btn {
+    min-width: 56px;
+    min-height: 56px;
+    font-size: 28px;
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .emergency-online-section {
+    padding: var(--spacing-md);
+    border-radius: 8px;
+  }
+
+  .online-description {
+    font-size: 14px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .emergency-report-btn {
+    min-height: 44px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+
+  .emergency-disclaimer {
+    padding: var(--spacing-sm);
+    border-radius: 8px;
+    border-left-width: 3px;
+  }
+
+  .emergency-disclaimer small {
+    font-size: 12px;
+  }
+}
+
+/* Mobile: 361px - 480px (Standard phone) */
+@media (min-width: 361px) and (max-width: 480px) {
+  .emergency-panel {
+    max-width: 100%;
+  }
+
+  .emergency-panel-inner {
+    padding: var(--spacing-lg);
+  }
+
+  .emergency-panel-header h2 {
+    font-size: 26px;
+    margin-bottom: 6px;
+  }
+
+  .emergency-description {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .emergency-close-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+  }
+
+  .emergency-contact-row {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: auto;
+    padding: var(--spacing-md);
   }
 
   .contact-info {
     width: 100%;
   }
 
+  .emergency-contact-icon {
+    font-size: 44px;
+    min-width: 52px;
+    height: 52px;
+  }
+
+  .emergency-contact-label {
+    font-size: 19px;
+  }
+
+  .emergency-contact-number {
+    font-size: 21px;
+    letter-spacing: 1px;
+  }
+
+  .contact-description {
+    font-size: 13px;
+  }
+
   .emergency-contact-btn {
+    min-width: 60px;
+    min-height: 60px;
+    font-size: 30px;
     width: 100%;
+  }
+
+  .online-description {
+    font-size: 15px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .emergency-report-btn {
+    min-height: 48px;
+    font-size: 17px;
+  }
+}
+
+/* Tablet: 481px - 768px (iPad portrait) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .emergency-panel {
+    max-width: 100%;
+  }
+
+  .emergency-panel-inner {
+    padding: var(--spacing-xl);
+  }
+
+  .emergency-panel-header h2 {
+    font-size: 28px;
+  }
+
+  .emergency-description {
+    font-size: 16px;
+  }
+
+  .emergency-contact-row {
+    flex-direction: row;
+    align-items: center;
+    min-height: 90px;
+    justify-content: space-between;
+  }
+
+  .contact-info {
+    flex: 1;
+  }
+
+  .emergency-contact-icon {
+    font-size: 48px;
+  }
+
+  .emergency-contact-label {
+    font-size: 21px;
+  }
+
+  .emergency-contact-number {
+    font-size: 23px;
+  }
+
+  .emergency-contact-btn {
+    min-width: 66px;
+    min-height: 66px;
+    font-size: 32px;
+  }
+
+  .emergency-report-btn {
+    min-height: 52px;
+    font-size: 18px;
+  }
+}
+
+/* Desktop: 769px+ */
+@media (min-width: 769px) {
+  .emergency-panel {
+    max-width: 500px;
+  }
+
+  .emergency-panel-inner {
+    padding: var(--spacing-xl);
+  }
+
+  .emergency-panel-header h2 {
+    font-size: 28px;
+  }
+
+  .emergency-description {
+    font-size: 18px;
+  }
+
+  .emergency-contact-row {
+    justify-content: space-between;
+    min-height: 100px;
+  }
+
+  .emergency-contact-icon {
+    font-size: 48px;
+  }
+
+  .emergency-contact-label {
+    font-size: 20px;
+  }
+
+  .emergency-contact-number {
+    font-size: 22px;
+  }
+
+  .emergency-contact-btn {
+    min-width: 72px;
+    min-height: 72px;
+    font-size: 32px;
+  }
+
+  .emergency-report-btn {
+    min-height: 56px;
+    font-size: 18px;
+  }
+}
+
+/* ============================================================================ */
+/* LANDSCAPE ORIENTATION                                                      */
+/* ============================================================================ */
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .emergency-panel {
+    max-height: 95vh;
+    border-radius: 10px;
+  }
+
+  .emergency-panel-inner {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-sm);
+  }
+
+  .emergency-panel-header {
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-error);
+  }
+
+  .emergency-panel-header h2 {
+    font-size: 20px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  .emergency-description {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .emergency-close-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .emergency-contacts {
+    gap: var(--spacing-sm);
+  }
+
+  .emergency-contact-row {
+    padding: var(--spacing-sm);
+    min-height: 70px;
+    gap: var(--spacing-sm);
+  }
+
+  .contact-info {
+    gap: var(--spacing-xs);
+  }
+
+  .emergency-contact-icon {
+    font-size: 32px;
+    min-width: 40px;
+    height: 40px;
+  }
+
+  .contact-details {
+    gap: 0;
+  }
+
+  .emergency-contact-label {
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .emergency-contact-number {
+    font-size: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .contact-description {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .emergency-contact-btn {
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 24px;
+  }
+
+  .emergency-online-section {
+    padding: var(--spacing-md);
+  }
+
+  .online-description {
+    font-size: 13px;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .emergency-report-btn {
+    min-height: 40px;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .emergency-disclaimer {
+    padding: var(--spacing-sm);
+  }
+
+  .emergency-disclaimer small {
+    font-size: 11px;
+  }
+}
+
+/* ============================================================================ */
+/* TOUCH DEVICE OPTIMIZATION                                                  */
+/* ============================================================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  .emergency-contact-btn {
+    border-radius: 8px;
+  }
+
+  .emergency-contact-btn:active {
+    transform: scale(0.96);
+  }
+
+  .emergency-report-btn:active {
+    transform: scale(0.96);
+  }
+
+  .emergency-close-btn:active {
+    transform: scale(0.96);
   }
 }
 

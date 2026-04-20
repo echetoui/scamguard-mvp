@@ -690,21 +690,300 @@
 }
 
 /* ============================================================================ */
-/* RESPONSIVE DESIGN                                                          */
+/* RESPONSIVE DESIGN (Mobile-First 360px → 1024px+)                           */
 /* ============================================================================ */
 
-@media (max-width: 480px) {
+/* Mobile: 360px (Small phone, iPhone SE) */
+@media (max-width: 360px) {
+  .family-dashboard {
+    padding: 8px;
+  }
+
+  .family-dashboard .container {
+    max-width: 100%;
+  }
+
+  .family-header {
+    padding: 16px 12px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+  }
+
+  .family-header h2 {
+    font-size: 22px;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  .family-header .family-description {
+    font-size: 14px;
+  }
+
+  .invite-section {
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+
+  .invite-section h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .invite-description {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .invite-code-box {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .invite-code {
+    width: 100%;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px;
+  }
+
+  .btn-copy {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .members-section {
+    margin-bottom: 16px;
+  }
+
+  .members-section h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .members-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .member-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .member-icon {
+    font-size: 32px;
+  }
+
+  .member-name {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .member-role {
+    margin-bottom: 6px;
+  }
+
+  .role-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .member-activity {
+    font-size: 11px;
+  }
+
+  .threats-section {
+    margin-bottom: 16px;
+  }
+
+  .threats-section h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .threats-list {
+    gap: 10px;
+  }
+
+  .threat-item {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .threat-level-indicator {
+    font-size: 20px;
+    min-width: 28px;
+  }
+
+  .threat-type {
+    font-size: 12px;
+  }
+
+  .threat-level {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .threat-reported small {
+    font-size: 11px;
+  }
+
+  .threat-description p {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .threats-empty {
+    padding: 16px 12px;
+  }
+
+  .threats-empty .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+
+  .threats-empty p {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .threats-empty .hint {
+    font-size: 12px;
+  }
+
+  .empty-state {
+    padding: 20px 12px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .empty-state h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .empty-state p {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .empty-state .hint {
+    font-size: 11px;
+  }
+
+  .join-code-form {
+    max-width: 100%;
+  }
+
+  .join-code-input {
+    min-height: 44px;
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 10px;
+  }
+
+  .btn-join {
+    min-height: 44px;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .join-error {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .mode-btn {
+    min-height: 44px;
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .create-family-form {
+    max-width: 100%;
+  }
+
+  .create-name-input {
+    min-height: 44px;
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .btn-create {
+    min-height: 44px;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .create-error {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+
+/* Mobile: 361px - 480px (Standard phone) */
+@media (min-width: 361px) and (max-width: 480px) {
   .family-dashboard {
     padding: 12px;
   }
 
   .family-header {
-    padding: 24px 16px;
-    margin-bottom: 20px;
+    padding: 20px 16px;
+    margin-bottom: 18px;
   }
 
   .family-header h2 {
-    font-size: 28px;
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+
+  .family-header .family-description {
+    font-size: 15px;
+  }
+
+  .invite-section {
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .invite-section h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .invite-description {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .invite-code-box {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .invite-code {
+    font-size: 13px;
+    padding: 11px;
+  }
+
+  .btn-copy {
+    min-height: 44px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .members-section h3 {
+    font-size: 20px;
+    margin-bottom: 14px;
   }
 
   .members-grid {
@@ -713,11 +992,11 @@
   }
 
   .member-card {
-    padding: 14px;
+    padding: 13px;
   }
 
   .member-icon {
-    font-size: 36px;
+    font-size: 35px;
   }
 
   .member-name {
@@ -729,34 +1008,107 @@
     padding: 3px 8px;
   }
 
-  .invite-section,
+  .threats-section h3 {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .threat-item {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .threat-type {
+    font-size: 13px;
+  }
+
   .threats-empty {
     padding: 18px;
   }
 
-  .invite-code-box {
-    flex-direction: column;
-    gap: 10px;
+  .empty-state {
+    padding: 24px 16px;
   }
 
-  .invite-code {
-    width: 100%;
+  .empty-state h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .empty-state p {
     font-size: 14px;
+    margin-bottom: 8px;
   }
 
-  .btn-copy {
-    width: 100%;
+  .join-code-input {
+    min-height: 48px;
+    font-size: 22px;
+    padding: 12px;
+  }
+
+  .btn-join {
+    min-height: 48px;
+    font-size: 17px;
+  }
+
+  .mode-btn {
+    min-height: 46px;
+    font-size: 15px;
+  }
+
+  .create-name-input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .btn-create {
+    min-height: 48px;
+    font-size: 17px;
   }
 }
 
-@media (max-width: 360px) {
-  .members-grid {
-    grid-template-columns: 1fr;
+/* Tablet: 481px - 768px (iPad portrait) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .family-dashboard {
+    padding: 16px;
   }
 
-  .invite-code {
-    font-size: 12px;
-    letter-spacing: 1px;
+  .family-dashboard .container {
+    max-width: 100%;
+  }
+
+  .family-header {
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  .family-header h2 {
+    font-size: 30px;
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .threat-item {
+    gap: 14px;
+    padding: 16px;
+  }
+}
+
+/* Tablet/Desktop: 769px+ */
+@media (min-width: 769px) {
+  .family-dashboard {
+    padding: 20px;
+  }
+
+  .family-dashboard .container {
+    max-width: 800px;
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 

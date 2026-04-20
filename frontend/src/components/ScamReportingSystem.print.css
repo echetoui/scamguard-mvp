@@ -1,0 +1,199 @@
+/**
+ * ScamReportingSystem.print.css
+ * Print-Friendly Stylesheet for Report Receipt
+ *
+ * Provides clean, readable print layout for receipt printing
+ */
+
+@media print {
+  /* Hide non-printable elements */
+  .reporting-main {
+    background: white;
+    padding: 0;
+  }
+
+  .reporting-container {
+    max-width: 100%;
+    padding: 20px;
+    box-shadow: none;
+    border: none;
+    background: white;
+  }
+
+  /* Navigation elements */
+  .stepper,
+  .reporting-actions,
+  .step-content,
+  .upload-progress-container {
+    display: none;
+  }
+
+  /* Only show success message and report info */
+  .success-message {
+    border: 2px solid #333;
+    page-break-inside: avoid;
+    margin: 20px 0;
+  }
+
+  .error-message {
+    display: none;
+  }
+
+  /* Header styling for print */
+  .reporting-header {
+    text-align: center;
+    margin-bottom: 24px;
+    page-break-after: avoid;
+  }
+
+  .reporting-header h1 {
+    font-size: 28px;
+    color: #000;
+    margin-bottom: 8px;
+  }
+
+  .reporting-header p {
+    font-size: 14px;
+    color: #333;
+  }
+
+  /* Print-friendly receipt */
+  .print-receipt {
+    background: white;
+    border: 2px solid #000;
+    padding: 24px;
+    margin: 24px 0;
+    page-break-inside: avoid;
+  }
+
+  .print-receipt-header {
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 16px;
+  }
+
+  .print-receipt-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+  }
+
+  .print-receipt-content {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  .report-field {
+    display: flex;
+    justify-content: space-between;
+    margin: 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px dotted #999;
+  }
+
+  .report-field-label {
+    font-weight: bold;
+    color: #000;
+  }
+
+  .report-field-value {
+    color: #333;
+    word-break: break-word;
+  }
+
+  .report-id {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 16px 0;
+    font-family: monospace;
+    font-size: 12px;
+    page-break-inside: avoid;
+  }
+
+  .print-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 2px solid #000;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .print-footer p {
+    margin: 8px 0;
+  }
+
+  /* Hide buttons and interactive elements */
+  .btn-print,
+  .btn-primary,
+  .btn-secondary,
+  button,
+  input,
+  textarea,
+  select {
+    display: none !important;
+  }
+
+  /* Typography adjustments */
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: white;
+  }
+
+  h1 {
+    font-size: 24pt;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 16pt;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 8pt 0;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Page formatting */
+  @page {
+    margin: 20mm;
+    size: A4;
+  }
+
+  /* Link styling */
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  /* Table styling if needed */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+  }
+
+  table,
+  tr,
+  td,
+  th {
+    border: 1px solid #999;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background: #f5f5f5;
+    font-weight: bold;
+  }
+}
