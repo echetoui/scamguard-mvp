@@ -1,0 +1,57 @@
+# SAM CLI configuration for ScamGuard Lambda + API Gateway
+# Phase 4: API Gateway deployment (Week 4, May 4-10 2026)
+#
+# Deploy:    sam deploy --config-env dev --profile scamguard-dev
+# Guided:    sam deploy --guided --profile scamguard-dev
+# Local API: sam local start-api --env-vars env.json --profile scamguard-dev
+
+version = 0.1
+
+# ============================================================================
+# DEV environment — us-east-1 account 034362029181
+# Aurora stack outputs consumed directly; no manual copy needed.
+# ============================================================================
+[default]
+[default.global.parameters]
+stack_name = "ScamGuardLambdaStack"
+
+[default.deploy.parameters]
+stack_name              = "ScamGuardLambdaStack"
+s3_bucket               = "aws-sam-cli-managed-default-samclisourcebucket-dsamu0uaqddb"
+s3_prefix               = "scamguard-lambda-dev"
+region                  = "us-east-1"
+confirm_changeset       = false
+capabilities            = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+profile                 = "scamguard-dev"
+fail_on_empty_changeset = false
+
+parameter_overrides = """
+  Environment=dev
+  AuroraClusterArn=arn:aws:rds:us-east-1:034362029181:cluster:scamguard-dev
+  AuroraSecretArn=arn:aws:secretsmanager:us-east-1:034362029181:secret:scamguard/dev/aurora-credentials-8ScMGe
+  AuroraDatabaseName=scamguard
+  LambdaSecurityGroupId=sg-05fea520e656efe48
+  PrivateSubnetIds=subnet-0d56c53f3df6b63ef,subnet-08180ec5b138ad32f
+"""
+
+# ============================================================================
+# Notes:
+#
+# PrivateSubnetIds: private (with-egress) subnets from AuroraStack VPC.
+#   subnet-0d56c53f3df6b63ef = AuroraStack/ScamGuardVPC/privateSubnet1 (us-east-1a)
+#   subnet-08180ec5b138ad32f = AuroraStack/ScamGuardVPC/privateSubnet2 (us-east-1b)
+#   Lambda must be in PRIVATE_WITH_EGRESS subnets (not isolated) so it can
+#   reach Secrets Manager, SNS, and Cognito via the NAT gateway.
+#   Aurora lives in PRIVATE_ISOLATED subnets; the security group allows
+#   LambdaSG → DBSG on port 5432 regardless of subnet tier.
+#
+# S3 bucket: SAM creates this automatically on first `sam deploy --guided`.
+#   If it doesn't exist yet, run once with --guided to let SAM create it,
+#   then subsequent deploys use this samconfig.toml directly.
+#
+# CognitoUserPoolArn: left at default empty — the SAM template creates a
+#   dev-scoped Cognito user pool (scamguard-aurora-dev). In Phase 5, update
+#   CognitoUserPoolArn to point at the production pool us-east-1_UdaQ4evwD
+#   and remove the ScamGuardUserPool/ScamGuardUserPoolClient resources from
+#   the template.
+# ============================================================================

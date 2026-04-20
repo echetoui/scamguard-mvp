@@ -1,0 +1,4 @@
+# Lambda layer build artifacts — rebuilt by:
+# pip3 install -r requirements-layer.txt -t python/
+# Do not commit compiled packages; commit only the requirements file.
+python/

@@ -6,6 +6,7 @@ import os
 from aws_cdk import App
 from stacks.scamguard_stack import ScamGuardStack
 from stacks.agents_stack import AgentsStack
+from stacks.api_gateway_stack import APIGatewayStack
 
 # Phase 2 (Week 2): Aurora Serverless v2 stack
 # Import from top-level aurora_stack.py (not stacks/aurora_stack.py which is the old v1 file)
@@ -48,6 +49,16 @@ def main():
         "AuroraStack",
         env=env_config,
         description="ScamGuard MVP - Aurora Serverless v2 (Phase 2, DEV ONLY)"
+    )
+
+    # Phase 4: API Gateway observability — CloudWatch dashboard + alarms
+    # Deploy AFTER sam deploy (ScamGuardLambdaStack) creates the Lambda functions.
+    # Deploy: cdk deploy APIGatewayStack --profile scamguard-dev
+    api_gateway_stack = APIGatewayStack(  # noqa: F841
+        app,
+        "APIGatewayStack",
+        env=env_config,
+        description="ScamGuard MVP - API Gateway CloudWatch Dashboard + Alarms (Phase 4)"
     )
 
     # Add dependencies
