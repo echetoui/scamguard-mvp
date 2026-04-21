@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/v1/threats/match",
+  "rawPath": "/api/v1/threats/match",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/threats/match"
+    }
+  },
+  "body": "{\"categories\": [\"phishing\", \"smishing\"], \"risk_level\": \"high\"}",
+  "isBase64Encoded": false
+}

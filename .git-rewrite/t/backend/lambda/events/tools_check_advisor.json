@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/v1/tools/check-advisor",
+  "rawPath": "/api/v1/tools/check-advisor",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/tools/check-advisor"
+    }
+  },
+  "body": "{\"name\": \"Jean Tremblay\", \"firmName\": \"Gestion Patrimoine Inc.\"}",
+  "isBase64Encoded": false
+}

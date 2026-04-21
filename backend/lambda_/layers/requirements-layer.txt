@@ -1,0 +1,12 @@
+# Lambda layer dependencies for ScamGuard Aurora-backed handlers
+# Build: pip install -r requirements-layer.txt -t layers/python/
+#
+# boto3 is provided by the Lambda runtime — omitted here to keep the layer
+# small. Include it only if you need a version newer than the runtime ships.
+#
+# pg8000: pure-Python PostgreSQL driver (no C build needed, works in Lambda
+#         without a custom compile step unlike psycopg2-binary)
+pg8000==1.31.2
+
+# aws-lambda-powertools: structured logging, tracing, metrics utilities
+aws-lambda-powertools==3.3.0

@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/v1/auth/verify-sms-otp",
+  "rawPath": "/api/v1/auth/verify-sms-otp",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/auth/verify-sms-otp"
+    }
+  },
+  "body": "{\"phone\": \"5140001234\", \"code\": \"1234\"}",
+  "isBase64Encoded": false
+}

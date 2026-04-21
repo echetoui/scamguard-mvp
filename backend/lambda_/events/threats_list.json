@@ -1,0 +1,21 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /api/v1/threats",
+  "rawPath": "/api/v1/threats",
+  "rawQueryString": "limit=10&offset=0",
+  "queryStringParameters": {
+    "limit": "10",
+    "offset": "0"
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/api/v1/threats"
+    }
+  },
+  "body": null,
+  "isBase64Encoded": false
+}

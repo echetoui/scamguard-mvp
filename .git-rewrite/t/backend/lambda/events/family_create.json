@@ -1,0 +1,25 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/v1/family/create",
+  "rawPath": "/api/v1/family/create",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json",
+    "authorization": "Bearer eyJ1c2VySWQiOiJ0ZXN0LXVzZXItMTIzIiwicGhvbmUiOiI1MTQwMDAxMjM0In0="
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/family/create"
+    },
+    "authorizer": {
+      "jwt": {
+        "claims": {
+          "sub": "test-cognito-sub-001"
+        }
+      }
+    }
+  },
+  "body": "{\"familyName\": \"Famille Tremblay\"}",
+  "isBase64Encoded": false
+}

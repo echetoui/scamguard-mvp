@@ -1,0 +1,22 @@
+# SAM Configuration for ScamGuard Deployment
+
+version = 0.1
+
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "scamguard-mvp"
+s3_bucket = "scamguard-sam-deployments-034362029181"
+s3_prefix = "sam-deployments"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"]
+disable_rollback = false
+parameter_overrides = [
+  "Environment=dev",
+  "ImageRepoUri=public.ecr.aws/lambda/python:3.12",
+  "DynamoDBTableName=ScamGuardData",
+  "AuditTableName=ScamGuardAudit",
+  "OTPTableName=ScamGuardOTP",
+  "PinpointProjectId=7422bf6714644482b8100da38abcd4ae"
+]

@@ -1,0 +1,374 @@
+{
+  "metadata": {
+    "created": "2026-02-18",
+    "version": "1.0",
+    "description": "Configuration for advanced gamification system",
+    "phase": "2.2.1"
+  },
+  "achievements": {
+    "total_badges": 20,
+    "categories": [
+      "scam_prevention",
+      "learning",
+      "community",
+      "engagement"
+    ],
+    "tiers": {
+      "bronze": {
+        "name": "Bronze",
+        "xp_reward": 10,
+        "icon": "🥉"
+      },
+      "silver": {
+        "name": "Silver",
+        "xp_reward": 25,
+        "icon": "🥈"
+      },
+      "gold": {
+        "name": "Gold",
+        "xp_reward": 50,
+        "icon": "🥇"
+      },
+      "platinum": {
+        "name": "Platinum",
+        "xp_reward": 100,
+        "icon": "💎"
+      }
+    ],
+    "rarities": {
+      "common": {
+        "unlock_rate": 0.50,
+        "description": "Easy to earn"
+      },
+      "uncommon": {
+        "unlock_rate": 0.30,
+        "description": "Moderate challenge"
+      },
+      "rare": {
+        "unlock_rate": 0.15,
+        "description": "Significant effort"
+      },
+      "epic": {
+        "unlock_rate": 0.04,
+        "description": "Major accomplishment"
+      },
+      "legendary": {
+        "unlock_rate": 0.01,
+        "description": "Ultimate challenge"
+      }
+    }
+  },
+  "xp_system": {
+    "level_cap": 10,
+    "level_thresholds": {
+      "1": 0,
+      "2": 100,
+      "3": 250,
+      "4": 450,
+      "5": 700,
+      "6": 1000,
+      "7": 1350,
+      "8": 1750,
+      "9": 2200,
+      "10": 2700
+    },
+    "xp_rewards": {
+      "report_submission": 5,
+      "accurate_report": 10,
+      "daily_login": 2,
+      "streak_day": 1,
+      "quiz_completion": 15,
+      "module_completion": 20,
+      "community_help": 5,
+      "achievement_unlock": "varies",
+      "leaderboard_bonus": "50-250"
+    },
+    "streak_mechanics": {
+      "bonus_per_day": 1,
+      "max_daily_bonus": 100,
+      "reset_after_days_missed": 1
+    }
+  },
+  "leaderboards": {
+    "types": [
+      "weekly",
+      "monthly",
+      "alltime",
+      "seasonal"
+    ],
+    "weekly": {
+      "enabled": true,
+      "resets_on": "monday",
+      "max_display": 100,
+      "minimum_activity_days": 3
+    },
+    "monthly": {
+      "enabled": true,
+      "resets_on": "first_day_of_month",
+      "max_display": 100,
+      "minimum_activity_days": 10
+    },
+    "alltime": {
+      "enabled": true,
+      "resets_on": "never",
+      "max_display": 100,
+      "minimum_reports": 1
+    },
+    "seasonal": {
+      "enabled": true,
+      "resets_on": "season_change",
+      "max_display": 100,
+      "minimum_activity_days": 1
+    },
+    "privacy": {
+      "show_full_names": false,
+      "show_usernames": true,
+      "show_profile_pictures": false,
+      "hide_inactive_users": true,
+      "anonymize_below_rank": 51
+    }
+  },
+  "seasonal_events": {
+    "enabled": true,
+    "events_per_year": 4,
+    "seasons": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "spring": {
+      "months": [3, 4, 5],
+      "theme": "🌸",
+      "challenges": 3,
+      "total_xp": 190
+    },
+    "summer": {
+      "months": [6, 7, 8],
+      "theme": "☀️",
+      "challenges": 3,
+      "total_xp": 230
+    },
+    "fall": {
+      "months": [9, 10, 11],
+      "theme": "🍂",
+      "challenges": 3,
+      "total_xp": 230
+    },
+    "winter": {
+      "months": [12, 1, 2],
+      "theme": "❄️",
+      "challenges": 3,
+      "total_xp": 325
+    },
+    "weekly_challenges": {
+      "enabled": true,
+      "new_challenge_on": "monday",
+      "duration_days": 7,
+      "xp_rewards": [20, 30, 40, 50]
+    }
+  },
+  "rewards": {
+    "enabled": true,
+    "types": [
+      "badges",
+      "xp",
+      "cosmetics",
+      "features"
+    ],
+    "badges": {
+      "description": "Visual achievements to display on profile",
+      "displayable": true,
+      "shareable": true
+    },
+    "cosmetics": {
+      "description": "Profile customizations (themes, avatars)",
+      "examples": [
+        "profile_themes",
+        "custom_avatars",
+        "name_colors",
+        "border_styles"
+      ]
+    },
+    "features": {
+      "description": "Unlocked premium features",
+      "examples": [
+        "early_access_to_features",
+        "advanced_analytics",
+        "export_reports",
+        "api_access"
+      ]
+    }
+  },
+  "engagement_mechanics": {
+    "streaks": {
+      "enabled": true,
+      "reset_on_missed_day": true,
+      "bonus_multiplier": 1.5,
+      "max_streak_bonus": 100
+    },
+    "social_features": {
+      "enabled": true,
+      "features": [
+        "share_achievements",
+        "friend_leaderboards",
+        "community_comments",
+        "challenge_invites"
+      ],
+      "privacy_first": true
+    },
+    "challenges": {
+      "enabled": true,
+      "types": [
+        "daily",
+        "weekly",
+        "seasonal",
+        "custom"
+      ],
+      "difficulty_levels": [
+        "easy",
+        "medium",
+        "hard",
+        "extreme"
+      ]
+    }
+  },
+  "notifications": {
+    "achievement_unlocked": {
+      "enabled": true,
+      "channels": ["in_app", "email"],
+      "delay_seconds": 0
+    },
+    "level_up": {
+      "enabled": true,
+      "channels": ["in_app", "email"],
+      "delay_seconds": 0
+    },
+    "leaderboard_rank": {
+      "enabled": true,
+      "channels": ["in_app"],
+      "notify_when": "top_10_rank",
+      "delay_seconds": 5
+    },
+    "streak_milestone": {
+      "enabled": true,
+      "channels": ["in_app"],
+      "milestones": [7, 14, 30, 60, 100],
+      "delay_seconds": 0
+    },
+    "event_reminder": {
+      "enabled": true,
+      "channels": ["email"],
+      "send_days_before_end": 3,
+      "send_on": "friday"
+    }
+  },
+  "progression": {
+    "difficulty_curve": {
+      "early_game": {
+        "levels": [1, 3],
+        "description": "Fast progression, learn mechanics"
+      },
+      "mid_game": {
+        "levels": [4, 6],
+        "description": "Moderate progression, more engagement"
+      },
+      "late_game": {
+        "levels": [7, 10],
+        "description": "Slower progression, hardcore players"
+      }
+    }
+  },
+  "analytics": {
+    "track_metrics": [
+      "daily_active_users",
+      "engagement_rate",
+      "achievement_completion_rate",
+      "leaderboard_churn",
+      "event_participation",
+      "average_session_length"
+    ],
+    "kpis": [
+      {
+        "name": "engagement_rate",
+        "target": 0.30,
+        "alert_if_below": 0.20,
+        "description": "% of users engaging with gamification daily"
+      },
+      {
+        "name": "achievement_completion",
+        "target": 0.50,
+        "alert_if_below": 0.30,
+        "description": "% of users unlocking at least one achievement"
+      },
+      {
+        "name": "event_participation",
+        "target": 0.40,
+        "alert_if_below": 0.25,
+        "description": "% of users participating in seasonal events"
+      }
+    ]
+  },
+  "database": {
+    "tables": {
+      "user_profiles": {
+        "fields": [
+          "user_id",
+          "total_xp",
+          "level",
+          "current_streak",
+          "longest_streak",
+          "achievements_count",
+          "joined_date",
+          "last_activity_date"
+        ]
+      },
+      "achievements": {
+        "fields": [
+          "achievement_id",
+          "user_id",
+          "unlocked_at",
+          "progress"
+        ]
+      },
+      "leaderboards": {
+        "fields": [
+          "user_id",
+          "leaderboard_type",
+          "rank",
+          "xp",
+          "level",
+          "timestamp"
+        ]
+      },
+      "events": {
+        "fields": [
+          "event_id",
+          "user_id",
+          "challenge_id",
+          "progress",
+          "completed_at"
+        ]
+      }
+    }
+  },
+  "testing": {
+    "test_achievements": [
+      "first_report",
+      "report_master",
+      "accuracy_expert",
+      "daily_sentinel"
+    ],
+    "test_users": 100,
+    "test_events": [
+      "spring_2026",
+      "summer_2026"
+    ],
+    "expected_metrics": {
+      "engagement_rate": 0.25,
+      "achievement_unlock_rate": 0.40,
+      "average_xp_per_session": 25,
+      "average_level": 2.5
+    }
+  }
+}

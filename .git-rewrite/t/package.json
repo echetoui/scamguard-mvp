@@ -1,0 +1,19 @@
+{
+  "name": "scamguard-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "start": "npm --prefix frontend run start",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix frontend run test",
+    "test:unit": "npm --prefix frontend run test:unit",
+    "test:coverage": "npm --prefix frontend run test:coverage",
+    "deploy": "chmod +x deploy.sh && ./deploy.sh"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-native-web": "^0.21.2"
+  }
+}

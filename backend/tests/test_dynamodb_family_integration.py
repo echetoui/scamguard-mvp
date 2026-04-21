@@ -5,21 +5,42 @@ Phase 5A - Tests that validate actual DynamoDB structure and data.
 
 import json
 import pytest
-from moto import mock_aws
 import boto3
 from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Setup AWS credentials before importing auth_handler
+# Use mock_aws for moto 5.0+ or mock_dynamodb for older versions
+try:
+    from moto import mock_aws as mock_dynamodb
+except (ImportError, AttributeError):
+    try:
+        from moto import mock_dynamodb
+    except (ImportError, AttributeError):
+        from moto.dynamodb import mock_dynamodb
+
+# Setup AWS credentials and table name before importing auth_handler
 os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
 os.environ['AWS_SECURITY_TOKEN'] = 'testing'
 os.environ['AWS_SESSION_TOKEN'] = 'testing'
 os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
+os.environ['DYNAMODB_TABLE'] = 'ScamGuardData'
+
+# Setup path and import auth_handler once at module level
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lambda'))
+from lambda_.auth_handler import post_signup, reset_clients
+
+# Fixture to reset AWS clients between tests
+@pytest.fixture(autouse=True)
+def reset_aws_clients():
+    """Reset AWS clients before each test to ensure clean state."""
+    reset_clients()
+    yield
+    reset_clients()
 
 
-@mock_aws
+@mock_dynamodb
 def test_signup_family_role_creates_correct_dynamodb_records():
     """
     Test that family role signup creates exactly 3 DynamoDB records
@@ -43,10 +64,6 @@ def test_signup_family_role_creates_correct_dynamodb_records():
         BillingMode='PAY_PER_REQUEST'
     )
 
-    # Now import after mocking
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lambda'))
-    from auth_handler import post_signup
-
     event = {
         "body": json.dumps({
             "email": "parent@example.com",
@@ -59,14 +76,16 @@ def test_signup_family_role_creates_correct_dynamodb_records():
     lambda_context = MagicMock()
     lambda_context.aws_request_id = "test-trace-id"
 
-    with patch("auth_handler.cognito_client") as mock_cognito:
+    with patch("lambda_.auth_handler.get_cognito_client") as mock_get_cognito:
+        mock_cognito = MagicMock()
         mock_cognito.sign_up.return_value = {"UserSub": "family-user-uuid-12345"}
+        mock_get_cognito.return_value = mock_cognito
 
         # Call the handler
         response = post_signup(event, lambda_context)
 
         # Verify response
-        assert response["statusCode"] == 201, f"Expected 201, got {response['statusCode']}"
+        assert response["statusCode"] == 201, f"Expected 201, got {response['statusCode']}: {response.get('body', '')}"
         body = json.loads(response["body"])
         assert body["data"]["role"] == "family"
         assert "family_id" in body["data"]
@@ -136,7 +155,7 @@ def test_signup_family_role_creates_correct_dynamodb_records():
         print(f"\n✅ USER PROFILE: {json.dumps(user_profile, indent=2, default=str)}")
 
 
-@mock_aws
+@mock_dynamodb
 def test_signup_senior_role_does_not_create_family():
     """
     Test that senior role signup does NOT create family records,
@@ -156,9 +175,6 @@ def test_signup_senior_role_does_not_create_family():
         BillingMode='PAY_PER_REQUEST'
     )
 
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lambda'))
-    from auth_handler import post_signup
-
     event = {
         "body": json.dumps({
             "email": "senior@example.com",
@@ -170,8 +186,10 @@ def test_signup_senior_role_does_not_create_family():
     lambda_context = MagicMock()
     lambda_context.aws_request_id = "test-trace-id"
 
-    with patch("auth_handler.cognito_client") as mock_cognito:
+    with patch("lambda_.auth_handler.get_cognito_client") as mock_get_cognito:
+        mock_cognito = MagicMock()
         mock_cognito.sign_up.return_value = {"UserSub": "senior-user-uuid-67890"}
+        mock_get_cognito.return_value = mock_cognito
 
         response = post_signup(event, lambda_context)
 
@@ -194,7 +212,7 @@ def test_signup_senior_role_does_not_create_family():
         print(f"\n✅ SENIOR PROFILE: {json.dumps(profile, indent=2, default=str)}")
 
 
-@mock_aws
+@mock_dynamodb
 def test_signup_individual_role_default():
     """
     Test that signup without role defaults to 'individual' role
@@ -214,9 +232,6 @@ def test_signup_individual_role_default():
         BillingMode='PAY_PER_REQUEST'
     )
 
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lambda'))
-    from auth_handler import post_signup
-
     event = {
         "body": json.dumps({
             "email": "user@example.com",
@@ -227,8 +242,10 @@ def test_signup_individual_role_default():
     lambda_context = MagicMock()
     lambda_context.aws_request_id = "test-trace-id"
 
-    with patch("auth_handler.cognito_client") as mock_cognito:
+    with patch("lambda_.auth_handler.get_cognito_client") as mock_get_cognito:
+        mock_cognito = MagicMock()
         mock_cognito.sign_up.return_value = {"UserSub": "user-uuid-11111"}
+        mock_get_cognito.return_value = mock_cognito
 
         response = post_signup(event, lambda_context)
 
@@ -246,7 +263,7 @@ def test_signup_individual_role_default():
         print(f"\n✅ INDIVIDUAL PROFILE: {json.dumps(profile, indent=2, default=str)}")
 
 
-@mock_aws
+@mock_dynamodb
 def test_family_invite_code_uniqueness():
     """
     Test that each family gets a unique invite code.
@@ -265,9 +282,6 @@ def test_family_invite_code_uniqueness():
         BillingMode='PAY_PER_REQUEST'
     )
 
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lambda'))
-    from auth_handler import post_signup
-
     lambda_context = MagicMock()
     lambda_context.aws_request_id = "test-trace-id"
 
@@ -284,8 +298,10 @@ def test_family_invite_code_uniqueness():
             }),
         }
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
+        with patch("lambda_.auth_handler.get_cognito_client") as mock_get_cognito:
+            mock_cognito = MagicMock()
             mock_cognito.sign_up.return_value = {"UserSub": f"user-{i}"}
+            mock_get_cognito.return_value = mock_cognito
 
             response = post_signup(event, lambda_context)
             body = json.loads(response["body"])

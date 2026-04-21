@@ -181,7 +181,108 @@ def get_family_dashboard(event, context):
     if not family_data:
         return error_response(500, "FAMILY_ERROR", "Failed to retrieve family data")
 
+    # Get current user's role in the family
+    try:
+        own_member_response = table.get_item(
+            Key={
+                "PK": f"FAMILY#{family_id}",
+                "SK": f"MEMBER#{user_id}"
+            }
+        )
+        own_member = own_member_response.get("Item", {})
+        family_data["currentUserRole"] = own_member.get("role", "senior")
+        family_data["currentUserEmail"] = own_member.get("email", "")
+    except ClientError as e:
+        print(f"Error getting current user's family role: {e}")
+        # Default to 'senior' if lookup fails
+        family_data["currentUserRole"] = "senior"
+        family_data["currentUserEmail"] = ""
+
     return success_response(200, family_data)
+
+
+def create_family(event, context):
+    """
+    POST /api/v1/family/create
+
+    Create a new family group.
+    Body: { familyName: "Ma Famille" } (optional)
+    """
+    user_id = extract_user_id(event)
+    if not user_id:
+        return error_response(401, "INVALID_TOKEN", "Invalid or missing authorization token")
+
+    try:
+        # Get user profile
+        user_profile = get_user_profile(user_id)
+        if not user_profile:
+            return error_response(404, "USER_NOT_FOUND", "User profile not found")
+
+        # Check if user already has a family
+        if user_profile.get("familyId"):
+            return error_response(400, "ALREADY_IN_FAMILY", "User already belongs to a family")
+
+        # Parse request body
+        body = json.loads(event.get("body", "{}"))
+        family_name = body.get("familyName", "Ma Famille").strip()
+        if not family_name:
+            family_name = "Ma Famille"
+
+        # Generate family ID and invite code
+        import uuid
+        import string
+        import random
+
+        family_id = str(uuid.uuid4())
+        # Generate 6-character uppercase invite code
+        invite_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+        now = datetime.utcnow().isoformat() + "Z"
+        user_email = user_profile.get("email", "unknown")
+
+        # Create family metadata (camelCase for consistency with get_family_data reads)
+        table.put_item(
+            Item={
+                "PK": f"FAMILY#{family_id}",
+                "SK": "METADATA",
+                "familyName": family_name,
+                "inviteCode": invite_code,
+                "created_by": user_id,
+                "created_at": now,
+                "ttl": int(datetime.utcnow().timestamp()) + (10 * 365 * 24 * 60 * 60)  # 10 years
+            }
+        )
+
+        # Add creator as family member (with 'family' role as creator/organizer)
+        table.put_item(
+            Item={
+                "PK": f"FAMILY#{family_id}",
+                "SK": f"MEMBER#{user_id}",
+                "email": user_email,
+                "role": "family",  # Creator is a family organizer
+                "joinedAt": now,
+                "lastActive": now
+            }
+        )
+
+        # Update user profile with familyId
+        user_profile["familyId"] = family_id
+        user_profile["PK"] = f"USER#{user_id}"
+        user_profile["SK"] = "PROFILE"
+        table.put_item(Item=user_profile)
+
+        return success_response(201, {
+            "message": "Family created successfully",
+            "familyId": family_id,
+            "familyName": family_name,
+            "inviteCode": invite_code
+        })
+
+    except json.JSONDecodeError:
+        return error_response(400, "INVALID_JSON", "Invalid request body")
+    except ClientError as e:
+        print(f"Error creating family: {e}")
+        return error_response(500, "DB_ERROR", "Failed to create family")
 
 
 def join_family(event, context):
@@ -272,6 +373,9 @@ def lambda_handler(event, context):
     # Route to appropriate handler
     if path == "/api/v1/family/dashboard" and method == "GET":
         return get_family_dashboard(event, context)
+
+    elif path == "/api/v1/family/create" and method == "POST":
+        return create_family(event, context)
 
     elif path == "/api/v1/family/join" and method == "POST":
         return join_family(event, context)

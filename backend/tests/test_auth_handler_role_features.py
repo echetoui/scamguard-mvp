@@ -6,16 +6,12 @@ Tests each functionality individually with edge cases.
 import json
 import pytest
 from unittest.mock import patch, MagicMock
-import sys
-import os
 
 # Setup AWS credentials
+import os
 os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
 os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
-
-# Add lambda directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lambda'))
 
 
 class TestRoleValidation:
@@ -23,10 +19,10 @@ class TestRoleValidation:
 
     def test_role_accepts_family(self):
         """Feature: Accept 'family' role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-1"}
 
                 response = post_signup({
@@ -43,10 +39,10 @@ class TestRoleValidation:
 
     def test_role_accepts_senior(self):
         """Feature: Accept 'senior' role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-2"}
 
                 response = post_signup({
@@ -62,10 +58,10 @@ class TestRoleValidation:
 
     def test_role_accepts_individual(self):
         """Feature: Accept 'individual' role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-3"}
 
                 response = post_signup({
@@ -81,10 +77,10 @@ class TestRoleValidation:
 
     def test_role_defaults_to_individual_when_missing(self):
         """Feature: Default to 'individual' when role missing"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-4"}
 
                 response = post_signup({
@@ -99,10 +95,10 @@ class TestRoleValidation:
 
     def test_role_defaults_to_individual_when_invalid(self):
         """Feature: Default to 'individual' when role invalid"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-5"}
 
                 response = post_signup({
@@ -118,10 +114,10 @@ class TestRoleValidation:
 
     def test_role_case_insensitive(self):
         """Feature: Role is case-insensitive"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-6"}
 
                 response = post_signup({
@@ -141,10 +137,10 @@ class TestInviteCodeGeneration:
 
     def test_invite_code_generated_for_family(self):
         """Feature: Generate invite code for family role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-7"}
 
                 response = post_signup({
@@ -161,10 +157,10 @@ class TestInviteCodeGeneration:
 
     def test_invite_code_not_generated_for_senior(self):
         """Feature: No invite code for senior role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-8"}
 
                 response = post_signup({
@@ -180,10 +176,10 @@ class TestInviteCodeGeneration:
 
     def test_invite_code_format_is_6_chars(self):
         """Feature: Invite code is exactly 6 characters"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-9"}
 
                 response = post_signup({
@@ -200,10 +196,10 @@ class TestInviteCodeGeneration:
 
     def test_invite_code_is_alphanumeric(self):
         """Feature: Invite code contains only letters and digits"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-10"}
 
                 response = post_signup({
@@ -220,10 +216,10 @@ class TestInviteCodeGeneration:
 
     def test_invite_code_uppercase_only(self):
         """Feature: Invite code uses uppercase letters"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-11"}
 
                 response = post_signup({
@@ -243,12 +239,12 @@ class TestInviteCodeGeneration:
 
     def test_invite_codes_are_unique(self):
         """Feature: Each family gets a unique invite code"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
         codes = set()
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 for i in range(10):
                     mock_cognito.sign_up.return_value = {"UserSub": f"user-{i}"}
 
@@ -271,10 +267,10 @@ class TestFamilyIDGeneration:
 
     def test_family_id_generated_for_family_role(self):
         """Feature: Generate family ID for family role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-12"}
 
                 response = post_signup({
@@ -291,10 +287,10 @@ class TestFamilyIDGeneration:
 
     def test_family_id_not_generated_for_senior(self):
         """Feature: No family ID for senior role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-13"}
 
                 response = post_signup({
@@ -310,11 +306,11 @@ class TestFamilyIDGeneration:
 
     def test_family_id_is_uuid_format(self):
         """Feature: Family ID is UUID v4 format"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
         import uuid
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-14"}
 
                 response = post_signup({
@@ -337,12 +333,12 @@ class TestFamilyIDGeneration:
 
     def test_family_ids_are_unique(self):
         """Feature: Each family gets a unique ID"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
         family_ids = set()
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 for i in range(5):
                     mock_cognito.sign_up.return_value = {"UserSub": f"user-{i}"}
 
@@ -365,10 +361,10 @@ class TestRoleStorageInDynamoDB:
 
     def test_role_stored_in_profile_for_family(self):
         """Feature: Role stored in USER PROFILE for family"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table") as mock_table:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
                 mock_cognito.sign_up.return_value = {"UserSub": "user-15"}
 
                 post_signup({
@@ -389,10 +385,10 @@ class TestRoleStorageInDynamoDB:
 
     def test_role_stored_in_profile_for_senior(self):
         """Feature: Role stored in USER PROFILE for senior"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table") as mock_table:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
                 mock_cognito.sign_up.return_value = {"UserSub": "user-16"}
 
                 post_signup({
@@ -415,10 +411,10 @@ class TestFamilyRecordsCreation:
 
     def test_three_records_created_for_family_role(self):
         """Feature: Create 3 DynamoDB records for family role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table") as mock_table:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
                 mock_cognito.sign_up.return_value = {"UserSub": "user-17"}
 
                 post_signup({
@@ -434,10 +430,10 @@ class TestFamilyRecordsCreation:
 
     def test_one_record_created_for_senior_role(self):
         """Feature: Create only 1 record (PROFILE) for senior role"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table") as mock_table:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
                 mock_cognito.sign_up.return_value = {"UserSub": "user-18"}
 
                 post_signup({
@@ -452,10 +448,10 @@ class TestFamilyRecordsCreation:
 
     def test_family_metadata_record_structure(self):
         """Feature: FAMILY METADATA record has all required fields"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table") as mock_table:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
                 mock_cognito.sign_up.return_value = {"UserSub": "user-19"}
 
                 post_signup({
@@ -480,10 +476,10 @@ class TestFamilyRecordsCreation:
 
     def test_family_member_record_structure(self):
         """Feature: FAMILY MEMBER record has all required fields"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table") as mock_table:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table") as mock_table:
                 mock_cognito.sign_up.return_value = {"UserSub": "user-20"}
 
                 post_signup({
@@ -511,9 +507,9 @@ class TestErrorHandling:
 
     def test_invalid_email_returns_400(self):
         """Feature: Invalid email returns 400 error"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
             response = post_signup({
                 "body": json.dumps({
                     "email": "invalid-email",
@@ -528,7 +524,7 @@ class TestErrorHandling:
 
     def test_weak_password_returns_400(self):
         """Feature: Weak password returns 400 error"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
         response = post_signup({
             "body": json.dumps({
@@ -544,10 +540,10 @@ class TestErrorHandling:
 
     def test_cognito_username_exists_error(self):
         """Feature: Handle Cognito UsernameExistsException"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
         from botocore.exceptions import ClientError
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
             error = ClientError(
                 {"Error": {"Code": "UsernameExistsException"}},
                 "SignUp"
@@ -572,10 +568,10 @@ class TestResponseFormat:
 
     def test_family_response_includes_all_fields(self):
         """Feature: Family signup response includes role, family_id, invite_code"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-21"}
 
                 response = post_signup({
@@ -597,10 +593,10 @@ class TestResponseFormat:
 
     def test_senior_response_excludes_family_fields(self):
         """Feature: Senior signup response excludes family_id, invite_code"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-22"}
 
                 response = post_signup({
@@ -618,10 +614,10 @@ class TestResponseFormat:
 
     def test_response_status_code_201_for_success(self):
         """Feature: Successful signup returns 201 status code"""
-        from auth_handler import post_signup
+        from lambda_.auth_handler import post_signup
 
-        with patch("auth_handler.cognito_client") as mock_cognito:
-            with patch("auth_handler.table"):
+        with patch("lambda_.auth_handler.cognito_client") as mock_cognito:
+            with patch("lambda_.auth_handler.table"):
                 mock_cognito.sign_up.return_value = {"UserSub": "user-23"}
 
                 response = post_signup({

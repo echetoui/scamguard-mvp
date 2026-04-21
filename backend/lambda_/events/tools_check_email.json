@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/v1/tools/check-email",
+  "rawPath": "/api/v1/tools/check-email",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/tools/check-email"
+    }
+  },
+  "body": "{\"email\": \"test@example.com\"}",
+  "isBase64Encoded": false
+}

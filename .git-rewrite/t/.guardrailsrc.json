@@ -1,0 +1,291 @@
+{
+  "$schema": "Schema for guardrails configuration",
+  "guardrails": {
+    "enabled": true,
+    "strictMode": true,
+    "failOnFirstViolation": true,
+    "reportingLevel": "detailed"
+  },
+  "categories": {
+    "immutableFiles": {
+      "enabled": true,
+      "severity": "CRITICAL",
+      "rules": [
+        {
+          "id": "migration-immutable",
+          "pattern": "**/migrations/**",
+          "forbidden": ["edit", "delete", "rename"],
+          "allowed": ["create", "read"],
+          "message": "🚫 Migration files are immutable.\nCreate a NEW migration instead:\npython manage.py makemigrations",
+          "tags": ["database", "infrastructure"]
+        },
+        {
+          "id": "env-no-commit",
+          "pattern": [".env", ".env.local", ".env.*.local"],
+          "forbidden": ["edit", "commit"],
+          "allowed": ["read", "create (.env.example)"],
+          "message": "🚫 Never commit environment files.\nInstead:\n1. Update .env.example (template)\n2. Add sensitive values to .env.local (gitignored)",
+          "tags": ["secrets", "git"]
+        },
+        {
+          "id": "lock-files-readonly",
+          "pattern": ["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "**/requirements.lock"],
+          "forbidden": ["edit"],
+          "allowed": ["generate via package manager", "read"],
+          "message": "🚫 Never edit lock files directly.\nThey're auto-generated.\nInstead:\n1. Modify package.json\n2. Run: npm install",
+          "tags": ["dependencies", "build"]
+        }
+      ]
+    },
+    "secrets": {
+      "enabled": true,
+      "severity": "CRITICAL",
+      "rules": [
+        {
+          "id": "no-hardcoded-keys",
+          "pattern": ["API_KEY=", "SECRET=", "PASSWORD=", "TOKEN=", "aws_access_key_id"],
+          "context": "code files",
+          "forbidden": ["hardcode credentials"],
+          "allowed": ["reference env variables", "use secrets manager"],
+          "message": "🚫 Never hardcode credentials.\nInstead:\n1. Add to .env.local\n2. Reference: process.env.API_KEY",
+          "tags": ["security", "credentials"]
+        },
+        {
+          "id": "no-secret-logging",
+          "pattern": ["console.log.*KEY", "logger.info.*password", "print.*token"],
+          "context": "production code (not tests)",
+          "forbidden": ["log API keys", "log passwords", "log tokens"],
+          "allowed": ["log actions", "log sanitized data"],
+          "message": "🚫 Never log sensitive data.\nInstead:\n1. Log action: logger.info('API call', { status })\n2. Mask secrets: logger.info('message', { masked: '***' })",
+          "tags": ["security", "logging"]
+        }
+      ]
+    },
+    "codeQuality": {
+      "enabled": true,
+      "severity": "MODERATE",
+      "rules": [
+        {
+          "id": "structured-logging-js",
+          "pattern": "console.log",
+          "context": "production code (not tests)",
+          "forbidden": ["console.log", "console.warn", "console.error in handlers"],
+          "allowed": ["in *.test.js", "structured logger.info()"],
+          "message": "🚫 Use structured logger, not console.log.\nInstead:\n1. Import: import { logger } from './logger'\n2. Use: logger.info('action', { data })",
+          "tags": ["logging", "observability"]
+        },
+        {
+          "id": "type-hints-python",
+          "pattern": "def \\w+\\([^)]*\\)(?!.*->)",
+          "context": "backend Python code",
+          "forbidden": ["function without type hints"],
+          "allowed": ["def func(x: int) -> bool"],
+          "message": "🚫 All functions must have type hints.\nInstead:\n1. Add params: def func(x: int, y: str)\n2. Add return: -> Result",
+          "tags": ["quality", "python"]
+        },
+        {
+          "id": "tests-required",
+          "pattern": "export (function|class|const)",
+          "context": "frontend code",
+          "forbidden": ["export without test file"],
+          "allowed": ["private functions", "export with [file].test.jsx"],
+          "message": "🚫 New exports need tests.\nCreate: [path]/[file].test.jsx with 3+ test cases",
+          "tags": ["testing", "quality"]
+        },
+        {
+          "id": "error-handling",
+          "pattern": "try\\s*\\{.*\\}\\s*catch\\s*\\{\\}",
+          "context": "all code",
+          "forbidden": ["empty catch blocks", "swallowing errors"],
+          "allowed": ["catch, log, and re-throw", "proper error handling"],
+          "message": "🚫 Never swallow errors silently.\nInstead:\ncatch (error) {\n  logger.error('context', { error })\n  throw error\n}",
+          "tags": ["error-handling", "quality"]
+        }
+      ]
+    },
+    "architecture": {
+      "enabled": true,
+      "severity": "MODERATE",
+      "rules": [
+        {
+          "id": "db-repository-pattern",
+          "pattern": ["db.query", "db.exec", "dynamodb.get_item"],
+          "context": "not in repositories/ directory",
+          "forbidden": ["direct database access in handlers"],
+          "allowed": ["repository.find()", "repository.get()"],
+          "message": "🚫 Use repository pattern.\nInstead:\n1. Create: backend/repositories/[entity]_repository.py\n2. Implement: async def find(id) -> Entity\n3. Use: await repository.find(id)",
+          "tags": ["architecture", "database"]
+        },
+        {
+          "id": "react-context-not-globals",
+          "pattern": "window.globalState|global\\.[a-zA-Z]+ = \\{",
+          "context": "frontend code",
+          "forbidden": ["global variables", "window properties for state"],
+          "allowed": ["useContext", "Redux", "local state"],
+          "message": "🚫 Use React context, not global variables.\nInstead:\n1. Create: src/context/[Feature]Context.jsx\n2. Use: const state = useContext(FeatureContext)",
+          "tags": ["architecture", "frontend"]
+        }
+      ]
+    },
+    "scamguardSpecific": {
+      "enabled": true,
+      "severity": "MODERATE",
+      "rules": [
+        {
+          "id": "sms-otp-constraints",
+          "context": "auth handlers",
+          "forbidden": [
+            "OTP length != 4",
+            "expiry > 600 seconds",
+            "skip phone validation",
+            "no rate limiting"
+          ],
+          "allowed": [
+            "4-digit OTP",
+            "10-minute TTL",
+            "Canadian format validation",
+            "3 attempts/hour limit"
+          ],
+          "message": "🚫 SMS OTP has specific constraints (see DECISIONS.md#2).\nRequired:\n1. 4-digit code\n2. 10-minute expiry\n3. Canadian format (10+ digits)\n4. Rate limit: 3 attempts/hour",
+          "tags": ["auth", "scamguard"]
+        },
+        {
+          "id": "accessibility-seniors",
+          "context": "frontend components",
+          "forbidden": [
+            "font size < 14px",
+            "buttons < 44px",
+            "contrast < 4.5:1",
+            "no keyboard nav",
+            "no aria labels"
+          ],
+          "allowed": [
+            "16px+ body text",
+            "48px buttons",
+            "4.5:1 contrast",
+            "full keyboard support",
+            "ARIA labels"
+          ],
+          "message": "🚫 Components must be accessible for seniors.\nChecklist:\n1. Font: 16px+ (see BRAND_GUIDELINES.md)\n2. Buttons: 48px × 48px\n3. Contrast: 4.5:1 ratio\n4. Labels: aria-label on all interactive elements",
+          "tags": ["accessibility", "scamguard"]
+        }
+      ]
+    },
+    "tokenBudget": {
+      "enabled": true,
+      "severity": "CRITICAL",
+      "rules": [
+        {
+          "id": "context-limit",
+          "metric": "context window",
+          "limit": 40000,
+          "target": "3-8K per task",
+          "message": "⚠️ Context loading exceeds budget.\nCurrent: {currentTokens}K\nTarget: 3-8K\nAction:\n1. Check task file (lists files)\n2. Consult RAG_INDEX.md\n3. Load only 2-5 files",
+          "tags": ["performance", "tokens"]
+        },
+        {
+          "id": "files-per-task",
+          "metric": "files loaded",
+          "limit": 5,
+          "target": "2-5",
+          "message": "⚠️ Too many files loaded ({fileCount})\nTarget: 2-5 files per task\nAction:\n1. Identify which files actually needed\n2. Use RAG_INDEX.md to focus\n3. Drop non-essential files",
+          "tags": ["performance", "rag"]
+        }
+      ]
+    }
+  },
+  "hooks": {
+    "beforeRead": [
+      {
+        "id": "check-immutable-read",
+        "category": "immutableFiles",
+        "action": "warn if reading multiple immutable files (might be exploration)"
+      }
+    ],
+    "beforeEdit": [
+      {
+        "id": "block-migration-edit",
+        "category": "immutableFiles",
+        "action": "block"
+      },
+      {
+        "id": "block-env-edit",
+        "category": "immutableFiles",
+        "action": "block"
+      },
+      {
+        "id": "block-hardcoded-secrets",
+        "category": "secrets",
+        "action": "block"
+      },
+      {
+        "id": "check-code-quality",
+        "category": "codeQuality",
+        "action": "warn"
+      },
+      {
+        "id": "check-architecture",
+        "category": "architecture",
+        "action": "warn"
+      },
+      {
+        "id": "check-scamguard-constraints",
+        "category": "scamguardSpecific",
+        "action": "warn"
+      }
+    ],
+    "beforeCommit": [
+      {
+        "id": "no-env-files",
+        "check": "Do not commit .env files",
+        "action": "block"
+      },
+      {
+        "id": "no-secrets",
+        "check": "Do not commit credentials",
+        "action": "block"
+      },
+      {
+        "id": "conventional-commit",
+        "check": "Use conventional commit format",
+        "action": "warn"
+      }
+    ],
+    "beforeLoadContext": [
+      {
+        "id": "check-rag-usage",
+        "check": "Are you using RAG_INDEX.md?",
+        "action": "warn if loading > 5 files without RAG"
+      },
+      {
+        "id": "check-task-specification",
+        "check": "Does loading match task file specification?",
+        "action": "warn if deviation"
+      }
+    ]
+  },
+  "severity": {
+    "CRITICAL": {
+      "action": "block",
+      "explanation": "This violation is prevented from happening",
+      "example": "Modifying a migration file"
+    },
+    "MODERATE": {
+      "action": "warn with guidance",
+      "explanation": "This is allowed but not recommended",
+      "example": "Using console.log instead of logger"
+    },
+    "LOW": {
+      "action": "inform",
+      "explanation": "This is informational",
+      "example": "Style preference"
+    }
+  },
+  "reporting": {
+    "showSeverity": true,
+    "showAlternatives": true,
+    "showExamples": true,
+    "suggestFix": true,
+    "format": "detailed"
+  }
+}
