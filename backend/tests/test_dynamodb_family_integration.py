@@ -10,13 +10,13 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Use mock_aws for moto 4.0+
+# Use mock_aws for moto 5.0+ or mock_dynamodb for older versions
 try:
     from moto import mock_aws as mock_dynamodb
-except ImportError:
+except (ImportError, AttributeError):
     try:
         from moto import mock_dynamodb
-    except ImportError:
+    except (ImportError, AttributeError):
         from moto.dynamodb import mock_dynamodb
 
 # Setup AWS credentials and table name before importing auth_handler
