@@ -277,7 +277,7 @@ def handle_verify_sms_otp(body: Dict) -> Dict:
     token_payload = json.dumps({"userId": user_id, "phone": phone})
     token = __import__("base64").b64encode(token_payload.encode()).decode()
 
-    logger.info("[AUTH] OTP verified for phone ending %s, user %s", phone[-4:], user_id)
+    logger.info("[AUTH] OTP verified for user %s", user_id)
 
     return ok({
         "user_id": user_id,
