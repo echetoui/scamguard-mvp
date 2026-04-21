@@ -96,7 +96,7 @@ def get_aurora_credentials(secret_arn: str, session: boto3.Session) -> dict:
         resp = client.get_secret_value(SecretId=secret_arn)
         return json.loads(resp["SecretString"])
     except ClientError as e:
-        log.error("Failed to fetch secret %s: %s", secret_arn, e)
+        log.error("Failed to fetch Aurora credentials from Secrets Manager: %s", e)
         raise
 
 
