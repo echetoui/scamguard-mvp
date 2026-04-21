@@ -545,7 +545,7 @@ def post_request_sms_otp(event, context):
                         }
                     }
                 )
-                print(f"[SNS] SMS OTP sent to ***{e164_phone[-4:]}")
+                print("[SNS] SMS OTP sent successfully.")
                 sms_sent = True
             except Exception as sns_error:
                 print(f"[SNS] Error sending SMS: {str(sns_error)}")
