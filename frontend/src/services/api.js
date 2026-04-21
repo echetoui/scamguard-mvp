@@ -5,11 +5,9 @@
 
 import { getAuthToken, getRefreshToken, setAuth, clearAuth } from '../utils/authStorage';
 
-// Configuration-driven API base URL
-// Falls back to localhost for development, but respects VITE_API_BASE_URL env var for staging/prod
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (
-  import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1'
-);
+// Development uses localhost, production uses AWS
+// import.meta.env.DEV is true when running `npm start` (dev server)
+const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 /**
  * Attempt to refresh the JWT token using refresh_token
@@ -190,48 +188,6 @@ export const authAPI = {
     const response = await apiCall('/auth/verify-sms-otp', {
       method: 'POST',
       body: JSON.stringify({ email, phone, code, password }),
-    });
-    return response.data;
-  },
-
-  // SEC.4: Password reset
-  requestPasswordReset: async (phone) => {
-    const response = await apiCall('/auth/request-password-reset', {
-      method: 'POST',
-      body: JSON.stringify({ phone }),
-    });
-    return response.data;
-  },
-
-  resetPassword: async (resetToken, newPassword) => {
-    const response = await apiCall('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ reset_token: resetToken, new_password: newPassword }),
-    });
-    return response.data;
-  },
-
-  // SEC.4: Session management
-  validateSession: async (sessionToken) => {
-    const response = await apiCall('/auth/validate-session', {
-      method: 'POST',
-      body: JSON.stringify({ session_token: sessionToken }),
-    });
-    return response.data;
-  },
-
-  refreshSession: async (sessionToken) => {
-    const response = await apiCall('/auth/refresh-session', {
-      method: 'POST',
-      body: JSON.stringify({ session_token: sessionToken }),
-    });
-    return response.data;
-  },
-
-  // SEC.4: Security status (development only)
-  getSecurityStatus: async () => {
-    const response = await apiCall('/auth/security-status', {
-      method: 'GET',
     });
     return response.data;
   },

@@ -18,7 +18,7 @@ export default function EmailBreachChecker() {
   const [emailError, setEmailError] = useState('');
   const [emailStep, setEmailStep] = useState('input'); // 'input' or 'result'
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+  const API_BASE_URL = 'http://localhost:3001/api/v1';
 
   // Email breach checking function
   const handleCheckEmail = async (e) => {

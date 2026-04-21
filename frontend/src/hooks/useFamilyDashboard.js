@@ -8,16 +8,14 @@
 import { useState, useEffect } from 'react';
 import { getAuthToken, getAuth } from '../utils/authStorage';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const API_URL = 'http://localhost:3001/api/v1';
 
 export default function useFamilyDashboard() {
   const [familyData, setFamilyData] = useState({
     familyName: '',
     members: [],
     threats: [],
-    inviteCode: '',
-    currentUserRole: 'senior',
-    currentUserEmail: ''
+    inviteCode: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -64,9 +62,7 @@ export default function useFamilyDashboard() {
           familyName: data.data?.familyName || 'Ma Famille',
           members: data.data?.members || [],
           threats: data.data?.threats || [],
-          inviteCode: data.data?.inviteCode || '',
-          currentUserRole: data.data?.currentUserRole || 'senior',
-          currentUserEmail: data.data?.currentUserEmail || ''
+          inviteCode: data.data?.inviteCode || ''
         });
         setHasFamily(data.data?.members?.length > 0 || !!data.data?.familyName);
         setError('');

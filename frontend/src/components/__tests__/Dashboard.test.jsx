@@ -15,10 +15,6 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import Dashboard from '../Dashboard';
 
-vi.mock('../QuebecFraudAlerts', () => ({
-  default: () => <div data-testid="quebec-alerts">Mocked Quebec Alerts</div>
-}));
-
 describe('Dashboard Component', () => {
   const mockProps = {
     userEmail: 'user@example.com',

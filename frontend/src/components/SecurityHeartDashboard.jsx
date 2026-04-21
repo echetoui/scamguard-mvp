@@ -14,7 +14,6 @@ import {
   calculateGraphPoints,
   calculateDataPoint
 } from '../utils/dashboardUtils';
-import EmergencyPanel from './EmergencyPanel';
 import './SecurityHeartDashboard.css';
 
 /**
@@ -77,7 +76,7 @@ const generateAlerts = (score, stats) => {
  * @component
  * @returns {JSX.Element} Security Heart Dashboard
  */
-const SecurityHeartDashboard = ({ userId, currentUserRole }) => {
+const SecurityHeartDashboard = ({ userId }) => {
   const [securityScore, setSecurityScore] = useState(0);
   const [scoreStatus, setScoreStatus] = useState('loading');
   const [weeklyStats, setWeeklyStats] = useState({
@@ -91,7 +90,6 @@ const SecurityHeartDashboard = ({ userId, currentUserRole }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [alerts, setAlerts] = useState([]);
   const [dismissedAlerts, setDismissedAlerts] = useState(new Set());
-  const [showEmergency, setShowEmergency] = useState(false);
 
   const fetchSecurityData = async () => {
     try {
@@ -108,7 +106,7 @@ const SecurityHeartDashboard = ({ userId, currentUserRole }) => {
       const mockStats = {
         scamsBlocked: 3,
         quizzesCompleted: badges.length,    // ← REAL: badge count
-        guardianActive: currentUserRole === 'family',
+        guardianActive: true,
         xpLevel: xpInfo.level,              // ← REAL: XP level
         currentStreak: streakInfo.currentStreak // ← REAL: streak
       };
@@ -147,29 +145,6 @@ const SecurityHeartDashboard = ({ userId, currentUserRole }) => {
 
   return (
     <div className="security-heart-dashboard">
-      {/* SOS Button - Emergency Services */}
-      <div className="sos-button-container">
-        <button
-          className="sos-button"
-          onClick={() => setShowEmergency(true)}
-          aria-label="Ouvrir les numéros d'urgence"
-          title="Accéder aux numéros d'urgence"
-        >
-          🆘 URGENCE
-        </button>
-      </div>
-
-      {/* Emergency Panel Modal Overlay */}
-      {showEmergency && (
-        <div
-          className="emergency-overlay"
-          role="presentation"
-          onClick={(e) => e.target === e.currentTarget && setShowEmergency(false)}
-        >
-          <EmergencyPanel onClose={() => setShowEmergency(false)} />
-        </div>
-      )}
-
       {/* Alerts Section */}
       {alerts.length > 0 && (
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: spacing.lg, marginBottom: spacing['2xl'] }}>

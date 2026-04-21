@@ -24,8 +24,6 @@ import { sendNotification, shouldSendDailyNotification, getSecurityTips } from '
 import ThreatsSection from './components/ThreatsSection';
 import WeeklyDigest from './components/WeeklyDigest';
 import useThreatData from './hooks/useThreatData';
-import EmergencyPanel from './components/EmergencyPanel';
-import GuardianAngelPanel from './components/GuardianAngelPanel';
 
 // Lazy-loaded components (defer loading until tab is activated)
 const ResourcesTab = lazy(() => import('./components/Resources/ResourcesTab'));
@@ -399,7 +397,7 @@ export default function App() {
               />
             )}
             {/* Security Heart Dashboard */}
-            <SecurityHeartDashboard userId="user-demo" currentUserRole={familyData?.currentUserRole || 'individual'} />
+            <SecurityHeartDashboard userId="user-demo" />
           </div>
         </TabPanel>
 
@@ -425,19 +423,7 @@ export default function App() {
         {/* Tab 6: Famille - Family Protection Dashboard (Phase 5A) */}
         <TabPanel tabId="famille" activeTab={activeTab}>
           <Suspense fallback={<LoadingPlaceholder />}>
-            {/* Show Guardian Angel mode if user is a family caregiver */}
-            {familyData?.currentUserRole === 'family' && (
-              <GuardianAngelPanel
-                members={familyData?.members || []}
-                onAnalyzeMessage={() => setActiveTab('verifier')}
-                onReportScam={() => setActiveTab('signaler')}
-              />
-            )}
-            {/* Show Family Dashboard for all roles */}
-            <FamilyDashboard
-              onAnalyzeMessage={() => setActiveTab('verifier')}
-              onReportScam={() => setActiveTab('signaler')}
-            />
+            <FamilyDashboard />
           </Suspense>
         </TabPanel>
 

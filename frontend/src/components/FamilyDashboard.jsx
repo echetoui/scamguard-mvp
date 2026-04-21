@@ -12,27 +12,78 @@
  *  ✅ Automne Québécois design system
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert, Badge } from '@/design-system';
 import { getAuthToken } from '../utils/authStorage';
-import useFamilyDashboard from '../hooks/useFamilyDashboard';
-import GuardianAngelPanel from './GuardianAngelPanel';
 import './FamilyDashboard.css';
 
-export default function FamilyDashboard({ onAnalyzeMessage, onReportScam }) {
-  const { familyData, loading, error } = useFamilyDashboard();
+export default function FamilyDashboard() {
+  const [familyData, setFamilyData] = useState({
+    familyName: 'Ma Famille',
+    members: [],
+    threats: [],
+    inviteCode: ''
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinError, setJoinError] = useState('');
   const [joinSuccess, setJoinSuccess] = useState(false);
-  const [mode, setMode] = useState('join'); // 'join' or 'create'
-  const [createName, setCreateName] = useState('');
-  const [createLoading, setCreateLoading] = useState(false);
-  const [createError, setCreateError] = useState('');
-  const [createSuccess, setCreateSuccess] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+  const API_URL = 'http://localhost:3001/api/v1';
+
+  useEffect(() => {
+    const fetchFamilyData = async () => {
+      try {
+        setLoading(true);
+        const token = getAuthToken();
+
+        if (!token) {
+          setError('Authentification requise');
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/family/dashboard`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            // User doesn't have a family
+            setFamilyData({
+              familyName: '',
+              members: [],
+              threats: [],
+              inviteCode: ''
+            });
+            return;
+          }
+          throw new Error(`Erreur ${response.status}`);
+        }
+
+        const data = await response.json();
+        setFamilyData({
+          familyName: data.data?.familyName || 'Ma Famille',
+          members: data.data?.members || [],
+          threats: data.data?.threats || [],
+          inviteCode: data.data?.inviteCode || ''
+        });
+      } catch (err) {
+        setError('Impossible de charger les données familiales');
+        console.error('Family dashboard error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFamilyData();
+  }, [API_URL]);
 
   const handleCopyInviteCode = () => {
     if (familyData.inviteCode) {
@@ -63,34 +114,6 @@ export default function FamilyDashboard({ onAnalyzeMessage, onReportScam }) {
       setJoinError('Code invalide ou expiré. Vérifiez avec votre proche.');
     } finally {
       setJoinLoading(false);
-    }
-  };
-
-  const handleCreateFamily = async () => {
-    setCreateLoading(true);
-    setCreateError('');
-    try {
-      const token = getAuthToken();
-      const response = await fetch(`${API_URL}/family/create`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ familyName: createName || 'Ma Famille' }),
-      });
-      if (!response.ok) {
-        const data = await response.json();
-        if (response.status === 400 && data.error?.code === 'ALREADY_IN_FAMILY') {
-          setCreateError('Vous êtes déjà membre d\'une famille');
-        } else {
-          setCreateError('Erreur lors de la création de la famille');
-        }
-        return;
-      }
-      setCreateSuccess(true);
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (err) {
-      setCreateError('Erreur lors de la création. Vérifiez votre connexion.');
-    } finally {
-      setCreateLoading(false);
     }
   };
 
@@ -152,87 +175,37 @@ export default function FamilyDashboard({ onAnalyzeMessage, onReportScam }) {
     );
   }
 
-  if (!familyData || (!familyData.familyName && familyData.members.length === 0)) {
+  if (!familyData.familyName && familyData.members.length === 0) {
     return (
       <div className="family-dashboard">
         <div className="container">
           <div className="join-family-section">
             <div className="empty-icon">👨‍👩‍👧‍👦</div>
-            <h2>Groupe Familial</h2>
+            <h2>Rejoindre une famille</h2>
             <p>Vous n'avez pas encore de groupe familial.</p>
-
-            {/* Mode Toggle */}
-            <div className="family-mode-toggle">
+            <p className="hint">Demandez le code d'invitation à votre proche aidant.</p>
+            <div className="join-code-form">
+              <label htmlFor="join-code-input">Code d'invitation (6 caractères) :</label>
+              <input
+                id="join-code-input"
+                type="text"
+                value={joinCode}
+                onChange={e => setJoinCode(e.target.value.toUpperCase().slice(0, 6))}
+                placeholder="Ex: ABC123"
+                className="join-code-input"
+                maxLength={6}
+                disabled={joinLoading || joinSuccess}
+                aria-label="Entrez le code d'invitation de 6 caractères"
+              />
               <button
-                className={`mode-btn ${mode === 'join' ? 'active' : ''}`}
-                onClick={() => setMode('join')}
-                aria-label="Mode rejoindre une famille"
+                onClick={handleJoinFamily}
+                className="btn-join"
+                disabled={joinLoading || joinCode.length !== 6 || joinSuccess}
               >
-                🤝 Rejoindre
+                {joinLoading ? '⏳ Connexion...' : joinSuccess ? '✅ Rejoint!' : '🤝 Rejoindre'}
               </button>
-              <button
-                className={`mode-btn ${mode === 'create' ? 'active' : ''}`}
-                onClick={() => setMode('create')}
-                aria-label="Mode créer une famille"
-              >
-                ➕ Créer
-              </button>
+              {joinError && <p className="join-error" role="alert">{joinError}</p>}
             </div>
-
-            {/* Join Family Form */}
-            {mode === 'join' && (
-              <div className="join-code-form">
-                <p className="hint">Demandez le code d'invitation à votre proche aidant.</p>
-                <label htmlFor="join-code-input">Code d'invitation (6 caractères) :</label>
-                <input
-                  id="join-code-input"
-                  type="text"
-                  value={joinCode}
-                  onChange={e => setJoinCode(e.target.value.toUpperCase().slice(0, 6))}
-                  placeholder="Ex: ABC123"
-                  className="join-code-input"
-                  maxLength={6}
-                  disabled={joinLoading || joinSuccess}
-                  aria-label="Entrez le code d'invitation de 6 caractères"
-                />
-                <button
-                  onClick={handleJoinFamily}
-                  className="btn-join"
-                  aria-label={joinLoading ? 'Connexion en cours' : joinSuccess ? 'Famille rejointe' : 'Rejoindre la famille'}
-                  disabled={joinLoading || joinCode.length !== 6 || joinSuccess}
-                >
-                  {joinLoading ? '⏳ Connexion...' : joinSuccess ? '✅ Rejoint!' : '🤝 Rejoindre'}
-                </button>
-                {joinError && <p className="join-error" role="alert">{joinError}</p>}
-              </div>
-            )}
-
-            {/* Create Family Form */}
-            {mode === 'create' && (
-              <div className="create-family-form">
-                <p className="hint">Créez un nouveau groupe familial et invitez vos proches.</p>
-                <label htmlFor="create-name-input">Nom de la famille (optionnel) :</label>
-                <input
-                  id="create-name-input"
-                  type="text"
-                  value={createName}
-                  onChange={e => setCreateName(e.target.value.slice(0, 50))}
-                  placeholder="Ex: Famille Tremblay"
-                  className="create-name-input"
-                  maxLength={50}
-                  disabled={createLoading || createSuccess}
-                  aria-label="Entrez le nom de votre famille"
-                />
-                <button
-                  onClick={handleCreateFamily}
-                  className="btn-create"
-                  disabled={createLoading || createSuccess}
-                >
-                  {createLoading ? '⏳ Création...' : createSuccess ? '✅ Créée!' : '➕ Créer'}
-                </button>
-                {createError && <p className="create-error" role="alert">{createError}</p>}
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -316,15 +289,6 @@ export default function FamilyDashboard({ onAnalyzeMessage, onReportScam }) {
             </div>
           )}
         </div>
-
-        {/* Guardian Angel Panel (for family caregivers) */}
-        {familyData.currentUserRole === 'family' && familyData.members.length > 0 && (
-          <GuardianAngelPanel
-            members={familyData.members}
-            onAnalyzeMessage={onAnalyzeMessage || (() => {})}
-            onReportScam={onReportScam || (() => {})}
-          />
-        )}
 
         {/* Recent Threats Section */}
         {familyData.threats && familyData.threats.length > 0 && (
