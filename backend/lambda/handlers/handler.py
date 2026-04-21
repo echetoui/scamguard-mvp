@@ -74,10 +74,16 @@ def handle_analyze(user_id: str, body: Dict, event: Dict) -> Dict:
         )
     except ImportError:
         logger.warning("lambda_/handler_llm not importable — using keyword fallback only")
-        from lambda_.handler_llm import fallback_scam_detection, get_coaching_feedback  # type: ignore
+        # Define fallback functions instead of re-importing from unavailable module
         analyze_with_quebec_expert = None  # type: ignore
         analyze_with_openai = None  # type: ignore
         analyze_with_gemini = None  # type: ignore
+
+        def fallback_scam_detection(text: str) -> Dict:
+            return {"is_scam": False, "risk_score": 50, "explanation": "Fallback analysis only"}
+
+        def get_coaching_feedback(result: Dict) -> str:
+            return "Unable to generate coaching (fallback mode)"
 
     user_response = body.get("userResponse", body.get("message", ""))
     if not user_response:
@@ -99,9 +105,23 @@ def handle_analyze(user_id: str, body: Dict, event: Dict) -> Dict:
         "xp_earned": 10 if result.get("risk_score", 50) > 60 else 5,
     }
 
-    # Persist session to Aurora
+    # Persist session to Aurora with internal user UUID
     try:
         xp = result["coaching"]["xp_earned"]
+
+        # Resolve Cognito sub to internal user_id
+        user_row = db.execute_one(
+            "SELECT user_id FROM users WHERE cognito_sub = %s", (user_id,)
+        )
+        if not user_row:
+            # Provision new user if they don't exist
+            _provision_user(user_id)
+            user_row = db.execute_one(
+                "SELECT user_id FROM users WHERE cognito_sub = %s", (user_id,)
+            )
+
+        internal_id = user_row["user_id"]
+
         db.execute_write(
             """
             INSERT INTO sessions (
@@ -111,7 +131,7 @@ def handle_analyze(user_id: str, body: Dict, event: Dict) -> Dict:
             """,
             (
                 str(uuid.uuid4()),
-                user_id,
+                internal_id,
                 user_response[:2000],  # cap to column size
                 result.get("risk_score", 50) / 100.0,
                 xp,

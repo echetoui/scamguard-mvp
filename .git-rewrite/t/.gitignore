@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+
+# CDK
+cdk.out/
+.cdk.staging/
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# AWS
+.aws-sam/
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lambda deployment packages
+backend/lambda_code.zip
+/lambda_code.zip
+
+# Local IDE and tools
+.claude/
+skills-lock.json
+
+# Test results (use CI/CD artifacts instead)
+frontend/test-results/
+*.zip
+backend/.env.local

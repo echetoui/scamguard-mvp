@@ -5,9 +5,11 @@
 
 import { getAuthToken, getRefreshToken, setAuth, clearAuth } from '../utils/authStorage';
 
-// Development uses localhost, production uses AWS
-// import.meta.env.DEV is true when running `npm start` (dev server)
-const API_BASE_URL = 'http://localhost:3001/api/v1';
+// Configuration-driven API base URL
+// Falls back to localhost for development, but respects VITE_API_BASE_URL env var for staging/prod
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (
+  import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1'
+);
 
 /**
  * Attempt to refresh the JWT token using refresh_token

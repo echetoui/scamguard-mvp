@@ -1,0 +1,36 @@
+{
+  "name": "scamguard-backend-dev",
+  "version": "1.0.0",
+  "description": "ScamGuard Backend - Development Server",
+  "main": "dev-server.js",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "start": "node dev-server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "ajv": "^8.11.0",
+    "ajv-formats": "^2.1.1",
+    "aws-sdk": "^2.1600.0",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "isomorphic-dompurify": "^1.11.0",
+    "on-finished": "^2.4.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
+  },
+  "keywords": [
+    "scamguard",
+    "backend",
+    "dev-server"
+  ],
+  "author": "",
+  "license": "MIT"
+}

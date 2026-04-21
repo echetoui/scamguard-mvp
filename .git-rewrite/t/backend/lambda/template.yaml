@@ -1,0 +1,665 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  ScamGuard MVP - Serverless Architecture (Phase 1 Day 4)
+  Lambda + API Gateway + Cognito + Aurora Serverless v2
+  Migration target: replaces Express.js dev-server.js + DynamoDB
+  DO NOT deploy to production — dev account only until Phase 5.
+
+# ============================================================================
+# Parameters
+# ============================================================================
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+    Description: Deployment environment
+
+  AuroraClusterArn:
+    Type: String
+    Description: >
+      ARN of the Aurora Serverless v2 cluster.
+      Exported by AuroraStack as ScamGuard-Dev-ClusterArn.
+    Default: 'arn:aws:rds:us-east-1:034362029181:cluster:scamguard-dev'
+
+  AuroraSecretArn:
+    Type: String
+    Description: >
+      Secrets Manager ARN for Aurora DB credentials.
+      Exported by AuroraStack as ScamGuard-Dev-SecretArn.
+    Default: 'arn:aws:secretsmanager:us-east-1:034362029181:secret:scamguard/dev/aurora-credentials-8ScMGe'
+
+  AuroraDatabaseName:
+    Type: String
+    Default: scamguard
+    Description: PostgreSQL database name
+
+  CognitoUserPoolArn:
+    Type: String
+    Description: >
+      Cognito User Pool ARN for JWT authorizer.
+      Retrieve from existing ScamGuard SAM stack output: ScamGuard-UserPoolId-<env>
+    Default: ''
+
+  OpenAIApiKeyParam:
+    Type: String
+    Default: /scamguard/openai-key
+    Description: SSM Parameter Store path for OpenAI key
+
+  GeminiApiKeyParam:
+    Type: String
+    Default: /scamguard/gemini-key
+    Description: SSM Parameter Store path for Gemini key
+
+  LambdaSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: >
+      Security group ID for Lambda VPC attachment.
+      Exported by AuroraStack as ScamGuard-Dev-LambdaSecurityGroupId.
+    Default: 'sg-05fea520e656efe48'
+
+  PrivateSubnetIds:
+    Type: CommaDelimitedList
+    Description: >
+      Private (with-egress) subnet IDs from the Aurora VPC.
+      Lambda functions must be in PRIVATE_WITH_EGRESS subnets (not isolated)
+      so they can reach Secrets Manager, SNS, and Cognito via the NAT gateway.
+    Default: 'subnet-0d56c53f3df6b63ef,subnet-08180ec5b138ad32f'
+
+# ============================================================================
+# Globals — applied to all Lambda functions unless overridden
+# ============================================================================
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [x86_64]
+    Timeout: 60
+    MemorySize: 1536  # Higher memory = faster cold start (target <300ms)
+    Tracing: Active    # X-Ray distributed tracing
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        AURORA_CLUSTER_ARN: !Ref AuroraClusterArn
+        AURORA_SECRET_ARN: !Ref AuroraSecretArn
+        AURORA_DATABASE: !Ref AuroraDatabaseName
+        OPENAI_PARAM: !Ref OpenAIApiKeyParam
+        GEMINI_PARAM: !Ref GeminiApiKeyParam
+
+# ============================================================================
+# Resources
+# ============================================================================
+Resources:
+
+  # --------------------------------------------------------------------------
+  # API Gateway — HTTP v2 (lower cost than REST, supports JWT natively)
+  # --------------------------------------------------------------------------
+  ScamGuardApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      # HTTP v2 API: use $default stage so the URL has no stage prefix.
+      # With a named stage like "dev", API GW includes the stage name in
+      # $request.path used for route matching, causing all routes to 404.
+      # $default stage gives: https://id.execute-api.region.amazonaws.com/path
+      # Named stage gives:    https://id.execute-api.region.amazonaws.com/dev/path
+      # Routes are defined as /api/v1/... so $default is required.
+      StageName: '$default'
+      Description: ScamGuard MVP API (Aurora-backed, replaces Express.js)
+      CorsConfiguration:
+        AllowOrigins:
+          - 'https://scamguard.ca'
+          - 'http://localhost:3000'  # local dev
+        AllowMethods: [GET, POST, PUT, DELETE, OPTIONS]
+        AllowHeaders:
+          - Authorization
+          - Content-Type
+          - X-Amz-Date
+          - X-Api-Key
+        MaxAge: 600
+      Auth:
+        DefaultAuthorizer: CognitoJWTAuthorizer
+        Authorizers:
+          CognitoJWTAuthorizer:
+            # HTTP API JWT authorizer — validates Cognito tokens natively
+            # without a Lambda authorizer function (saves ~100ms per request)
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              Audience:
+                - !Ref ScamGuardUserPoolClient
+              Issuer: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${ScamGuardUserPool}'
+
+  # --------------------------------------------------------------------------
+  # Cognito User Pool (re-uses existing pool config pattern from main template)
+  # This is a new pool scoped to the Aurora-backed stack.
+  # When Aurora migration is complete, merge with existing pool or point
+  # CognitoUserPoolArn parameter at the existing pool instead.
+  # --------------------------------------------------------------------------
+  ScamGuardUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub 'scamguard-aurora-${Environment}'
+      MfaConfiguration: 'OFF'
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+
+  ScamGuardUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref ScamGuardUserPool
+      ClientName: !Sub 'scamguard-aurora-client-${Environment}'
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+  # --------------------------------------------------------------------------
+  # Lambda Layer — shared Python dependencies
+  # psycopg2-binary, aws-lambda-powertools, boto3 (pinned versions)
+  # Build with: pip install -r requirements-layer.txt -t layers/python/
+  # --------------------------------------------------------------------------
+  PythonDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub 'scamguard-aurora-deps-${Environment}'
+      Description: >
+        Python dependencies for Aurora-backed Lambda functions.
+        Includes psycopg2-binary, aws-lambda-powertools.
+      ContentUri: layers/
+      CompatibleRuntimes: [python3.12]
+
+  # --------------------------------------------------------------------------
+  # Main handler — routes all /api/v1/* requests
+  # Replaces: Express.js dev-server.js routes
+  # Business logic: reuses existing agents/ and services/ unchanged
+  # --------------------------------------------------------------------------
+  ScamGuardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-handler-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: handler.lambda_handler
+      Description: >
+        Main ScamGuard request handler. Routes analyze, scenarios, profile,
+        and notification endpoints. Queries Aurora via psycopg2 (replaces DynamoDB).
+      # VpcConfig is required to reach Aurora via psycopg2.
+      # Omit only when using Aurora Data API exclusively.
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Policies:
+        - AWSXRayDaemonWriteAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action:
+                - rds-data:ExecuteStatement
+                - rds-data:BatchExecuteStatement
+                - rds-data:BeginTransaction
+                - rds-data:CommitTransaction
+                - rds-data:RollbackTransaction
+              Resource: !Ref AuroraClusterArn
+            - Effect: Allow
+              Action: [ssm:GetParameter, ssm:GetParameters]
+              Resource:
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAIApiKeyParam}'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${GeminiApiKeyParam}'
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        # Analysis endpoint
+        PostAnalysis:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/analyze
+            Method: POST
+        # Scenario generation
+        PostScenarios:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/scenarios
+            Method: POST
+        # User profile
+        GetProfile:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/profile
+            Method: GET
+        PutProfile:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/profile
+            Method: PUT
+        # Notifications
+        GetNotificationPrefs:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/notifications/preferences
+            Method: GET
+        PutNotificationPrefs:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/notifications/preferences
+            Method: PUT
+        # Analytics summary (Phase 6 ready — SQL aggregation, no DynamoDB scans)
+        GetAnalytics:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/analytics/summary
+            Method: GET
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
+  # AuthHandler — removed in Phase 4.
+  # All auth routes (signup / login / logout / OTP / session) are handled
+  # exclusively by SmsAuthHandler below.  Keeping this block would create
+  # duplicate route registrations that SAM rejects at deploy time.
+  # The SmsAuthHandler includes Cognito signup/login/logout routes as well
+  # as the SMS OTP pre-auth flow, so no functionality is lost.
+  # --------------------------------------------------------------------------
+
+  # --------------------------------------------------------------------------
+  # Threats handler — reads from Aurora (was DynamoDB ThreatsTable)
+  # --------------------------------------------------------------------------
+  ThreatsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-threats-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: threats_handler.lambda_handler
+      Description: Threat feed and matching (Aurora-backed)
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action:
+                - rds-data:ExecuteStatement
+                - rds-data:BatchExecuteStatement
+              Resource: !Ref AuroraClusterArn
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        GetThreats:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/threats
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        GetThreatDetail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/threats/{threat_id}
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        PostThreatsMatch:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/threats/match
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        GetThreatsFeed:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/threats/feed
+            Method: GET
+            Auth:
+              Authorizer: NONE
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
+  # Auth handler — SMS OTP pre-auth + Cognito signup/login
+  # Replaces Express dev-server.js auth routes + DynamoDB lambda_/auth_handler.py
+  # No VPC required: SNS + Cognito + Secrets Manager are all public endpoints.
+  # OTP state stored in Aurora otp_tokens table (5-min TTL rows, cheap).
+  # --------------------------------------------------------------------------
+  SmsAuthHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-sms-auth-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: auth_handler.lambda_handler
+      Description: SMS OTP + Cognito auth (Aurora-backed OTP store)
+      MemorySize: 512
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref ScamGuardUserPool
+          COGNITO_CLIENT_ID: !Ref ScamGuardUserPoolClient
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action: [sns:Publish]
+              Resource: '*'
+              # SNS direct publish to phone number — not topic-based, no ARN available
+            - Effect: Allow
+              Action: [cognito-idp:SignUp, cognito-idp:InitiateAuth,
+                       cognito-idp:ConfirmSignUp, cognito-idp:AdminGetUser,
+                       cognito-idp:ResendConfirmationCode]
+              Resource: !GetAtt ScamGuardUserPool.Arn
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostRequestOtp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/request-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostVerifyOtp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/verify-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostRequestPasswordReset:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/request-password-reset
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostResetPassword:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/reset-password
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostValidateSession:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/validate-session
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostRefreshSession:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/refresh-session
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        # Cognito signup/login override (replaces AuthHandler stubs)
+        PostSignupSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/signup
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostLoginSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/login
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostVerifyEmailSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/verify-email
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostResendCodeSms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/resend-code
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostLogout:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/auth/logout
+            Method: POST
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
+  # Family handler — family group management (Phase 5A)
+  # Replaces Express dev-server.js family routes + DynamoDB lambda_/family_handler.py
+  # Requires Aurora for families + family_members tables.
+  # --------------------------------------------------------------------------
+  FamilyHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-family-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: family_handler.lambda_handler
+      Description: Family group management (Aurora-backed)
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        GetFamilyDashboard:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/family/dashboard
+            Method: GET
+        PostFamilyCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/family/create
+            Method: POST
+        PostFamilyJoin:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/family/join
+            Method: POST
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
+  # Reports + Tools handler
+  # Replaces Express dev-server.js scam-reports + tools routes.
+  # NOTE: multipart file upload is deferred to Phase 4 (pre-signed S3 URLs).
+  # --------------------------------------------------------------------------
+  ReportsToolsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'scamguard-reports-tools-aurora-${Environment}'
+      CodeUri: handlers/
+      Handler: reports_tools_handler.lambda_handler
+      Description: Scam reports submission + email/advisor verification tools (Aurora-backed)
+      VpcConfig:
+        SecurityGroupIds: [!Ref LambdaSecurityGroupId]
+        SubnetIds: !Ref PrivateSubnetIds
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [secretsmanager:GetSecretValue]
+              Resource: !Ref AuroraSecretArn
+            - Effect: Allow
+              Action: [ssm:GetParameter]
+              Resource:
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/scamguard/hibp-key'
+            - Effect: Allow
+              Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostReport:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/reports
+            Method: POST
+        PostLegacyScamReport:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/scam-reports
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostCheckEmail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/tools/check-email
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostCheckAdvisor:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ScamGuardApi
+            Path: /api/v1/tools/check-advisor
+            Method: POST
+            Auth:
+              Authorizer: NONE
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  # --------------------------------------------------------------------------
+  # CloudWatch Log Groups (3-day retention to minimize storage cost)
+  # --------------------------------------------------------------------------
+  MainHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-handler-aurora-${Environment}'
+      RetentionInDays: 3
+
+  ThreatsHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-threats-aurora-${Environment}'
+      RetentionInDays: 3
+
+  SmsAuthHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-sms-auth-aurora-${Environment}'
+      RetentionInDays: 3
+
+  FamilyHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-family-aurora-${Environment}'
+      RetentionInDays: 3
+
+  ReportsToolsHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-reports-tools-aurora-${Environment}'
+      RetentionInDays: 3
+
+  # --------------------------------------------------------------------------
+  # CloudWatch Alarms
+  # --------------------------------------------------------------------------
+  LambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'scamguard-aurora-lambda-errors-${Environment}'
+      AlarmDescription: Lambda function errors (Aurora stack)
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ScamGuardFunction
+
+# ============================================================================
+# Outputs
+# ============================================================================
+Outputs:
+  ApiEndpoint:
+    Description: >
+      HTTP v2 API Gateway endpoint (Aurora-backed).
+      Uses $default stage — no stage prefix in URL.
+      Example: https://<id>.execute-api.us-east-1.amazonaws.com/api/v1/...
+    Value: !Sub 'https://${ScamGuardApi}.execute-api.${AWS::Region}.amazonaws.com'
+    Export:
+      Name: !Sub 'ScamGuard-Aurora-ApiEndpoint-${Environment}'
+
+  UserPoolId:
+    Description: Cognito User Pool ID (Aurora stack)
+    Value: !Ref ScamGuardUserPool
+    Export:
+      Name: !Sub 'ScamGuard-Aurora-UserPoolId-${Environment}'
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref ScamGuardUserPoolClient
+    Export:
+      Name: !Sub 'ScamGuard-Aurora-UserPoolClientId-${Environment}'
+
+  ScamGuardFunctionArn:
+    Description: Main handler Lambda ARN
+    Value: !GetAtt ScamGuardFunction.Arn
+    Export:
+      Name: !Sub 'ScamGuard-Aurora-FunctionArn-${Environment}'
