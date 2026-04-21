@@ -311,7 +311,7 @@ def _provision_user_by_phone(phone: str) -> str:
         """,
         (user_id, now),
     )
-    logger.info("[AUTH] Provisioned new user %s for phone %s", user_id, phone[-4:])
+    logger.info("[AUTH] Provisioned new user %s", user_id)
     return user_id
 
 
