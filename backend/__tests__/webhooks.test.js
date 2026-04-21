@@ -15,7 +15,7 @@ const request = require('supertest');
 const express = require('express');
 const webhookRouter = require('../gateway/webhooks/webhookRouter');
 const { generateWebhookSignature, validateWebhookSignature } = require('../gateway/webhooks/webhookValidator');
-const { queueWebhookEvent, processPendingEvents, getQueueStats, getDeadLetterEvents } = require('../gateway/webhooks/webhookQueue');
+const { queueWebhookEvent, processPendingEvents, getQueueStats, getDeadLetterEvents, resetQueues } = require('../gateway/webhooks/webhookQueue');
 
 describe('Webhook Signature Validation', () => {
   const testPayload = {
@@ -249,7 +249,8 @@ describe('Webhook Router', () => {
 
 describe('Webhook Queue', () => {
   beforeEach(() => {
-    // Clear queues between tests
+    // Clear all in-memory queues so tests don't bleed state from earlier test cases
+    resetQueues();
     jest.clearAllMocks();
   });
 

@@ -160,6 +160,14 @@ function clearDeadLetterQueue() {
   return { cleared: count };
 }
 
+/**
+ * Reset all queues (used in tests to prevent state leaking between test cases)
+ */
+function resetQueues() {
+  eventQueue.length = 0;
+  deadLetterQueue.length = 0;
+}
+
 module.exports = {
   queueWebhookEvent,
   processPendingEvents,
@@ -167,5 +175,6 @@ module.exports = {
   getQueueStats,
   getPendingEvents,
   getDeadLetterEvents,
-  clearDeadLetterQueue
+  clearDeadLetterQueue,
+  resetQueues
 };

@@ -10,11 +10,44 @@ from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
 
-# Initialize AWS clients
-cognito_client = boto3.client("cognito-idp")
-sns_client = boto3.client("sns", region_name=os.environ.get("AWS_REGION", "us-east-1"))
-dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE", "ScamGuardData-dev"))
+# Lazy-initialized AWS clients (to support testing with moto)
+_cognito_client = None
+_sns_client = None
+_dynamodb = None
+_table = None
+
+def get_cognito_client():
+    global _cognito_client
+    if _cognito_client is None:
+        _cognito_client = boto3.client("cognito-idp")
+    return _cognito_client
+
+def get_sns_client():
+    global _sns_client
+    if _sns_client is None:
+        _sns_client = boto3.client("sns", region_name=os.environ.get("AWS_REGION", "us-east-1"))
+    return _sns_client
+
+def get_dynamodb():
+    global _dynamodb
+    if _dynamodb is None:
+        _dynamodb = boto3.resource("dynamodb")
+    return _dynamodb
+
+def get_table():
+    global _table
+    if _table is None:
+        dynamodb = get_dynamodb()
+        _table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE", "ScamGuardData-dev"))
+    return _table
+
+def reset_clients():
+    """Reset all AWS clients. Used for testing."""
+    global _cognito_client, _sns_client, _dynamodb, _table
+    _cognito_client = None
+    _sns_client = None
+    _dynamodb = None
+    _table = None
 
 # Environment variables
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID")
@@ -150,7 +183,7 @@ def post_signup(event, context):
 
         # Attempt to create user in Cognito
         try:
-            response = cognito_client.sign_up(
+            response = get_cognito_client().sign_up(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=email,
                 Password=password,
@@ -176,7 +209,7 @@ def post_signup(event, context):
                 invite_code = generate_invite_code()  # Generate 6-char invite code
 
                 # Create family record
-                table.put_item(
+                get_table().put_item(
                     Item={
                         "PK": f"FAMILY#{family_id}",
                         "SK": "METADATA",
@@ -188,7 +221,7 @@ def post_signup(event, context):
                 )
 
                 # Add creator as family member
-                table.put_item(
+                get_table().put_item(
                     Item={
                         "PK": f"FAMILY#{family_id}",
                         "SK": f"MEMBER#{user_id}",
@@ -204,7 +237,7 @@ def post_signup(event, context):
                 profile_item["family_invite_code"] = invite_code
 
             # Store user profile in DynamoDB
-            table.put_item(Item=profile_item)
+            get_table().put_item(Item=profile_item)
 
             response_data = {
                 "user_id": user_id,
@@ -251,14 +284,14 @@ def post_verify_email(event, context):
 
         # Confirm signup (verify email with code)
         try:
-            cognito_client.confirm_sign_up(
+            get_cognito_client().confirm_sign_up(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=email,
                 ConfirmationCode=code
             )
 
             # Get user from Cognito to get UserSub
-            user_response = cognito_client.admin_get_user(
+            user_response = get_cognito_client().admin_get_user(
                 UserPoolId=COGNITO_USER_POOL_ID,
                 Username=email
             )
@@ -269,7 +302,7 @@ def post_verify_email(event, context):
             )
 
             # Update user profile in DynamoDB
-            table.update_item(
+            get_table().update_item(
                 Key={"PK": f"USER#{user_id}", "SK": "PROFILE"},
                 UpdateExpression="SET #status = :status, email_verified = :true, verified_at = :now",
                 ExpressionAttributeNames={"#status": "status"},
@@ -285,9 +318,9 @@ def post_verify_email(event, context):
                 "message": "Email verified successfully."
             })
 
-        except cognito_client.exceptions.CodeMismatchException:
+        except get_cognito_client().exceptions.CodeMismatchException:
             return error_response(400, "CODE_INVALID", "Verification code is invalid.")
-        except cognito_client.exceptions.ExpiredCodeException:
+        except get_cognito_client().exceptions.ExpiredCodeException:
             return error_response(400, "CODE_EXPIRED", "Verification code has expired.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
@@ -313,7 +346,7 @@ def post_resend_code(event, context):
             return error_response(400, "MISSING_EMAIL", "Email is required.")
 
         try:
-            cognito_client.resend_confirmation_code(
+            get_cognito_client().resend_confirmation_code(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=email
             )
@@ -322,9 +355,9 @@ def post_resend_code(event, context):
                 "message": "Verification code sent to your email. Please check your inbox."
             })
 
-        except cognito_client.exceptions.TooManyRequestsException:
+        except get_cognito_client().exceptions.TooManyRequestsException:
             return error_response(429, "RATE_LIMITED", "Too many requests. Please try again later.")
-        except cognito_client.exceptions.UserNotFoundException:
+        except get_cognito_client().exceptions.UserNotFoundException:
             return error_response(400, "USER_NOT_FOUND", "User with this email not found.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
@@ -354,7 +387,7 @@ def post_login(event, context):
 
         try:
             # Authenticate user
-            auth_response = cognito_client.initiate_auth(
+            auth_response = get_cognito_client().initiate_auth(
                 ClientId=COGNITO_CLIENT_ID,
                 AuthFlow="USER_PASSWORD_AUTH",
                 AuthParameters={
@@ -364,7 +397,7 @@ def post_login(event, context):
             )
 
             # Check if email is verified
-            user_response = cognito_client.admin_get_user(
+            user_response = get_cognito_client().admin_get_user(
                 UserPoolId=COGNITO_USER_POOL_ID,
                 Username=email
             )
@@ -392,9 +425,9 @@ def post_login(event, context):
                 "message": "Login successful."
             })
 
-        except cognito_client.exceptions.NotAuthorizedException:
+        except get_cognito_client().exceptions.NotAuthorizedException:
             return error_response(400, "INVALID_CREDENTIALS", "Invalid email or password.")
-        except cognito_client.exceptions.UserNotFoundException:
+        except get_cognito_client().exceptions.UserNotFoundException:
             return error_response(400, "USER_NOT_FOUND", "User not found.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
@@ -423,7 +456,7 @@ def post_refresh_token(event, context):
 
         try:
             # Use Cognito's initiate_auth with REFRESH_TOKEN_AUTH flow
-            auth_response = cognito_client.initiate_auth(
+            auth_response = get_cognito_client().initiate_auth(
                 ClientId=COGNITO_CLIENT_ID,
                 AuthFlow="REFRESH_TOKEN_AUTH",
                 AuthParameters={
@@ -446,7 +479,7 @@ def post_refresh_token(event, context):
                 "message": "Token refreshed successfully."
             })
 
-        except cognito_client.exceptions.NotAuthorizedException:
+        except get_cognito_client().exceptions.NotAuthorizedException:
             return error_response(401, "INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
@@ -512,7 +545,7 @@ def post_request_sms_otp(event, context):
 
         # Store OTP in DynamoDB with 5-minute TTL
         otp_expiry = int(datetime.utcnow().timestamp()) + 300  # 5 minutes
-        table.put_item(
+        get_table().put_item(
             Item={
                 "PK": f"OTP#{cleaned_phone}",
                 "SK": "VERIFICATION",
@@ -534,7 +567,7 @@ def post_request_sms_otp(event, context):
                 e164_phone = f"+1{cleaned_phone[-10:]}"
                 message = f"Your ScamGuard verification code is: {otp}. This code expires in 5 minutes."
 
-                sns_client.publish(
+                get_sns_client().publish(
                     TopicArn=sns_topic_arn,
                     Subject="ScamGuard Verification Code",
                     Message=message,
@@ -594,7 +627,7 @@ def post_verify_sms_otp(event, context):
 
         # Retrieve OTP from DynamoDB
         try:
-            response = table.get_item(
+            response = get_table().get_item(
                 Key={
                     "PK": f"OTP#{cleaned_phone}",
                     "SK": "VERIFICATION"
@@ -613,18 +646,18 @@ def post_verify_sms_otp(event, context):
         # Check if OTP has expired
         expires_at = otp_item.get("expires_at", 0)
         if int(datetime.utcnow().timestamp()) > expires_at:
-            table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
+            get_table().delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
             return error_response(400, "OTP_EXPIRED", "OTP has expired. Please request a new code.")
 
         # Check if too many attempts (max 3)
         if attempts >= 3:
-            table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
+            get_table().delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
             return error_response(429, "TOO_MANY_ATTEMPTS", "Too many failed attempts. Please request a new code.")
 
         # Verify code (ensure both are strings for comparison)
         if str(stored_code).strip() != str(code).strip():
             # Increment attempts
-            table.update_item(
+            get_table().update_item(
                 Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"},
                 UpdateExpression="SET attempts = attempts + :inc",
                 ExpressionAttributeValues={":inc": 1}
@@ -632,7 +665,7 @@ def post_verify_sms_otp(event, context):
             return error_response(400, "INVALID_OTP", "Incorrect OTP code.")
 
         # OTP is valid - clean up and create/retrieve user
-        table.delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
+        get_table().delete_item(Key={"PK": f"OTP#{cleaned_phone}", "SK": "VERIFICATION"})
 
         # Get or create user profile
         user_id = str(uuid.uuid4())
@@ -640,7 +673,7 @@ def post_verify_sms_otp(event, context):
 
         # Check if phone already has a user
         try:
-            response = table.query(
+            response = get_table().query(
                 IndexName="PhoneIndex" if os.environ.get("PHONE_INDEX", "false") == "true" else None,
                 KeyConditionExpression="phone_number = :phone",
                 ExpressionAttributeValues={":phone": cleaned_phone},
@@ -654,7 +687,7 @@ def post_verify_sms_otp(event, context):
                 profile_key = f"USER#{user_id}"
             else:
                 # New user - create profile
-                table.put_item(
+                get_table().put_item(
                     Item={
                         "PK": profile_key,
                         "SK": "PROFILE",
@@ -667,7 +700,7 @@ def post_verify_sms_otp(event, context):
                 )
         except Exception as e:
             # If phone index doesn't exist, just create new user
-            table.put_item(
+            get_table().put_item(
                 Item={
                     "PK": profile_key,
                     "SK": "PROFILE",

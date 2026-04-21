@@ -52,13 +52,23 @@ function validateWebhookSignature(payload, signature, timestamp) {
   }
 
   // Generate expected signature
-  const expectedSignature = generateWebhookSignature(payload, timestamp);
+  const expectedBuf = Buffer.from(generateWebhookSignature(payload, timestamp), 'base64');
+
+  // Decode incoming signature — if it's not valid base64 or a different
+  // length the timingSafeEqual call would throw, so handle it explicitly.
+  let sigBuf;
+  try {
+    sigBuf = Buffer.from(signature, 'base64');
+  } catch (_) {
+    return false;
+  }
+
+  if (sigBuf.length !== expectedBuf.length) {
+    return false;
+  }
 
   // Compare signatures using constant-time comparison
-  return crypto.timingSafeEqual(
-    Buffer.from(signature, 'base64'),
-    Buffer.from(expectedSignature, 'base64')
-  );
+  return crypto.timingSafeEqual(sigBuf, expectedBuf);
 }
 
 module.exports = {

@@ -194,7 +194,7 @@ router.get('/events/:eventId', (req, res) => {
  * POST /webhooks/events/:eventId/retry
  * Manually retry processing of a webhook event
  */
-router.post('/webhooks/events/:eventId/retry', async (req, res) => {
+router.post('/events/:eventId/retry', async (req, res) => {
   try {
     const { eventId } = req.params;
     const event = webhookEvents.get(eventId);
@@ -243,7 +243,7 @@ router.post('/webhooks/events/:eventId/retry', async (req, res) => {
  * POST /webhooks/events/:eventId/acknowledge
  * Mark a webhook event as processed
  */
-router.post('/webhooks/events/:eventId/acknowledge', (req, res) => {
+router.post('/events/:eventId/acknowledge', (req, res) => {
   try {
     const { eventId } = req.params;
     const event = webhookEvents.get(eventId);
