@@ -14,7 +14,18 @@
         const params = new URLSearchParams();
         params.set('trace', traceUrl);
         await fetch('contexts?' + params.toString());
-        document.querySelector('iframe').src = new URLSearchParams(location.search).get('r');
+        const rawFrameSrc = new URLSearchParams(location.search).get('r');
+        let safeFrameSrc = 'about:blank';
+        if (rawFrameSrc) {
+          try {
+            const candidate = new URL(rawFrameSrc, location.href);
+            if ((candidate.protocol === 'http:' || candidate.protocol === 'https:') && candidate.origin === location.origin)
+              safeFrameSrc = candidate.toString();
+          } catch (e) {
+            // Keep default safeFrameSrc.
+          }
+        }
+        document.querySelector('iframe').src = safeFrameSrc;
       })();
     </script>
   </body>
