@@ -545,7 +545,7 @@ def post_request_sms_otp(event, context):
                         }
                     }
                 )
-                print(f"[SNS] SMS OTP sent to {e164_phone}")
+                print(f"[SNS] SMS OTP sent to ***{e164_phone[-4:]}")
                 sms_sent = True
             except Exception as sns_error:
                 print(f"[SNS] Error sending SMS: {str(sns_error)}")
@@ -622,7 +622,6 @@ def post_verify_sms_otp(event, context):
             return error_response(429, "TOO_MANY_ATTEMPTS", "Too many failed attempts. Please request a new code.")
 
         # Verify code (ensure both are strings for comparison)
-        print(f"DEBUG SMS OTP: stored='{stored_code}' (type={type(stored_code).__name__}), input='{code}' (type={type(code).__name__}), cleaned_phone='{cleaned_phone}'")
         if str(stored_code).strip() != str(code).strip():
             # Increment attempts
             table.update_item(

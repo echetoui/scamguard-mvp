@@ -19,7 +19,7 @@ Go to your repository's **Settings → Webhooks → Add webhook** and enter:
 |-------|-------|
 | **Payload URL** | `https://q83a9xbdxj.execute-api.us-east-1.amazonaws.com/prod/webhook/github` |
 | **Content type** | `application/json` |
-| **Secret** | `oV-cMwpK8Ee-R_IEx1wkPtqIRA92GNl8UaPW9QKV89k` |
+| **Secret** | [stored in AWS Secrets Manager: `scamguard/github-webhook-secret`] |
 | **Which events?** | ✅ Pull requests<br>✅ Issues |
 | **Active** | ✅ Checked |
 

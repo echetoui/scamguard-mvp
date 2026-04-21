@@ -3,7 +3,7 @@
 ## Credentials Fournis ✅
 - **Project ID:** scamguard-c3e04
 - **Project Number:** 621907828918
-- **API Key:** BJ7nqu0Hg7XuR-6riO06tCfzy7JjSpmmjqhjHEgzeGv1Elryv_Gqg6z_1EMQuW0wtQPRMlOE7bBR4JYeXiVCt_k
+- **API Key:** [redacted — store in AWS Secrets Manager or environment variable]
 
 ## Étapes à Faire dans Firebase Console
 
@@ -28,7 +28,7 @@ Exemple:
 
 **Option A - Local Development (.env):**
 ```bash
-export FIREBASE_API_KEY="BJ7nqu0Hg7XuR-6riO06tCfzy7JjSpmmjqhjHEgzeGv1Elryv_Gqg6z_1EMQuW0wtQPRMlOE7bBR4JYeXiVCt_k"
+export FIREBASE_API_KEY="<your-firebase-api-key>"
 export FIREBASE_PROJECT_ID="scamguard-c3e04"
 ```
 
@@ -37,7 +37,7 @@ export FIREBASE_PROJECT_ID="scamguard-c3e04"
 new lambda.Function(this, 'SMSOTPHandler', {
   handler: 'index.request_otp',
   environment: {
-    FIREBASE_API_KEY: 'BJ7nqu0Hg7XuR-6riO06...',
+    FIREBASE_API_KEY: '<your-firebase-api-key>',
     FIREBASE_PROJECT_ID: 'scamguard-c3e04',
   }
 });
