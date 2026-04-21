@@ -938,14 +938,14 @@ app.get('/api/v1/auth/security-status', (req, res) => {
 // Helper: Extract userId from Bearer token
 function extractUserIdFromToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return 'dev-user-' + Math.random().toString(36).substr(2, 9);
+    return 'dev-user-' + crypto.randomBytes(8).toString('hex');
   }
   try {
     const token = authHeader.substring(7); // Remove "Bearer "
     const payload = JSON.parse(Buffer.from(token, 'base64').toString());
     return payload.userId || 'dev-user';
   } catch {
-    return 'dev-user-' + Math.random().toString(36).substr(2, 9);
+    return 'dev-user-' + crypto.randomBytes(8).toString('hex');
   }
 }
 
