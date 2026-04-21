@@ -22,8 +22,15 @@ def extract_email(event: Dict[str, Any]) -> Optional[str]:
 
 
 def get_request_id(event: Dict[str, Any]) -> str:
-    """Get request ID from Lambda event."""
+    """Get request ID from Lambda event (headers or requestContext)."""
     try:
+        # First check headers for X-Request-ID
+        headers = event.get("headers", {})
+        if isinstance(headers, dict):
+            request_id = headers.get("X-Request-ID") or headers.get("x-request-id")
+            if request_id:
+                return request_id
+        # Fall back to requestContext
         return event.get("requestContext", {}).get("requestId", "unknown")
     except (AttributeError, KeyError, TypeError):
         return "unknown"
