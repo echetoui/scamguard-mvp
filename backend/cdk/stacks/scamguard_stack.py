@@ -10,7 +10,8 @@ class ScamGuardStack(Stack):
             self, "DataTable",
             partition_key=ddb.Attribute(name="pk", type=ddb.AttributeType.STRING),
             sort_key=ddb.Attribute(name="sk", type=ddb.AttributeType.STRING),
-            billing_mode=ddb.BillingMode.PAY_PER_REQUEST
+            billing_mode=ddb.BillingMode.PAY_PER_REQUEST,
+            time_to_live_attribute="ttl"
         )
         
         # OTP Table
