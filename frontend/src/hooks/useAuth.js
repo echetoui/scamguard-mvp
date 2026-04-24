@@ -311,10 +311,84 @@ export default function useAuth() {
   }, []);
 
   /**
+   * Request a password reset link (SEC.4)
+   */
+  const requestPasswordReset = useCallback(async (phone) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await authAPI.requestPasswordReset(phone);
+      return {
+        success: true,
+        message: result.message,
+      };
+    } catch (err) {
+      const errorMsg = err.data?.error?.message || err.message || 'Password reset request failed';
+      setError(errorMsg);
+      return {
+        success: false,
+        error: errorMsg,
+        code: err.data?.error?.code,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * Reset password using a reset token (SEC.4)
+   */
+  const resetPassword = useCallback(async (token, newPassword) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await authAPI.resetPassword(token, newPassword);
+      return {
+        success: true,
+        message: result.message,
+      };
+    } catch (err) {
+      const errorMsg = err.data?.error?.message || err.message || 'Password reset failed';
+      setError(errorMsg);
+      return {
+        success: false,
+        error: errorMsg,
+        code: err.data?.error?.code,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * Validate the current session token (SEC.4)
+   */
+  const validateSession = useCallback(async () => {
+    const auth = getAuth();
+    const sessionToken = auth.session_token;
+
+    if (!sessionToken) {
+      return { valid: false };
+    }
+
+    try {
+      const result = await authAPI.validateSession(sessionToken);
+      return {
+        valid: result.valid,
+        user: result.user,
+      };
+    } catch (err) {
+      return { valid: false };
+    }
+  }, []);
+
+  /**
    * Login with token (SMS OTP or direct token)
    * Used for SMS-based authentication where we get token directly
    */
-  const loginWithToken = useCallback((userInfo, token) => {
+  const loginWithToken = useCallback((userInfo, token, sessionToken) => {
     try {
       // Store token (SMS tokens are base64-encoded JSON, not JWT with 3 parts)
       // For now, treat as simple token storage
@@ -323,6 +397,7 @@ export default function useAuth() {
         access_token: token,
         refresh_token: token,
         expires_in: 3600,
+        ...(sessionToken ? { session_token: sessionToken } : {}),
       });
 
       // Set user info
@@ -365,6 +440,11 @@ export default function useAuth() {
     login,
     loginWithToken,
     logout,
+
+    // SEC.4: Password reset & session management
+    requestPasswordReset,
+    resetPassword,
+    validateSession,
 
     // Utilities
     clearError: () => setError(null),

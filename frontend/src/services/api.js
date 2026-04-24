@@ -189,6 +189,32 @@ export const authAPI = {
     });
     return response.data;
   },
+
+  // SEC.4: Password reset
+  requestPasswordReset: async (phone) => {
+    const response = await apiCall('/auth/request-password-reset', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+    return response.data;
+  },
+
+  resetPassword: async (token, newPassword) => {
+    const response = await apiCall('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, new_password: newPassword }),
+    });
+    return response.data;
+  },
+
+  // SEC.4: Session validation
+  validateSession: async (sessionToken) => {
+    const response = await apiCall('/auth/validate-session', {
+      method: 'POST',
+      body: JSON.stringify({ session_token: sessionToken }),
+    });
+    return response.data;
+  },
 };
 
 /**

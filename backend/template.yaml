@@ -253,6 +253,12 @@ Resources:
       LogGroupName: !Sub '/aws/lambda/scamguard-threats-${Environment}'
       RetentionInDays: 3
 
+  FamilyHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/scamguard-family-${Environment}'
+      RetentionInDays: 3
+
   # ============================================================================
   # Lambda Layer - Python Dependencies
   # ============================================================================
@@ -719,6 +725,75 @@ Resources:
       Layers:
         - !Ref PythonDependenciesLayer
 
+  FamilyHandler:
+    Type: AWS::Serverless::Function
+    DependsOn: FamilyHandlerLogGroup
+    Properties:
+      FunctionName: !Sub 'scamguard-family-${Environment}'
+      CodeUri: lambda_/
+      Handler: family_handler.lambda_handler
+      Runtime: python3.12
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref DataTable
+          ENVIRONMENT: !Ref Environment
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        GetFamilyDashboard:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/family/dashboard
+            Method: GET
+        OptionsFamilyDashboard:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/family/dashboard
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        PostFamilyCreate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/family/create
+            Method: POST
+        OptionsFamilyCreate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/family/create
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        PostFamilyJoin:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/family/join
+            Method: POST
+        OptionsFamilyJoin:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/family/join
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+
   # ============================================================================
   # CloudWatch Monitoring
   # ============================================================================
@@ -861,6 +936,12 @@ Outputs:
     Value: !GetAtt SMSOTPHandler.Arn
     Export:
       Name: !Sub 'ScamGuard-SMSOTPHandlerArn-${Environment}'
+
+  FamilyHandlerArn:
+    Description: Family Handler Lambda Function ARN
+    Value: !GetAtt FamilyHandler.Arn
+    Export:
+      Name: !Sub 'ScamGuard-FamilyHandlerArn-${Environment}'
 
   ArtifactsBucketName:
     Description: S3 Bucket for artifacts and backups
