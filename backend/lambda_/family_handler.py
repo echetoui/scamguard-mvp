@@ -215,7 +215,7 @@ def create_family(event, context):
     try:
         # Get user profile
         user_profile = get_user_profile(user_id)
-        if not user_profile:
+        if not user_profile.get("PK"):
             return error_response(404, "USER_NOT_FOUND", "User profile not found")
 
         # Check if user already has a family
@@ -299,7 +299,7 @@ def join_family(event, context):
     try:
         # Get user profile to retrieve email
         user_profile = get_user_profile(user_id)
-        if not user_profile:
+        if not user_profile.get("PK"):
             return error_response(404, "USER_NOT_FOUND", "User profile not found")
 
         user_email = user_profile.get("email", "unknown")
