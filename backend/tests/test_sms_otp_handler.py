@@ -107,9 +107,9 @@ class TestOTPGeneration:
 class TestRequestOTP:
     """Test POST /auth/request-sms-otp endpoint"""
 
-    @patch('sms_otp_handler.dynamodb')
-    @patch('sms_otp_handler.cognito_client')
-    @patch('sms_otp_handler.pinpoint_client')
+    @patch('lambda_.sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.cognito_client')
+    @patch('lambda_.sms_otp_handler.pinpoint_client')
     def test_request_otp_success(self, mock_pinpoint, mock_cognito, mock_dynamodb):
         """Test successful OTP request"""
         # Mock DynamoDB
@@ -152,7 +152,7 @@ class TestRequestOTP:
         # Assert DynamoDB was called (once for OTP, once for audit log)
         assert mock_table.put_item.call_count == 2
 
-    @patch('sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.dynamodb')
     def test_request_otp_missing_fields(self, mock_dynamodb):
         """Test OTP request with missing fields"""
         event = {
@@ -167,7 +167,7 @@ class TestRequestOTP:
         body = json.loads(response["body"])
         assert body["error"]["code"] == "MISSING_FIELDS"
 
-    @patch('sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.dynamodb')
     def test_request_otp_invalid_phone(self, mock_dynamodb):
         """Test OTP request with invalid phone"""
         mock_table = MagicMock()
@@ -197,8 +197,8 @@ class TestRequestOTP:
 class TestVerifyOTP:
     """Test POST /auth/verify-sms-otp endpoint"""
 
-    @patch('sms_otp_handler.dynamodb')
-    @patch('sms_otp_handler.cognito_client')
+    @patch('lambda_.sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.cognito_client')
     def test_verify_otp_success(self, mock_cognito, mock_dynamodb):
         """Test successful OTP verification"""
         # Mock DynamoDB
@@ -252,7 +252,7 @@ class TestVerifyOTP:
         assert body["data"]["status"] == "VERIFIED"
         assert body["data"]["id_token"] == "id-token-123"
 
-    @patch('sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.dynamodb')
     def test_verify_otp_wrong_code(self, mock_dynamodb):
         """Test verification with wrong code"""
         mock_table = MagicMock()
@@ -287,7 +287,7 @@ class TestVerifyOTP:
         body = json.loads(response["body"])
         assert body["error"]["code"] == "WRONG_CODE"
 
-    @patch('sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.dynamodb')
     def test_verify_otp_expired(self, mock_dynamodb):
         """Test verification with expired OTP"""
         mock_table = MagicMock()
@@ -322,7 +322,7 @@ class TestVerifyOTP:
         body = json.loads(response["body"])
         assert body["error"]["code"] == "OTP_EXPIRED"
 
-    @patch('sms_otp_handler.dynamodb')
+    @patch('lambda_.sms_otp_handler.dynamodb')
     def test_verify_otp_rate_limiting(self, mock_dynamodb):
         """Test rate limiting after 3 failed attempts"""
         mock_table = MagicMock()
@@ -398,7 +398,7 @@ class TestResponseFormatting:
 class TestLambdaHandlerRouting:
     """Test lambda_handler request routing"""
 
-    @patch('sms_otp_handler.request_otp')
+    @patch('lambda_.sms_otp_handler.request_otp')
     def test_route_request_otp(self, mock_request_otp):
         """Test routing to request_otp"""
         mock_request_otp.return_value = {"statusCode": 200}
@@ -412,7 +412,7 @@ class TestLambdaHandlerRouting:
 
         mock_request_otp.assert_called_once()
 
-    @patch('sms_otp_handler.verify_otp')
+    @patch('lambda_.sms_otp_handler.verify_otp')
     def test_route_verify_otp(self, mock_verify_otp):
         """Test routing to verify_otp"""
         mock_verify_otp.return_value = {"statusCode": 200}
