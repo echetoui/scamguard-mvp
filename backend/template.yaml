@@ -435,32 +435,118 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  AuthHandler:
-    Type: AWS::Serverless::Function
-    DependsOn: AuthHandlerLogGroup
+  # AuthHandler (DynamoDB-backed) retired — routes migrated to SMSOTPHandler (Aurora)
+  # Legacy code kept in lambda_/_legacy/auth_handler.py for reference
+
+  VerifyOTPHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
-      FunctionName: !Sub 'scamguard-auth-${Environment}'
-      CodeUri: lambda_/
-      Handler: auth_handler.lambda_handler
+      LogGroupName: !Sub '/aws/lambda/scamguard-verify-otp-${Environment}'
+      RetentionInDays: 3
+
+  VerifyOTPHandler:
+    Type: AWS::Serverless::Function
+    DependsOn: VerifyOTPHandlerLogGroup
+    Properties:
+      FunctionName: !Sub 'scamguard-verify-otp-${Environment}'
+      CodeUri: lambda_/handlers/
+      Handler: verify_otp_handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
       Timeout: 30
       Environment:
         Variables:
-          COGNITO_USER_POOL_ID: !Ref UserPool
-          COGNITO_CLIENT_ID: !Ref UserPoolClient
-          DYNAMODB_TABLE: !Ref DataTable
-          SNS_TOPIC_ARN: !Ref SNSTopic
-          AWS_REGION: !Ref AWS::Region
+          AURORA_SECRET_ARN: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}'
+          AURORA_DATABASE: scamguard
+          ENVIRONMENT: !Ref Environment
+          JWT_SECRET_PARAM: !Sub '/scamguard/jwt-secret-${Environment}'
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref DataTable
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
-                - cognito-idp:*
+                - secretsmanager:GetSecretValue
+              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}*'
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/scamguard/jwt-secret-${Environment}'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+      Events:
+        PostVerifyOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsVerifyOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-otp
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+        PostVerifySmsOtpAlias:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsVerifySmsOtpAlias:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/verify-sms-otp
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
+      Layers:
+        - !Ref PythonDependenciesLayer
+
+  SMSOTPHandler:
+    Type: AWS::Serverless::Function
+    DependsOn: SMSOTPHandlerLogGroup
+    Properties:
+      FunctionName: !Sub 'scamguard-sms-otp-${Environment}'
+      # Aurora-backed auth handler (request-sms-otp + all signup/login routes)
+      CodeUri: lambda_/handlers/
+      Handler: auth_handler.lambda_handler
+      Runtime: python3.12
+      MemorySize: 512
+      Timeout: 60
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref UserPool
+          COGNITO_CLIENT_ID: !Ref UserPoolClient
+          AURORA_SECRET_ARN: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}'
+          AURORA_DATABASE: scamguard
+          ENVIRONMENT: !Ref Environment
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:SignUp
+                - cognito-idp:AdminConfirmSignUp
+                - cognito-idp:InitiateAuth
+                - cognito-idp:AdminGetUser
+                - cognito-idp:ConfirmSignUp
+                - cognito-idp:ResendConfirmationCode
               Resource: !GetAtt UserPool.Arn
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}*'
             - Effect: Allow
               Action:
                 - sns:Publish
@@ -472,6 +558,22 @@ Resources:
                 - logs:PutLogEvents
               Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
       Events:
+        PostRequestSmsOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/request-sms-otp
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        OptionsRequestSmsOtp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/request-sms-otp
+            Method: OPTIONS
+            Auth:
+              Authorizer: NONE
         PostSignup:
           Type: Api
           Properties:
@@ -550,79 +652,36 @@ Resources:
             Method: OPTIONS
             Auth:
               Authorizer: NONE
-
-  SMSOTPHandler:
-    Type: AWS::Serverless::Function
-    DependsOn: SMSOTPHandlerLogGroup
-    Properties:
-      FunctionName: !Sub 'scamguard-sms-otp-${Environment}'
-      CodeUri: lambda_/
-      Handler: sms_otp_handler.lambda_handler
-      Runtime: python3.12
-      MemorySize: 512
-      Timeout: 60
-      Environment:
-        Variables:
-          COGNITO_USER_POOL_ID: !Ref UserPool
-          COGNITO_CLIENT_ID: !Ref UserPoolClient
-          OTP_TABLE: !Ref OTPTable
-          AUDIT_TABLE: !Ref AuditTable
-          PINPOINT_PROJECT_ID: !Ref PinpointProjectId
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref OTPTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - cognito-idp:SignUp
-                - cognito-idp:AdminConfirmSignUp
-                - cognito-idp:InitiateAuth
-                - cognito-idp:AdminGetUser
-              Resource: !GetAtt UserPool.Arn
-            - Effect: Allow
-              Action:
-                - pinpoint:SendMessages
-              Resource: !Sub 'arn:aws:pinpoint:${AWS::Region}:${AWS::AccountId}:app/${PinpointProjectId}'
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-      Events:
-        PostRequestSmsOtp:
+        PostValidateSession:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /api/v1/auth/request-sms-otp
+            Path: /api/v1/auth/validate-session
             Method: POST
             Auth:
               Authorizer: NONE
-        OptionsRequestSmsOtp:
+        PostRefreshSession:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /api/v1/auth/request-sms-otp
-            Method: OPTIONS
-            Auth:
-              Authorizer: NONE
-        PostVerifySmsOtp:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /api/v1/auth/verify-sms-otp
+            Path: /api/v1/auth/refresh-session
             Method: POST
             Auth:
               Authorizer: NONE
-        OptionsVerifySmsOtp:
+        PostRequestPasswordReset:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /api/v1/auth/verify-sms-otp
-            Method: OPTIONS
+            Path: /api/v1/auth/request-password-reset
+            Method: POST
+            Auth:
+              Authorizer: NONE
+        PostResetPassword:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /api/v1/auth/reset-password
+            Method: POST
             Auth:
               Authorizer: NONE
       Layers:
@@ -633,24 +692,25 @@ Resources:
     DependsOn: ThreatsHandlerLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-threats-${Environment}'
-      CodeUri: lambda_/
+      # Aurora-backed threats handler
+      CodeUri: lambda_/handlers/
       Handler: threats_handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
       Timeout: 60
       Environment:
         Variables:
-          THREATS_TABLE: !Ref ThreatsTable
-          USER_THREATS_TABLE: !Ref ThreatInteractionsTable
+          AURORA_SECRET_ARN: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}'
+          AURORA_DATABASE: scamguard
           ENVIRONMENT: !Ref Environment
           ALLOWED_ORIGIN: '*'
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ThreatsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ThreatInteractionsTable
         - Version: '2012-10-17'
           Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}*'
             - Effect: Allow
               Action:
                 - logs:CreateLogGroup
@@ -730,20 +790,24 @@ Resources:
     DependsOn: FamilyHandlerLogGroup
     Properties:
       FunctionName: !Sub 'scamguard-family-${Environment}'
-      CodeUri: lambda_/
+      # Aurora-backed family handler
+      CodeUri: lambda_/handlers/
       Handler: family_handler.lambda_handler
       Runtime: python3.12
       MemorySize: 512
       Timeout: 30
       Environment:
         Variables:
-          DYNAMODB_TABLE: !Ref DataTable
+          AURORA_SECRET_ARN: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}'
+          AURORA_DATABASE: scamguard
           ENVIRONMENT: !Ref Environment
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref DataTable
         - Version: '2012-10-17'
           Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:scamguard-aurora-${Environment}*'
             - Effect: Allow
               Action:
                 - logs:CreateLogGroup
@@ -926,16 +990,22 @@ Outputs:
       Name: !Sub 'ScamGuard-FunctionArn-${Environment}'
 
   AuthHandlerArn:
-    Description: Auth Handler Lambda Function ARN
-    Value: !GetAtt AuthHandler.Arn
+    Description: Aurora Auth Handler Lambda Function ARN (formerly DynamoDB AuthHandler)
+    Value: !GetAtt SMSOTPHandler.Arn
     Export:
       Name: !Sub 'ScamGuard-AuthHandlerArn-${Environment}'
 
   SMSOTPHandlerArn:
-    Description: SMS OTP Handler Lambda Function ARN
+    Description: SMS OTP + Auth Handler Lambda Function ARN (Aurora-backed)
     Value: !GetAtt SMSOTPHandler.Arn
     Export:
       Name: !Sub 'ScamGuard-SMSOTPHandlerArn-${Environment}'
+
+  VerifyOTPHandlerArn:
+    Description: Verify OTP Handler Lambda Function ARN (family JWT issuance)
+    Value: !GetAtt VerifyOTPHandler.Arn
+    Export:
+      Name: !Sub 'ScamGuard-VerifyOTPHandlerArn-${Environment}'
 
   FamilyHandlerArn:
     Description: Family Handler Lambda Function ARN
