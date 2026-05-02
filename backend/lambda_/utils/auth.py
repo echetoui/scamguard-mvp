@@ -1,5 +1,6 @@
 """Authentication and authorization utilities."""
 
+import uuid
 from typing import Dict, Any, Optional
 
 
@@ -22,7 +23,7 @@ def extract_email(event: Dict[str, Any]) -> Optional[str]:
 
 
 def get_request_id(event: Dict[str, Any]) -> str:
-    """Get request ID from Lambda event (headers or requestContext)."""
+    """Get request ID from Lambda event (headers or requestContext), or generate one."""
     try:
         # First check headers for X-Request-ID
         headers = event.get("headers", {})
@@ -31,9 +32,13 @@ def get_request_id(event: Dict[str, Any]) -> str:
             if request_id:
                 return request_id
         # Fall back to requestContext
-        return event.get("requestContext", {}).get("requestId", "unknown")
+        ctx_id = event.get("requestContext", {}).get("requestId")
+        if ctx_id:
+            return ctx_id
     except (AttributeError, KeyError, TypeError):
-        return "unknown"
+        pass
+    # Generate a request ID if none found
+    return f"req_{uuid.uuid4().hex[:12]}"
 
 
 class PermissionChecker:
@@ -57,3 +62,22 @@ class PermissionChecker:
     def is_authenticated(event: Dict[str, Any]) -> bool:
         """Check if user is authenticated."""
         return extract_user_id(event) is not None
+
+    @staticmethod
+    def can_access_user_data(requesting_user_id: str, target_user_id: str) -> bool:
+        """Check if a user can access another user's data.
+
+        Users can only access their own data.
+        """
+        return requesting_user_id == target_user_id
+
+    @staticmethod
+    def has_permission(user_id: str, resource: str, action: str) -> bool:
+        """Check if a user has permission to perform an action on a resource.
+
+        Default policy: all authenticated users have basic read/write on standard resources.
+        """
+        if not user_id:
+            return False
+        # All authenticated users have basic permissions
+        return True

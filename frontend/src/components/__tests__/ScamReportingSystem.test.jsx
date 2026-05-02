@@ -319,8 +319,10 @@ describe('ScamReportingSystem Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Aperçu de votre image :')).toBeInTheDocument();
-        const img = screen.getByAltText('Aperçu du signalement');
+        const img = screen.getByAltText('Aperçu du signalement : test-screenshot.png');
         expect(img).toBeInTheDocument();
+        expect(img).toHaveAttribute('width', '640');
+        expect(img).toHaveAttribute('height', '360');
       });
 
       vi.restoreAllMocks();

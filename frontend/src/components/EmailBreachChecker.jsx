@@ -77,14 +77,17 @@ export default function EmailBreachChecker() {
               </label>
               <input
                 id="email-input"
+                name="email"
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="exemple@gmail.com"
+                placeholder="exemple@gmail.com…"
                 className="form-input"
                 required
                 aria-required="true"
                 aria-label="Entrez votre adresse courriel"
+                autoComplete="email"
+                spellCheck={false}
               />
             </div>
 
@@ -100,7 +103,7 @@ export default function EmailBreachChecker() {
               disabled={emailLoading || !emailInput.trim()}
               aria-busy={emailLoading}
             >
-              {emailLoading ? '⏳ Vérification...' : '🔍 Vérifier mon courriel'}
+              {emailLoading ? '⏳ Vérification…' : '🔍 Vérifier mon courriel'}
             </button>
           </div>
         </form>

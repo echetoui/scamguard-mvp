@@ -6,17 +6,13 @@ const GuideCard = ({ guide }) => {
 
   return (
     <div className="guide-card">
-      <div
+      <button
+        type="button"
         className="guide-header"
         onClick={() => setExpanded(!expanded)}
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            setExpanded(!expanded);
-          }
-        }}
       >
         <div className="guide-title-section">
           <span className="guide-icon">{guide.icon}</span>
@@ -25,8 +21,8 @@ const GuideCard = ({ guide }) => {
             <p>{guide.description}</p>
           </div>
         </div>
-        <span className={`expand-icon ${expanded ? 'expanded' : ''}`}>▼</span>
-      </div>
+        <span className={`expand-icon ${expanded ? 'expanded' : ''}`} aria-hidden="true">▼</span>
+      </button>
 
       {expanded && (
         <div className="guide-content">

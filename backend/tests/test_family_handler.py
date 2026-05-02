@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import base64
+import importlib
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 import pytest
@@ -33,8 +34,16 @@ class TestFamilyHandler:
                 mock_boto_client.return_value = self.mock_cognito
 
                 # Now import family_handler with mocks active
-                from lambda_ import family_handler
+                # Use importlib to reload the module for each test
+                if 'lambda_.family_handler' in sys.modules:
+                    from lambda_ import family_handler
+                    importlib.reload(family_handler)
+                else:
+                    from lambda_ import family_handler
                 self.handler = family_handler
+
+                # Keep patches active for the entire test via yield
+                yield
 
     def encode_jwt_payload(self, user_id):
         """Helper to encode JWT payload."""
@@ -410,6 +419,14 @@ class TestFamilyHandler:
                     "SK": "METADATA",
                     "familyName": "Test Family",
                     "inviteCode": "XYZ789"
+                }
+            },
+            {
+                "Item": {
+                    "PK": f"FAMILY#{family_id}",
+                    "SK": f"MEMBER#{user_id}",
+                    "role": "family",
+                    "email": "test@example.com"
                 }
             }
         ]

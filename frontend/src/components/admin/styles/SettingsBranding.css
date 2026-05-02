@@ -46,7 +46,7 @@
   font-size: 14px;
   font-weight: 500;
   color: #7f8c8d;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .tab-btn:hover {
@@ -116,7 +116,7 @@
   border-radius: 6px;
   font-size: 14px;
   font-family: inherit;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
 
@@ -212,7 +212,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 }
 
 .preview-button:hover {
@@ -233,7 +233,7 @@
   padding: 16px;
   border-radius: 6px;
   border: 1px solid #ecf0f1;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .template-card:hover {
@@ -268,7 +268,7 @@
   padding: 20px;
   border-radius: 6px;
   border: 1px solid #ecf0f1;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .document-card:hover {

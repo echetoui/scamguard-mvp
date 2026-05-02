@@ -160,7 +160,14 @@ export default function ScamReportingSystem() {
             {formData.screenshot && (
               <div className="image-preview">
                 <p>Aperçu de votre image :</p>
-                <img src={formData.screenshot} alt="Aperçu du signalement" />
+                <img
+                  src={formData.screenshot}
+                  alt={`Aperçu du signalement : ${formData.screenshotName || 'capture ajoutée'}`}
+                  width="640"
+                  height="360"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
             )}
           </section>

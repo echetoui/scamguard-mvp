@@ -34,7 +34,13 @@ from lambda_.auth_handler import post_signup, reset_clients
 # Fixture to reset AWS clients between tests
 @pytest.fixture(autouse=True)
 def reset_aws_clients():
-    """Reset AWS clients before each test to ensure clean state."""
+    """Reset AWS clients before each test to ensure clean state.
+
+    Also re-asserts DYNAMODB_TABLE so that module-level env var writes in other
+    test files (e.g. test_family_handler.py sets ScamGuardData-dev) cannot
+    override the value expected by these integration tests.
+    """
+    os.environ['DYNAMODB_TABLE'] = 'ScamGuardData'
     reset_clients()
     yield
     reset_clients()

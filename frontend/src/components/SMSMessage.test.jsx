@@ -15,7 +15,7 @@ describe('SMSMessage Component', () => {
         sender="+1234567890"
       />
     );
-    expect(screen.getByText('Scam Detected')).toBeInTheDocument();
+    expect(screen.getByText('Arnaque détectée')).toBeInTheDocument();
     expect(screen.getByText(/Verify your account/)).toBeInTheDocument();
   });
 
@@ -27,7 +27,7 @@ describe('SMSMessage Component', () => {
         sender="Dr. Smith's Office"
       />
     );
-    expect(screen.getByText('Legitimate')).toBeInTheDocument();
+    expect(screen.getByText('Légitime')).toBeInTheDocument();
   });
 
   it('renders SMS message with suspicious verdict', () => {
@@ -38,7 +38,7 @@ describe('SMSMessage Component', () => {
         sender="Bank"
       />
     );
-    expect(screen.getByText('Suspicious')).toBeInTheDocument();
+    expect(screen.getByText('Suspect')).toBeInTheDocument();
   });
 
   it('displays sender information when provided', () => {
@@ -59,7 +59,7 @@ describe('SMSMessage Component', () => {
         message="Test message"
       />
     );
-    expect(screen.queryByText(/From:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/De :/)).not.toBeInTheDocument();
   });
 
   it('renders report button when onReport callback provided', () => {
@@ -71,7 +71,7 @@ describe('SMSMessage Component', () => {
         onReport={mockOnReport}
       />
     );
-    const button = screen.getByRole('button', { name: /Report/i });
+    const button = screen.getByRole('button', { name: /Signaler ce message/i });
     expect(button).toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe('SMSMessage Component', () => {
         onReport={mockOnReport}
       />
     );
-    const button = screen.getByRole('button', { name: /Report/i });
+    const button = screen.getByRole('button', { name: /Signaler ce message/i });
     fireEvent.click(button);
     expect(mockOnReport).toHaveBeenCalledOnce();
   });
@@ -105,6 +105,6 @@ describe('SMSMessage Component', () => {
     render(
       <SMSMessage message="Test message" />
     );
-    expect(screen.getByText('Suspicious')).toBeInTheDocument();
+    expect(screen.getByText('Suspect')).toBeInTheDocument();
   });
 });

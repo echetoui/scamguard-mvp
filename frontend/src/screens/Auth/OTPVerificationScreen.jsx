@@ -76,7 +76,12 @@ export default function OTPVerificationScreen({ phoneNumber, onVerifySuccess, er
 
         {/* Code input area */}
         <div style={styles.codeContainer}>
-          <div style={styles.boxesContainer} onClick={handleBoxPress}>
+          <button
+            type="button"
+            style={styles.boxesContainer}
+            onClick={handleBoxPress}
+            aria-label="Saisir le code de vérification"
+          >
             {[...Array(CODE_LENGTH)].map((_, index) => {
               const digit = code[index] || '';
               const isCurrentDigit = index === code.length;
@@ -95,13 +100,17 @@ export default function OTPVerificationScreen({ phoneNumber, onVerifySuccess, er
                 </div>
               );
             })}
-          </div>
+          </button>
 
           {/* Hidden input for keyboard entry and autofill */}
           <input
             ref={inputRef}
+            id="otp-code"
+            name="one-time-code"
             type="text"
             inputMode="numeric"
+            autoComplete="one-time-code"
+            spellCheck={false}
             value={code}
             onChange={(e) => handleCodeChange(e.target.value)}
             maxLength={CODE_LENGTH}
@@ -196,6 +205,9 @@ const styles = {
     paddingLeft: '10px',
     paddingRight: '10px',
     cursor: 'pointer',
+    background: 'transparent',
+    border: 'none',
+    font: 'inherit',
   },
   codeBox: {
     width: '65px',

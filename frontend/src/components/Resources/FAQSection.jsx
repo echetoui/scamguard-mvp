@@ -47,12 +47,14 @@ const FAQSection = memo(() => {
       {/* Search Bar */}
       <div className="faq-search">
         <input
+          name="faq-search"
           type="text"
-          placeholder="Rechercher dans la FAQ..."
+          placeholder="Rechercher dans la FAQ…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
           aria-label="Rechercher dans la FAQ"
+          autoComplete="off"
         />
         <span className="search-icon">🔍</span>
       </div>
@@ -61,30 +63,25 @@ const FAQSection = memo(() => {
       <div className="faq-container">
         {Object.entries(groupedFAQs).map(([category, items]) => (
           <div key={category} className="faq-category">
-            <div
+            <button
+              type="button"
               className="category-header-toggle"
+              role="button"
+              tabIndex={0}
               onClick={() =>
                 setExpandedCategory(
                   expandedCategory === category ? null : category
                 )
               }
-              role="button"
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setExpandedCategory(
-                    expandedCategory === category ? null : category
-                  );
-                }
-              }}
+              aria-expanded={expandedCategory === category}
             >
               <h3 className="category-title">
                 {categoryLabels[category] || category}
               </h3>
-              <span className={`category-toggle ${expandedCategory === category ? 'expanded' : ''}`}>
+              <span className={`category-toggle ${expandedCategory === category ? 'expanded' : ''}`} aria-hidden="true">
                 ▼
               </span>
-            </div>
+            </button>
             {expandedCategory === category && (
               <div className="category-items">
                 {items.map((faq) => (

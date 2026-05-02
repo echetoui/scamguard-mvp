@@ -26,19 +26,19 @@ const SMSMessage = ({
     scam: {
       bgColor: colors.errorContainer,     // #F9DEDC
       borderColor: colors.error,          // #BA1A1A
-      label: 'Scam Detected',
+      label: 'Arnaque détectée',
       icon: '⚠️'
     },
     legitimate: {
       bgColor: colors.secondaryContainer, // #D5EDDC
       borderColor: colors.secondary,      // #1B6B3A
-      label: 'Legitimate',
+      label: 'Légitime',
       icon: '✓'
     },
     suspicious: {
       bgColor: colors.tertiaryContainer,  // #FFDDB8
       borderColor: colors.tertiary,       // #7A5900
-      label: 'Suspicious',
+      label: 'Suspect',
       icon: '?'
     }
   };
@@ -67,7 +67,7 @@ const SMSMessage = ({
 
       {sender && (
         <p className="sms-message__sender">
-          From: <strong>{sender}</strong>
+          De : <strong>{sender}</strong>
         </p>
       )}
 
@@ -79,7 +79,7 @@ const SMSMessage = ({
           onClick={onReport}
           style={{ color: config.borderColor, borderColor: config.borderColor }}
         >
-          Report This Message
+          Signaler ce message
         </button>
       )}
     </div>

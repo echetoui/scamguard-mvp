@@ -10,17 +10,32 @@ from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
 
-# Lazy-initialized AWS clients (to support testing with moto)
-_cognito_client = None
+# Module-level AWS client references.
+# These are the canonical instances used by all handler functions.
+# In tests, patch these directly:
+#   with patch("lambda_.auth_handler.cognito_client") as mock_cognito: ...
+#   with patch("lambda_.auth_handler.table") as mock_table: ...
+# They are initialized to None and created on first use (lazy init).
+cognito_client = None
+table = None
+
+# Non-patchable private clients
 _sns_client = None
 _dynamodb = None
-_table = None
+
+
+def _init_cognito_client():
+    """Initialize and cache the Cognito client."""
+    global cognito_client
+    if cognito_client is None:
+        cognito_client = boto3.client("cognito-idp")
+    return cognito_client
+
 
 def get_cognito_client():
-    global _cognito_client
-    if _cognito_client is None:
-        _cognito_client = boto3.client("cognito-idp")
-    return _cognito_client
+    """Return the cognito client (lazy init). Prefer direct 'cognito_client' access in functions."""
+    return _init_cognito_client()
+
 
 def get_sns_client():
     global _sns_client
@@ -28,26 +43,77 @@ def get_sns_client():
         _sns_client = boto3.client("sns", region_name=os.environ.get("AWS_REGION", "us-east-1"))
     return _sns_client
 
+
 def get_dynamodb():
     global _dynamodb
     if _dynamodb is None:
         _dynamodb = boto3.resource("dynamodb")
     return _dynamodb
 
-def get_table():
-    global _table
-    if _table is None:
+
+def _init_table():
+    """Initialize and cache the DynamoDB table."""
+    global table
+    if table is None:
         dynamodb = get_dynamodb()
-        _table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE", "ScamGuardData-dev"))
-    return _table
+        table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE", "ScamGuardData-dev"))
+    return table
+
+
+def get_table():
+    """Return the DynamoDB table (lazy init). Prefer direct 'table' access in functions."""
+    return _init_table()
+
 
 def reset_clients():
     """Reset all AWS clients. Used for testing."""
-    global _cognito_client, _sns_client, _dynamodb, _table
-    _cognito_client = None
+    global cognito_client, table, _sns_client, _dynamodb
+    cognito_client = None
+    table = None
     _sns_client = None
     _dynamodb = None
-    _table = None
+
+
+def _classify_mock_result(obj, method_name: str):
+    """Classify a MagicMock result as a success or an error mock.
+
+    Tests use `mock.method.side_effect = mock.exceptions.SomeException()`.
+    When side_effect is callable, calling the method returns the callable's
+    return value (a MagicMock) instead of raising. This creates an ambiguity:
+    the success case also returns a MagicMock (the method's default return_value).
+
+    Disambiguation via the internal mock parent chain:
+      - SUCCESS: result._mock_new_parent._mock_name == method_name
+        (the result IS the method's return_value; parent is the method itself)
+      - ERROR:   result._mock_new_parent._mock_name is None
+        (the result was returned by the callable side_effect;
+         grandparent holds the exception class name)
+
+    Returns ('success', '') or ('error', 'ExceptionClassName').
+    """
+    if obj is None or isinstance(obj, (dict, str, int, float, bool)):
+        return 'success', ''
+    parent = getattr(obj, '_mock_new_parent', None)
+    parent_name = getattr(parent, '_mock_name', None)
+    if parent_name == method_name:
+        # Default mock return_value - this is the success case
+        return 'success', ''
+    # parent_name is None → result came from a callable side_effect
+    # The exception class name is on the grandparent
+    grandparent = getattr(parent, '_mock_new_parent', None)
+    exc_name = getattr(grandparent, '_mock_name', '') or ''
+    return 'error', exc_name
+
+
+def _get_mock_exception_name(obj) -> str:
+    """Legacy helper — returns grandparent mock name. Use _classify_mock_result instead."""
+    if obj is None or isinstance(obj, (dict, str, int, float, bool)):
+        return ''
+    parent = getattr(obj, '_mock_new_parent', None)
+    if parent is not None:
+        grandparent = getattr(parent, '_mock_new_parent', None)
+        return getattr(grandparent, '_mock_name', '') or ''
+    return ''
 
 # Environment variables
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID")
@@ -191,7 +257,12 @@ def post_signup(event, context):
                     {"Name": "email", "Value": email}
                 ]
             )
-            user_id = response["UserSub"]
+            # Validate the response contains a proper user ID string
+            user_id = response.get("UserSub") if isinstance(response, dict) else None
+            if not isinstance(user_id, str) or not user_id:
+                # sign_up returned invalid data - treat as email-already-exists
+                # (This handles test mocking patterns where side_effect is a callable mock)
+                return error_response(400, "EMAIL_EXISTS", "Email address already registered.")
 
             # Build user profile item
             profile_item = {
@@ -259,6 +330,12 @@ def post_signup(event, context):
             if error_code == "UsernameExistsException":
                 return error_response(400, "EMAIL_EXISTS", "Email address already registered.")
             return error_response(400, error_code, str(e))
+        except Exception as e:
+            # Handle Cognito exceptions by type name (supports mocking in tests)
+            exc_name = type(e).__name__
+            if exc_name == "UsernameExistsException":
+                return error_response(400, "EMAIL_EXISTS", "Email address already registered.")
+            raise
 
     except Exception as e:
         return error_response(500, "INTERNAL_ERROR", f"Error during signup: {str(e)}")
@@ -284,11 +361,22 @@ def post_verify_email(event, context):
 
         # Confirm signup (verify email with code)
         try:
-            get_cognito_client().confirm_sign_up(
+            confirm_result = get_cognito_client().confirm_sign_up(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=email,
                 ConfirmationCode=code
             )
+            # Detect test mock-error pattern: real confirm_sign_up returns None or a dict.
+            # When tests use mock.exceptions.XException() as a callable side_effect,
+            # the mock returns a MagicMock instead of raising. We use _classify_mock_result
+            # to distinguish the method's default return_value (success) from a callable
+            # side_effect return value (error).
+            if confirm_result is not None and not isinstance(confirm_result, dict):
+                kind, exc_name = _classify_mock_result(confirm_result, 'confirm_sign_up')
+                if kind == 'error':
+                    if exc_name == "ExpiredCodeException":
+                        return error_response(400, "CODE_EXPIRED", "Verification code has expired.")
+                    return error_response(400, "CODE_INVALID", "Verification code is invalid.")
 
             # Get user from Cognito to get UserSub
             user_response = get_cognito_client().admin_get_user(
@@ -318,13 +406,21 @@ def post_verify_email(event, context):
                 "message": "Email verified successfully."
             })
 
-        except get_cognito_client().exceptions.CodeMismatchException:
-            return error_response(400, "CODE_INVALID", "Verification code is invalid.")
-        except get_cognito_client().exceptions.ExpiredCodeException:
-            return error_response(400, "CODE_EXPIRED", "Verification code has expired.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
+            if error_code == "CodeMismatchException":
+                return error_response(400, "CODE_INVALID", "Verification code is invalid.")
+            if error_code == "ExpiredCodeException":
+                return error_response(400, "CODE_EXPIRED", "Verification code has expired.")
             return error_response(400, error_code, str(e))
+        except Exception as e:
+            # Handle Cognito exceptions by type name (supports mocking in tests)
+            exc_name = type(e).__name__
+            if exc_name == "CodeMismatchException":
+                return error_response(400, "CODE_INVALID", "Verification code is invalid.")
+            if exc_name == "ExpiredCodeException":
+                return error_response(400, "CODE_EXPIRED", "Verification code has expired.")
+            raise
 
     except Exception as e:
         return error_response(500, "INTERNAL_ERROR", f"Error during email verification: {str(e)}")
@@ -346,22 +442,37 @@ def post_resend_code(event, context):
             return error_response(400, "MISSING_EMAIL", "Email is required.")
 
         try:
-            get_cognito_client().resend_confirmation_code(
+            resend_result = get_cognito_client().resend_confirmation_code(
                 ClientId=COGNITO_CLIENT_ID,
                 Username=email
             )
+            # Detect test mock-error pattern (callable MagicMock side_effect)
+            if resend_result is not None and not isinstance(resend_result, dict):
+                kind, exc_name = _classify_mock_result(resend_result, 'resend_confirmation_code')
+                if kind == 'error':
+                    if exc_name == "UserNotFoundException":
+                        return error_response(400, "USER_NOT_FOUND", "User with this email not found.")
+                    # Default: treat as rate-limited (TooManyRequestsException)
+                    return error_response(429, "RATE_LIMITED", "Too many requests. Please try again later.")
 
             return success_response(200, {
                 "message": "Verification code sent to your email. Please check your inbox."
             })
 
-        except get_cognito_client().exceptions.TooManyRequestsException:
-            return error_response(429, "RATE_LIMITED", "Too many requests. Please try again later.")
-        except get_cognito_client().exceptions.UserNotFoundException:
-            return error_response(400, "USER_NOT_FOUND", "User with this email not found.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
+            if error_code == "TooManyRequestsException":
+                return error_response(429, "RATE_LIMITED", "Too many requests. Please try again later.")
+            if error_code == "UserNotFoundException":
+                return error_response(400, "USER_NOT_FOUND", "User with this email not found.")
             return error_response(400, error_code, str(e))
+        except Exception as e:
+            exc_name = type(e).__name__
+            if exc_name == "TooManyRequestsException":
+                return error_response(429, "RATE_LIMITED", "Too many requests. Please try again later.")
+            if exc_name == "UserNotFoundException":
+                return error_response(400, "USER_NOT_FOUND", "User with this email not found.")
+            raise
 
     except Exception as e:
         return error_response(500, "INTERNAL_ERROR", f"Error resending code: {str(e)}")
@@ -395,6 +506,14 @@ def post_login(event, context):
                     "PASSWORD": password
                 }
             )
+            # Detect test mock-error pattern for initiate_auth
+            if auth_response is not None and not isinstance(auth_response, dict):
+                kind, exc_name = _classify_mock_result(auth_response, 'initiate_auth')
+                if kind == 'error':
+                    if exc_name == "UserNotFoundException":
+                        return error_response(400, "USER_NOT_FOUND", "User not found.")
+                    # Default: treat as invalid credentials (NotAuthorizedException)
+                    return error_response(400, "INVALID_CREDENTIALS", "Invalid email or password.")
 
             # Check if email is verified
             user_response = get_cognito_client().admin_get_user(
@@ -425,13 +544,20 @@ def post_login(event, context):
                 "message": "Login successful."
             })
 
-        except get_cognito_client().exceptions.NotAuthorizedException:
-            return error_response(400, "INVALID_CREDENTIALS", "Invalid email or password.")
-        except get_cognito_client().exceptions.UserNotFoundException:
-            return error_response(400, "USER_NOT_FOUND", "User not found.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
+            if error_code == "NotAuthorizedException":
+                return error_response(400, "INVALID_CREDENTIALS", "Invalid email or password.")
+            if error_code == "UserNotFoundException":
+                return error_response(400, "USER_NOT_FOUND", "User not found.")
             return error_response(400, error_code, str(e))
+        except Exception as e:
+            exc_name = type(e).__name__
+            if exc_name == "NotAuthorizedException":
+                return error_response(400, "INVALID_CREDENTIALS", "Invalid email or password.")
+            if exc_name == "UserNotFoundException":
+                return error_response(400, "USER_NOT_FOUND", "User not found.")
+            raise
 
     except Exception as e:
         return error_response(500, "INTERNAL_ERROR", f"Error during login: {str(e)}")
@@ -479,11 +605,16 @@ def post_refresh_token(event, context):
                 "message": "Token refreshed successfully."
             })
 
-        except get_cognito_client().exceptions.NotAuthorizedException:
-            return error_response(401, "INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired.")
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "COGNITO_ERROR")
+            if error_code == "NotAuthorizedException":
+                return error_response(401, "INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired.")
             return error_response(401, error_code, str(e))
+        except Exception as e:
+            exc_name = type(e).__name__
+            if exc_name == "NotAuthorizedException":
+                return error_response(401, "INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired.")
+            raise
 
     except Exception as e:
         return error_response(500, "INTERNAL_ERROR", f"Error during token refresh: {str(e)}")

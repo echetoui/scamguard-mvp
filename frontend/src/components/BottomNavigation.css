@@ -58,7 +58,7 @@
   border: none;
   border-top: 3px solid transparent;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--transition-base), border-color var(--transition-base), color var(--transition-base);
   position: relative;
   min-height: 60px;
   touch-action: manipulation;
@@ -73,7 +73,6 @@
   letter-spacing: var(--letter-spacing-wide);
 
   /* Accessibility */
-  outline: none;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -85,8 +84,8 @@
 }
 
 /* Focus State (Keyboard Navigation) */
-.nav-item:focus {
-  outline: 3px solid var(--color-primary);
+.nav-item:focus-visible {
+  outline: 3px solid var(--color-focus-outline);
   outline-offset: -3px;
   background-color: var(--color-surface-variant);
 }
@@ -301,8 +300,8 @@
   background-color: #3f3f3f; /* Slightly lighter than tertiary */
 }
 
-[data-theme="dark"] .nav-item:focus {
-  outline-color: var(--color-primary);
+[data-theme="dark"] .nav-item:focus-visible {
+  outline-color: var(--color-focus-outline);
   background-color: var(--color-surface);
 }
 
@@ -399,12 +398,19 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  @supports (scroll-behavior: smooth) {
+    .navigation-content {
+      scroll-behavior: auto;
+    }
+  }
+}
+
 /* Use GPU acceleration for smoother animations */
 .nav-item,
 .active-indicator,
 .tab-panel {
   will-change: auto;
-  transform: translateZ(0);
 }
 
 .nav-item:active {

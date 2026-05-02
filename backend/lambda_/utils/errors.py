@@ -4,6 +4,8 @@
 class ScamGuardError(Exception):
     """Base error for ScamGuard."""
 
+    code: str = "INTERNAL_ERROR"
+
     def __init__(self, message: str, status_code: int = 500):
         """Initialize error."""
         self.message = message
@@ -14,6 +16,8 @@ class ScamGuardError(Exception):
 class ValidationError(ScamGuardError):
     """Validation error."""
 
+    code = "VALIDATION_ERROR"
+
     def __init__(self, message: str):
         """Initialize validation error."""
         super().__init__(message, 400)
@@ -21,6 +25,8 @@ class ValidationError(ScamGuardError):
 
 class AuthenticationError(ScamGuardError):
     """Authentication error."""
+
+    code = "AUTHENTICATION_ERROR"
 
     def __init__(self, message: str = "Unauthorized"):
         """Initialize authentication error."""
@@ -30,6 +36,8 @@ class AuthenticationError(ScamGuardError):
 class AuthorizationError(ScamGuardError):
     """Authorization error."""
 
+    code = "AUTHORIZATION_ERROR"
+
     def __init__(self, message: str = "Forbidden"):
         """Initialize authorization error."""
         super().__init__(message, 403)
@@ -37,6 +45,8 @@ class AuthorizationError(ScamGuardError):
 
 class NotFoundError(ScamGuardError):
     """Not found error."""
+
+    code = "NOT_FOUND"
 
     def __init__(self, message: str = "Not found"):
         """Initialize not found error."""
@@ -46,6 +56,8 @@ class NotFoundError(ScamGuardError):
 class ConflictError(ScamGuardError):
     """Conflict error."""
 
+    code = "CONFLICT"
+
     def __init__(self, message: str = "Conflict"):
         """Initialize conflict error."""
         super().__init__(message, 409)
@@ -53,6 +65,8 @@ class ConflictError(ScamGuardError):
 
 class RateLimitError(ScamGuardError):
     """Rate limit error."""
+
+    code = "RATE_LIMIT_EXCEEDED"
 
     def __init__(self, message: str = "Too many requests"):
         """Initialize rate limit error."""
@@ -62,6 +76,8 @@ class RateLimitError(ScamGuardError):
 class InternalServerError(ScamGuardError):
     """Internal server error."""
 
+    code = "INTERNAL_ERROR"
+
     def __init__(self, message: str = "Internal server error"):
         """Initialize internal server error."""
         super().__init__(message, 500)
@@ -70,21 +86,27 @@ class InternalServerError(ScamGuardError):
 class VisionAPITimeout(ScamGuardError):
     """Vision API timeout error."""
 
-    def __init__(self, message: str = "Vision API timeout"):
+    code = "VISION_ANALYSIS_TIMEOUT"
+
+    def __init__(self, timeout_seconds: int = 60):
         """Initialize timeout error."""
-        super().__init__(message, 504)
+        super().__init__(f"Vision API timed out after {timeout_seconds}s", 500)
 
 
 class RateLimitExceeded(ScamGuardError):
     """Rate limit exceeded error."""
 
-    def __init__(self, message: str = "Rate limit exceeded"):
+    code = "RATE_LIMIT_EXCEEDED"
+
+    def __init__(self, retry_after: int = 60):
         """Initialize rate limit error."""
-        super().__init__(message, 429)
+        super().__init__(f"Rate limit exceeded, retry after {retry_after}s", 429)
 
 
 class GeminiAPIError(ScamGuardError):
     """Gemini API error."""
+
+    code = "SCENARIO_GENERATION_FAILED"
 
     def __init__(self, message: str = "Gemini API error"):
         """Initialize Gemini API error."""

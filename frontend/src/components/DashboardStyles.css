@@ -316,7 +316,7 @@
   border-radius: 8px;
   min-height: 60px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .analysis-card--high-risk,

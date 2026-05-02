@@ -23,6 +23,36 @@ body {
   padding: 0;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid var(--color-focus-outline);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2000;
+  transform: translateY(-140%);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid var(--color-focus-outline);
+  outline-offset: 2px;
+}
+
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -68,7 +98,7 @@ h2 {
   justify-content: center;
   gap: var(--spacing-md);
   box-shadow: var(--shadow-md);
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 .large-touch:active {
@@ -101,6 +131,29 @@ h2 {
   padding: var(--spacing-md);
   width: 100%;
   cursor: pointer;
+}
+
+.logout-button {
+  min-height: 60px;
+  padding: 12px 20px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-primary-container);
+  color: var(--color-primary);
+  cursor: pointer;
+  font-family: var(--font-family-system);
+  font-size: var(--font-size-label-lg);
+  font-weight: 700;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: var(--color-surface-variant);
+}
+
+.logout-button:active {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 /* Zone de message réaliste */
@@ -225,7 +278,7 @@ textarea {
   gap: var(--spacing-sm);
   padding: var(--spacing-md) 0;
   border-radius: var(--radius-md);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .option-card:hover {
@@ -271,7 +324,7 @@ textarea {
   line-height: 1.5;
   resize: vertical;
   box-sizing: border-box;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .message-textarea:focus {
@@ -280,8 +333,44 @@ textarea {
   box-shadow: 0 0 0 3px var(--color-primary-container);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .large-touch,
+  .logout-button,
+  .option-card,
+  .message-textarea {
+    transition: none;
+  }
+
+  .btn-mic.listening,
+  .spinner {
+    animation: none;
+  }
+
+  .large-touch:active,
+  .option-card:hover {
+    transform: none;
+  }
+}
+
 .message-textarea::placeholder {
   color: var(--color-on-surface-variant);
+}
+
+.form-status {
+  min-height: 24px;
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin: var(--spacing-sm) 0;
+}
+
+.form-error {
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0 var(--spacing-md);
+  border: 2px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  font-weight: 600;
 }
 
 .divider {

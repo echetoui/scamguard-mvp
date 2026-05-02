@@ -61,17 +61,13 @@ const SecurityTipsSection = memo(() => {
 
           return (
             <div key={checklist.id} className="checklist-card">
-              <div
+              <button
+                type="button"
                 className="checklist-header"
                 onClick={() => setExpandedChecklist(checklist.id)}
                 role="button"
                 tabIndex={0}
                 aria-expanded={expandedChecklist === checklist.id}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    setExpandedChecklist(checklist.id);
-                  }
-                }}
               >
                 <div className="header-content">
                   <span className="checklist-icon">{checklist.icon}</span>
@@ -80,10 +76,10 @@ const SecurityTipsSection = memo(() => {
                     <p>{checklist.description}</p>
                   </div>
                 </div>
-                <span className={`expand-icon ${expandedChecklist === checklist.id ? 'expanded' : ''}`}>
+                <span className={`expand-icon ${expandedChecklist === checklist.id ? 'expanded' : ''}`} aria-hidden="true">
                   ▼
                 </span>
-              </div>
+              </button>
 
               {expandedChecklist === checklist.id && (
                 <div className="checklist-body">

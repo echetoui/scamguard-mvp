@@ -157,7 +157,7 @@ class TestComplianceRules:
         """Test getting critical-level rules."""
         rules = ComplianceRules.get_critical_rules()
 
-        assert len(rules) == 4
+        assert len(rules) == 5
         assert all(r.level == ComplianceLevel.CRITICAL for r in rules)
 
         codes = {r.code for r in rules}

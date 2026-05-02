@@ -34,11 +34,30 @@ const CreditSystem = lazy(() => import('./components/CreditSystem'));
 const ScamReportingSystem = lazy(() => import('./components/ScamReportingSystem'));
 const DesignSystemDemo = lazy(() => import('./components/DesignSystemDemo'));
 
+const TAB_ROUTES = {
+  verifier: '/verify',
+  securite: '/security',
+  academie: '/academy',
+  ressources: '/resources',
+  outils: '/tools',
+  menaces: '/threats',
+  signaler: '/report',
+  famille: '/family',
+  parametres: '/settings',
+  design: '/design'
+};
+
+const ROUTE_TABS = Object.fromEntries(
+  Object.entries(TAB_ROUTES).map(([tabId, route]) => [route, tabId])
+);
+
+const getTabFromPath = (pathname) => ROUTE_TABS[pathname] || 'securite';
+
 // Loading placeholder component
 const LoadingPlaceholder = () => (
-  <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+  <div role="status" aria-live="polite" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
     <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
-    <p>Chargement...</p>
+    <p>Chargement…</p>
   </div>
 );
 
@@ -51,11 +70,18 @@ export default function App() {
   const auth = useAuth();
 
   // State management
-  const [activeTab, setActiveTab] = useState('securite'); // Default: Security tab
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 'securite';
+    }
+    return getTabFromPath(window.location.pathname);
+  }); // Default: Security tab
   const [view, setView] = useState('home');
   const [response, setResponse] = useState('');
   const [image, setImage] = useState(null);
+  const [imageStatus, setImageStatus] = useState('');
   const [result, setResult] = useState(null);
+  const [analysisError, setAnalysisError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Phase 1 Sprint 4: Onboarding wizard (first-run experience)
@@ -83,11 +109,32 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const { isVoiceGuidanceEnabled, toggleVoiceGuidance } = useVoiceGuidance();
 
+  const handleTabChange = useCallback((tabId, options = {}) => {
+    const route = TAB_ROUTES[tabId];
+    setActiveTab(tabId);
+
+    if (!route || typeof window === 'undefined' || window.location.pathname === route) {
+      return;
+    }
+
+    const navigationMethod = options.replace ? 'replaceState' : 'pushState';
+    window.history[navigationMethod]({}, '', route);
+  }, []);
+
   // Phase 1 Sprint 3: Check for and send daily reminder notification on app mount
   useEffect(() => {
     if (shouldSendDailyNotification('QUIZ_REMINDER')) {
       sendNotification('QUIZ_REMINDER', {});
     }
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setActiveTab(getTabFromPath(window.location.pathname));
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   useEffect(() => {
@@ -174,17 +221,19 @@ export default function App() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setAnalysisError('');
+    setImageStatus('');
 
     // Validation: Type de fichier (doit être une image)
     if (!file.type.startsWith('image/')) {
-      alert('❌ Veuillez sélectionner une image valide (JPG, PNG, etc.)');
+      setAnalysisError('Veuillez sélectionner une image valide (JPG, PNG, etc.).');
       return;
     }
 
     // Validation: Taille maximale (5 MB)
     const MAX_SIZE = 5 * 1024 * 1024; // 5 MB en bytes
     if (file.size > MAX_SIZE) {
-      alert(`❌ L'image est trop volumineuse (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum: 5 MB`);
+      setAnalysisError(`L'image est trop volumineuse (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum : 5 MB.`);
       return;
     }
 
@@ -192,20 +241,27 @@ export default function App() {
     const img = new Image();
     img.onload = () => {
       if (img.width < 100 || img.height < 100) {
-        alert('❌ L\'image est trop petite. Minimum: 100x100 pixels');
+        setAnalysisError('L’image est trop petite. Minimum : 100 x 100 pixels.');
         return;
       }
       // Image valide - convertir en base64
       const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result.split(',')[1]);
+      reader.onloadend = () => {
+        setImage(reader.result.split(',')[1]);
+        setImageStatus('Photo ajoutée.');
+      };
       reader.readAsDataURL(file);
     };
     img.src = URL.createObjectURL(file);
   };
 
   const submitAnalysis = async () => {
-    if (!response && !image) return;
+    if (!response && !image) {
+      setAnalysisError('Ajoutez un message ou une photo avant de lancer l’analyse.');
+      return;
+    }
     setIsLoading(true);
+    setAnalysisError('');
     window.speechSynthesis.cancel();
 
     try {
@@ -241,7 +297,7 @@ export default function App() {
       // Lecture du feedback principal
       setTimeout(() => speak(`Résultat : ${data.detection.score} sur 100. ${data.coaching.feedback}`), 500);
     } catch (e) {
-      alert("Impossible d'analyser pour le moment.");
+      setAnalysisError("Impossible d’analyser pour le moment. Réessayez dans quelques instants.");
     } finally {
       setIsLoading(false);
     }
@@ -250,15 +306,18 @@ export default function App() {
   // Composant de chargement simple et visible
   if (isLoading) {
     return (
-      <div className="container loading-screen">
+      <div className="container loading-screen" role="status" aria-live="polite">
         <div className="spinner">⏳</div>
-        <p>L'intelligence artificielle réfléchit...</p>
+        <p>L’intelligence artificielle réfléchit…</p>
       </div>
     );
   }
 
   return (
     <ErrorBoundary>
+      <a className="skip-link" href="#main-content">
+        Aller au contenu principal
+      </a>
       {showOnboarding && auth.isAuthenticated && (
         <OnboardingWizard
           auth={auth}
@@ -266,7 +325,7 @@ export default function App() {
           onComplete={(name, avatar) => {
             updateName(name);
             updateAvatar(avatar);
-            setActiveTab('academie');
+            handleTabChange('academie', { replace: true });
             setShowOnboarding(false);
           }}
           onSkip={() => setShowOnboarding(false)}
@@ -283,27 +342,14 @@ export default function App() {
           )}
           <button
             onClick={auth.logout}
-            style={{
-              padding: '12px 20px',
-              backgroundColor: '#F3F4F6',
-              color: '#1E40AF',
-              border: '2px solid #1E40AF',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '600',
-              minHeight: '60px',
-              fontFamily: 'var(--font-body, "Lora", serif)'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#dbeafe'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#F3F4F6'}
+            className="logout-button"
           >
             🚪 Déconnexion
           </button>
         </div>
       </header>
 
-      <div className="navigation-content" style={{flex: 1, overflowY: 'auto', paddingBottom: '100px'}}>
+      <main id="main-content" className="navigation-content" style={{flex: 1, overflowY: 'auto', paddingBottom: '100px'}} tabIndex={-1}>
         {/* Tab 1: Vérifier - Message/Photo Analysis */}
         <TabPanel tabId="verifier" activeTab={activeTab}>
           <div className="container">
@@ -319,11 +365,13 @@ export default function App() {
             </label>
             <textarea
               id="message-input"
+              name="message"
               value={response}
               onChange={e => setResponse(e.target.value)}
-              placeholder="Ex: Bonjour, cliquez ici pour vérifier votre compte... ou collez votre message"
+              placeholder="Ex. Collez votre message suspect ici…"
               className="message-textarea"
               aria-label="Entrez le texte du message à analyser"
+              autoComplete="off"
             />
 
             <div className="divider">ou</div>
@@ -340,6 +388,14 @@ export default function App() {
             </label>
 
             {image && <p className="success-msg">✅ Photo ajoutée !</p>}
+            <div className="form-status" role="status" aria-live="polite">
+              {imageStatus}
+            </div>
+            {analysisError && (
+              <div className="form-error" role="alert">
+                {analysisError}
+              </div>
+            )}
 
             <button
               onClick={submitAnalysis}
@@ -354,7 +410,7 @@ export default function App() {
         
         
         {view === 'result' && result && (
-          <div className="result-card">
+          <div className="result-card" role="status" aria-live="polite">
             <h2>Résultat de l'analyse</h2>
             <div className={`score-circle score-${result.detection.score > 50 ? 'good' : 'bad'}`}>
               {result.detection.score}/100
@@ -393,11 +449,15 @@ export default function App() {
               <GuardianSummary
                 familyData={familyData}
                 loading={familyLoading}
-                onViewFamily={() => setActiveTab('famille')}
+                onViewFamily={() => handleTabChange('famille')}
               />
             )}
             {/* Security Heart Dashboard */}
-            <SecurityHeartDashboard userId="user-demo" />
+            <SecurityHeartDashboard
+              userId="user-demo"
+              onContinue={() => handleTabChange('verifier')}
+              onOpenSettings={() => handleTabChange('parametres')}
+            />
           </div>
         </TabPanel>
 
@@ -486,12 +546,12 @@ export default function App() {
             <DesignSystemDemo />
           </Suspense>
         </TabPanel>
-      </div>
+      </main>
 
       {/* Bottom Navigation - Sticky Tab Bar */}
       <BottomNavigation
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         hasFamily={hasFamily}
       />
       </div>

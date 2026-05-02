@@ -13,10 +13,6 @@ vi.mock('../../utils/quizStorage', () => ({
 }));
 
 describe('Leaderboard Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe('Empty State', () => {
     it('should render leaderboard container', () => {
       const { container } = render(<Leaderboard moduleId="phishing" />);

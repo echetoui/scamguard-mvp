@@ -76,7 +76,7 @@ const generateAlerts = (score, stats) => {
  * @component
  * @returns {JSX.Element} Security Heart Dashboard
  */
-const SecurityHeartDashboard = ({ userId }) => {
+const SecurityHeartDashboard = ({ userId, onContinue, onOpenSettings }) => {
   const [securityScore, setSecurityScore] = useState(0);
   const [scoreStatus, setScoreStatus] = useState('loading');
   const [weeklyStats, setWeeklyStats] = useState({
@@ -331,7 +331,7 @@ const SecurityHeartDashboard = ({ userId }) => {
             <Button
               variant="primary"
               size="large"
-              onClick={() => window.location.href = '/main'}
+              onClick={onContinue}
               style={{ width: '100%' }}
             >
               CONTINUER
@@ -339,7 +339,7 @@ const SecurityHeartDashboard = ({ userId }) => {
             <Button
               variant="secondary"
               size="large"
-              onClick={() => console.log('Settings clicked')}
+              onClick={onOpenSettings}
               style={{ width: '100%' }}
             >
               PARAMÈTRES

@@ -87,21 +87,25 @@ describe('SecurityHeartDashboard - Refactored', () => {
 
   // Button tests
   test('CONTINUER button is clickable', async () => {
-    render(<SecurityHeartDashboard userId="test-user" />);
+    const handleContinue = vi.fn();
+    const user = userEvent.setup();
+    render(<SecurityHeartDashboard userId="test-user" onContinue={handleContinue} />);
 
-    await waitFor(() => {
-      const continuerBtn = screen.getByRole('button', { name: /CONTINUER/i });
-      expect(continuerBtn).toBeInTheDocument();
-    });
+    const continuerBtn = await screen.findByRole('button', { name: /CONTINUER/i });
+    await user.click(continuerBtn);
+
+    expect(handleContinue).toHaveBeenCalledTimes(1);
   });
 
   test('PARAMÈTRES button is clickable', async () => {
-    render(<SecurityHeartDashboard userId="test-user" />);
+    const handleOpenSettings = vi.fn();
+    const user = userEvent.setup();
+    render(<SecurityHeartDashboard userId="test-user" onOpenSettings={handleOpenSettings} />);
 
-    await waitFor(() => {
-      const settingsBtn = screen.getByRole('button', { name: /PARAMÈTRES/i });
-      expect(settingsBtn).toBeInTheDocument();
-    });
+    const settingsBtn = await screen.findByRole('button', { name: /PARAMÈTRES/i });
+    await user.click(settingsBtn);
+
+    expect(handleOpenSettings).toHaveBeenCalledTimes(1);
   });
 
   // Accessibility tests

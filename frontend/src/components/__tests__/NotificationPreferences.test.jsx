@@ -99,7 +99,7 @@ describe('NotificationPreferences Component', () => {
   });
 
   describe('Permission Request', () => {
-    it.skip('should show request permission button when permission not granted', async () => {
+    it('should show request permission button when permission not granted', async () => {
       notificationService.getPermissionStatus.mockReturnValue('default');
       const { container } = render(<NotificationPreferences />);
 
@@ -108,16 +108,17 @@ describe('NotificationPreferences Component', () => {
       const toggleSection = titleElement.closest('.notification-toggle-section');
       await userEvent.click(toggleSection);
 
-      // The permission section should now be visible
-      const permissionSection = container.querySelector('.permission-section');
-      expect(permissionSection).toBeInTheDocument();
-
-      // Button should appear
-      const button = screen.getByText(/Activer les Notifications/i);
-      expect(button).toBeInTheDocument();
+      // The permission section should now be visible (wait for useEffect to update state)
+      await waitFor(() => {
+        const permissionSection = container.querySelector('.permission-section');
+        expect(permissionSection).toBeInTheDocument();
+        // Button should be within the permission section
+        const button = permissionSection.querySelector('button');
+        expect(button).toBeInTheDocument();
+      });
     });
 
-    it.skip('should call requestPermission when button is clicked', async () => {
+    it('should call requestPermission when button is clicked', async () => {
       notificationService.getPermissionStatus.mockReturnValue('default');
       const { container } = render(<NotificationPreferences />);
 
@@ -126,12 +127,16 @@ describe('NotificationPreferences Component', () => {
       const toggleSection = titleElement.closest('.notification-toggle-section');
       await userEvent.click(toggleSection);
 
-      // The permission section should be visible and have the button
-      const permissionSection = container.querySelector('.permission-section');
-      expect(permissionSection).toBeInTheDocument();
+      // The permission section should be visible and have the button (wait for useEffect)
+      let button;
+      await waitFor(() => {
+        const permissionSection = container.querySelector('.permission-section');
+        expect(permissionSection).toBeInTheDocument();
+        button = permissionSection.querySelector('button');
+        expect(button).toBeInTheDocument();
+      });
 
-      // Get and click the button
-      const button = screen.getByText(/Activer les Notifications/i);
+      // Click the button
       await userEvent.click(button);
 
       expect(notificationService.requestPermission).toHaveBeenCalled();

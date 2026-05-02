@@ -72,7 +72,7 @@ describe('APIKeyManagement Module', () => {
 
       fireEvent.click(createButton);
       expect(screen.getByText('Créer une Nouvelle Clé API')).toBeTruthy();
-      expect(screen.getByPlaceholderText('Ex: Production, Développement, Test...')).toBeTruthy();
+      expect(screen.getByPlaceholderText('Ex. Production, Développement, Test…')).toBeTruthy();
 
       const cancelButton = screen.getByText('✕ Annuler');
       fireEvent.click(cancelButton);
@@ -84,7 +84,7 @@ describe('APIKeyManagement Module', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
       fireEvent.click(screen.getByText('➕ Créer Nouvelle Clé'));
 
-      const nameInput = screen.getByPlaceholderText('Ex: Production, Développement, Test...');
+      const nameInput = screen.getByPlaceholderText('Ex. Production, Développement, Test…');
       await userEvent.type(nameInput, 'Staging API Key');
 
       expect(nameInput.value).toBe('Staging API Key');
@@ -102,14 +102,13 @@ describe('APIKeyManagement Module', () => {
     });
 
     it('should show validation error for empty name', async () => {
-      window.alert = vi.fn();
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
       fireEvent.click(screen.getByText('➕ Créer Nouvelle Clé'));
 
       const createButton = screen.getByText('Créer la Clé');
       fireEvent.click(createButton);
 
-      expect(window.alert).toHaveBeenCalledWith('Veuillez entrer un nom pour la clé');
+      expect(screen.getByRole('alert').textContent).toContain('Veuillez entrer un nom pour la clé.');
     });
   });
 
@@ -237,7 +236,7 @@ describe('APIKeyManagement Module', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
       fireEvent.click(screen.getByText('➕ Créer Nouvelle Clé'));
 
-      const nameInput = screen.getByPlaceholderText('Ex: Production, Développement, Test...');
+      const nameInput = screen.getByPlaceholderText('Ex. Production, Développement, Test…');
       await userEvent.type(nameInput, 'New Test Key');
 
       const createButton = screen.getByText('Créer la Clé');
@@ -253,7 +252,7 @@ describe('APIKeyManagement Module', () => {
       render(<APIKeyManagement institutionId={mockInstitutionId} />);
       fireEvent.click(screen.getByText('➕ Créer Nouvelle Clé'));
 
-      const nameInput = screen.getByPlaceholderText('Ex: Production, Développement, Test...');
+      const nameInput = screen.getByPlaceholderText('Ex. Production, Développement, Test…');
       await userEvent.type(nameInput, 'New Test Key');
 
       const createButton = screen.getByText('Créer la Clé');

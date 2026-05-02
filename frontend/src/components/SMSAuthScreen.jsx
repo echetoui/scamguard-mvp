@@ -20,7 +20,7 @@ import { ERROR_MESSAGES } from '../constants/errorMessages';
 import './SMSAuthScreen.css';
 
 import '../../styles/utility-classes.css';
-export default function SMSAuthScreen() {
+export default function SMSAuthScreen({ onAuthenticated = () => window.location.assign('/') }) {
   const auth = useAuth();
   
   // State
@@ -42,6 +42,10 @@ export default function SMSAuthScreen() {
 
   // Use Lambda endpoint for testing, or mock server for local development
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
+
+  const completeAuthentication = (delay = 2000) => {
+    setTimeout(onAuthenticated, delay);
+  };
 
   // Format phone number to E.164
   const formatPhone = (value) => {
@@ -86,7 +90,7 @@ export default function SMSAuthScreen() {
       if (result.success) {
         setSuccessMessage('✅ Bienvenue! Vous êtes connecté');
         setStep('success');
-        setTimeout(() => { window.location.href = '/'; }, 2000);
+        completeAuthentication();
       } else {
         setError(result.error || 'Identifiants invalides');
       }
@@ -127,7 +131,7 @@ export default function SMSAuthScreen() {
           setUserId(data.data.user?.sub || 'anonymous');
           setSuccessMessage('✅ Compte créé! Vous êtes connecté');
           setStep('success');
-          setTimeout(() => { window.location.href = '/'; }, 2000);
+          completeAuthentication();
         } else {
           setSuccessMessage('Inscription réussie! Un code a été envoyé à votre courriel.');
           setStep('verify');
@@ -316,9 +320,7 @@ export default function SMSAuthScreen() {
       setStep('success');
 
       // Redirect immediately after token save
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 300);
+      completeAuthentication(300);
     } catch (err) {
       setError(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {

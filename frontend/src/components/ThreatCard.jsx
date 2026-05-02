@@ -27,15 +27,15 @@ const ThreatCard = ({
   const severityMap = {
     low: {
       color: colors.tertiary,       // #7A5900 - Ambre
-      label: 'Low Threat'
+      label: 'Menace faible'
     },
     medium: {
       color: '#FF8A00',             // Orange (extended palette)
-      label: 'Medium Threat'
+      label: 'Menace modérée'
     },
     danger: {
       color: colors.error,          // #BA1A1A - Rouge
-      label: 'High Threat'
+      label: 'Menace élevée'
     }
   };
 
@@ -78,9 +78,9 @@ const ThreatCard = ({
             color: config.color,
             borderColor: config.color
           }}
-          aria-label={`Learn more about ${title}`}
+          aria-label={`En savoir plus sur ${title}`}
         >
-          Learn More →
+          En savoir plus →
         </button>
       )}
     </div>

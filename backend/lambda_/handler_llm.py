@@ -210,6 +210,16 @@ def add_cors_headers(response):
     })
     return response
 
+def _get_dynamodb_table():
+    """Get a DynamoDB table reference using the module-level dynamodb resource.
+
+    Using the module-level 'dynamodb' means tests can patch it at import time
+    via 'patch("boto3.resource")' before the module is first loaded, and the
+    mock table will be used for all subsequent calls within that test session.
+    """
+    return dynamodb.Table(os.environ.get('DYNAMODB_TABLE', 'ScamGuardData-dev'))
+
+
 def share_threat_with_family(user_id, family_id, result, user_response):
     """
     Phase 5A - Threat Sharing: Create a threat record in the family group
@@ -228,7 +238,7 @@ def share_threat_with_family(user_id, family_id, result, user_response):
             return None
 
         # Create threat record
-        table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+        table = _get_dynamodb_table()
         timestamp = datetime.utcnow().isoformat()
 
         threat_item = {
@@ -236,9 +246,9 @@ def share_threat_with_family(user_id, family_id, result, user_response):
             'SK': f'THREAT#{timestamp}',
             'reportedBy': user_id,
             'reportedAt': timestamp,
-            'scamType': 'SMS/Email Scam',  # Can be enhanced with LLM categorization
+            'scamType': 'SMS/Email Scam',
             'severity': severity,
-            'content': user_response[:500],  # Store first 500 chars of message
+            'content': user_response[:500],
             'riskScore': risk_score,
             'explanation': result.get('explanation', ''),
             'ttl': int(datetime.utcnow().timestamp()) + (30 * 24 * 60 * 60)  # 30 days
@@ -259,7 +269,7 @@ def get_user_family_id(user_id):
     Returns None if user has no family
     """
     try:
-        table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+        table = _get_dynamodb_table()
         response = table.get_item(
             Key={
                 'PK': f'USER#{user_id}',

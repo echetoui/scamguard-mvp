@@ -127,12 +127,15 @@ const UserManagement = ({ institutionId }) => {
       {/* Filters */}
       <div className="user-management-filters">
         <input
+          name="user-search"
           type="text"
-          placeholder="Rechercher par email ou nom..."
+          placeholder="Rechercher par courriel ou nom…"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="filter-input"
           aria-label="Search users"
+          autoComplete="off"
+          spellCheck={false}
         />
         <select
           value={filterRole}

@@ -21,19 +21,25 @@ class TestThreatSharing:
 
     @pytest.fixture(autouse=True)
     def setup_mocks(self):
-        """Setup mocks for each test."""
+        """Setup mocks for each test.
+
+        handler_llm is a module that captures boto3.resource at import time in a
+        module-level global.  Patching boto3.resource after the module has been
+        imported has no effect.  Instead we patch the already-bound module-level
+        'dynamodb' variable directly so that _get_dynamodb_table() returns our
+        mock table for every call during the test.
+        """
         self.mock_table = MagicMock()
-        self.mock_ssm = MagicMock()
 
-        # Patch boto3 before importing handler_llm
-        with patch('boto3.resource') as mock_dynamodb:
-            with patch('boto3.client') as mock_boto_client:
-                mock_dynamodb.return_value.Table.return_value = self.mock_table
-                mock_boto_client.return_value = self.mock_ssm
+        from lambda_ import handler_llm
+        self.handler = handler_llm
 
-                # Now import handler_llm with mocks active
-                from lambda_ import handler_llm
-                self.handler = handler_llm
+        # Build a mock DynamoDB resource whose .Table() returns self.mock_table
+        mock_dynamodb_resource = MagicMock()
+        mock_dynamodb_resource.Table.return_value = self.mock_table
+
+        with patch.object(handler_llm, 'dynamodb', mock_dynamodb_resource):
+            yield
 
     # ========================================================================
     # Test: Share Threat with Family (HIGH/CRITICAL only)

@@ -45,7 +45,7 @@
   font-size: 13px;
   font-weight: 500;
   color: #7f8c8d;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .time-btn:hover {
@@ -80,7 +80,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .metric-card:hover {
@@ -178,7 +178,7 @@
   background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
   border-radius: 4px 4px 0 0;
   min-height: 10px;
-  transition: all 0.2s ease;
+  transition: height 0.2s ease, opacity 0.2s ease;
 }
 
 .bar:hover {
@@ -196,7 +196,7 @@
 .pie-segment {
   width: var(--segment-width, 25%);
   background-color: var(--segment-color, #3498db);
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease, width 0.2s ease;
 }
 
 .pie-segment:hover {

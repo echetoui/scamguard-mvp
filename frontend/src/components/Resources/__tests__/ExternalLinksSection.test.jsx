@@ -132,7 +132,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should show emergency details when card is clicked', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       expect(container.querySelector('.emergency-details')).toBeTruthy();
@@ -140,7 +140,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should display police number in details', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       expect(screen.getByText('📞 Police:')).toBeTruthy();
@@ -149,7 +149,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should display bank contact in details', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       expect(screen.getByText('🏦 Banque:')).toBeTruthy();
@@ -157,7 +157,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should have report link in emergency details', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       const link = container.querySelector('.detail-link');
@@ -167,7 +167,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should open link in new tab', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       const link = container.querySelector('.detail-link');
@@ -177,7 +177,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should toggle emergency details on click', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       expect(container.querySelector('.emergency-details')).toBeTruthy();
@@ -356,7 +356,7 @@ describe('ExternalLinksSection Component', () => {
   describe('Keyboard Navigation', () => {
     it('should have button role on emergency cards', () => {
       const { container } = render(<ExternalLinksSection />);
-      const emergencyCards = container.querySelectorAll('.emergency-card');
+      const emergencyCards = container.querySelectorAll('.emergency-card-toggle');
       emergencyCards.forEach(card => {
         expect(card.getAttribute('role')).toBe('button');
       });
@@ -364,7 +364,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should have tabIndex on emergency cards', () => {
       const { container } = render(<ExternalLinksSection />);
-      const emergencyCards = container.querySelectorAll('.emergency-card');
+      const emergencyCards = container.querySelectorAll('.emergency-card-toggle');
       emergencyCards.forEach(card => {
         expect(card.getAttribute('tabIndex')).toBe('0');
       });
@@ -476,20 +476,22 @@ describe('ExternalLinksSection Component', () => {
   describe('Emergency Cards Active State', () => {
     it('should add active class to selected card', () => {
       const { container } = render(<ExternalLinksSection />);
+      const firstToggle = container.querySelector('.emergency-card-toggle');
       const firstCard = container.querySelector('.emergency-card');
 
-      fireEvent.click(firstCard);
+      fireEvent.click(firstToggle);
       expect(firstCard.className).toContain('active');
     });
 
     it('should remove active class when deselected', () => {
       const { container } = render(<ExternalLinksSection />);
+      const firstToggle = container.querySelector('.emergency-card-toggle');
       const firstCard = container.querySelector('.emergency-card');
 
-      fireEvent.click(firstCard);
+      fireEvent.click(firstToggle);
       expect(firstCard.className).toContain('active');
 
-      fireEvent.click(firstCard);
+      fireEvent.click(firstToggle);
       expect(firstCard.className).not.toContain('active');
     });
   });
@@ -530,7 +532,7 @@ describe('ExternalLinksSection Component', () => {
   describe('Detail Items', () => {
     it('should have detail items in emergency details', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       const detailItems = container.querySelectorAll('.detail-item');
@@ -539,7 +541,7 @@ describe('ExternalLinksSection Component', () => {
 
     it('should display detail labels and values', () => {
       const { container } = render(<ExternalLinksSection />);
-      const firstCard = container.querySelector('.emergency-card');
+      const firstCard = container.querySelector('.emergency-card-toggle');
 
       fireEvent.click(firstCard);
       const detailLabels = container.querySelectorAll('.detail-label');

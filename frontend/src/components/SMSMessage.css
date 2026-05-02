@@ -13,7 +13,7 @@
   flex-direction: column;
   gap: var(--spacing-md);
   max-width: 420px;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .sms-message:hover {
@@ -62,7 +62,7 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .sms-message__action:hover {
@@ -88,7 +88,8 @@
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .sms-message {
+  .sms-message,
+  .sms-message__action {
     transition: none;
   }
 }

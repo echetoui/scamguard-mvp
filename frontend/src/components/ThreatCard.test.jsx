@@ -51,7 +51,7 @@ describe('ThreatCard Component', () => {
         onAction={mockOnAction}
       />
     );
-    const button = screen.getByRole('button', { name: /Learn more/i });
+    const button = screen.getByRole('button', { name: /En savoir plus/i });
     expect(button).toBeInTheDocument();
   });
 
@@ -65,7 +65,7 @@ describe('ThreatCard Component', () => {
         onAction={mockOnAction}
       />
     );
-    const button = screen.getByRole('button', { name: /Learn more/i });
+    const button = screen.getByRole('button', { name: /En savoir plus/i });
     fireEvent.click(button);
     expect(mockOnAction).toHaveBeenCalledOnce();
   });

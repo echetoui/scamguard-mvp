@@ -61,14 +61,17 @@ export default function PhoneInputScreen({ onRequestCode, errorMsg }) {
 
           <input
             id="phoneInput"
+            name="phone"
             type="tel"
+            autoComplete="tel"
+            inputMode="tel"
             style={{
               ...styles.input,
               ...(isFocused && styles.inputFocused)
             }}
             value={phoneNumber}
             onChange={(e) => handlePhoneChange(e.target.value)}
-            placeholder="Ex: 514 123 4567"
+            placeholder="Ex. 514 123 4567"
             aria-label="Quel est votre numéro de téléphone ?"
             aria-describedby="phoneHint"
             onFocus={() => setIsFocused(true)}

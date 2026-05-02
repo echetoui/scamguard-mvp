@@ -153,6 +153,7 @@ const mockFamilyHook = {
 describe('App Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.history.replaceState({}, '', '/');
 
     // Setup default mock implementations
     useAuth.mockReturnValue(mockAuthHook);
@@ -283,6 +284,43 @@ describe('App Component', () => {
 
     it('should start with securite tab active', async () => {
       render(<App />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('panel-securite')).toBeTruthy();
+      });
+    });
+
+    it('should initialize the active tab from the current URL', async () => {
+      window.history.replaceState({}, '', '/academy');
+
+      render(<App />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('panel-academie')).toBeTruthy();
+      });
+    });
+
+    it('should update the URL when switching tabs', async () => {
+      render(<App />);
+
+      fireEvent.click(screen.getByTestId('tab-verifier'));
+
+      await waitFor(() => {
+        expect(window.location.pathname).toBe('/verify');
+      });
+    });
+
+    it('should update active tab on browser back navigation', async () => {
+      render(<App />);
+
+      fireEvent.click(screen.getByTestId('tab-verifier'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('panel-verifier')).toBeTruthy();
+      });
+
+      window.history.pushState({}, '', '/security');
+      window.dispatchEvent(new PopStateEvent('popstate'));
 
       await waitFor(() => {
         expect(screen.getByTestId('panel-securite')).toBeTruthy();

@@ -11,9 +11,9 @@
  * - Child component rendering
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import ToolsTab from '../ToolsTab';
 
 // Mock child components
@@ -253,11 +253,20 @@ describe('ToolsTab Component', () => {
   });
 
   describe('Keyboard Navigation', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should move to next tab with ArrowRight', () => {
       const { container } = render(<ToolsTab />);
 
       const emailTab = container.querySelector('#email-tab');
       fireEvent.keyDown(emailTab, { key: 'ArrowRight' });
+      act(() => vi.runAllTimers());
 
       expect(container.querySelector('#advisor-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -270,6 +279,7 @@ describe('ToolsTab Component', () => {
       fireEvent.click(advisorTab);
 
       fireEvent.keyDown(advisorTab, { key: 'ArrowLeft' });
+      act(() => vi.runAllTimers());
 
       expect(container.querySelector('#email-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -279,6 +289,7 @@ describe('ToolsTab Component', () => {
 
       const emailTab = container.querySelector('#email-tab');
       fireEvent.keyDown(emailTab, { key: 'ArrowLeft' });
+      act(() => vi.runAllTimers());
 
       expect(container.querySelector('#advisor-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -291,6 +302,7 @@ describe('ToolsTab Component', () => {
       fireEvent.click(advisorTab);
 
       fireEvent.keyDown(advisorTab, { key: 'ArrowRight' });
+      act(() => vi.runAllTimers());
 
       expect(container.querySelector('#email-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -303,6 +315,7 @@ describe('ToolsTab Component', () => {
       fireEvent.click(advisorTab);
 
       fireEvent.keyDown(advisorTab, { key: 'Home' });
+      act(() => vi.runAllTimers());
 
       expect(container.querySelector('#email-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -312,6 +325,7 @@ describe('ToolsTab Component', () => {
 
       const emailTab = container.querySelector('#email-tab');
       fireEvent.keyDown(emailTab, { key: 'End' });
+      act(() => vi.runAllTimers());
 
       expect(container.querySelector('#advisor-tab').getAttribute('aria-selected')).toBe('true');
     });
@@ -324,6 +338,7 @@ describe('ToolsTab Component', () => {
       const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
 
       fireEvent.keyDown(emailTab, { key: 'ArrowRight' });
+      act(() => vi.runAllTimers());
 
       // Note: fireEvent doesn't call preventDefault on the actual DOM event
       // but the component should still handle it correctly

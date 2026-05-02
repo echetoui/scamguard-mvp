@@ -82,14 +82,17 @@ export default function AdvisorVerifier() {
               </label>
               <input
                 id="advisor-name-input"
+                name="advisor-name"
                 type="text"
                 value={advisorName}
                 onChange={(e) => setAdvisorName(e.target.value)}
-                placeholder="Ex: Jean Dupont"
+                placeholder="Ex. Jean Dupont…"
                 className="form-input"
                 required
                 aria-required="true"
                 aria-label="Entrez le nom du conseiller"
+                autoComplete="name"
+                spellCheck={false}
               />
             </div>
 
@@ -99,12 +102,15 @@ export default function AdvisorVerifier() {
               </label>
               <input
                 id="firm-name-input"
+                name="firm-name"
                 type="text"
                 value={firmName}
                 onChange={(e) => setFirmName(e.target.value)}
-                placeholder="Ex: Banque Royale"
+                placeholder="Ex. Banque Royale…"
                 className="form-input"
                 aria-label="Entrez le nom de la firme ou banque"
+                autoComplete="organization"
+                spellCheck={false}
               />
             </div>
 
@@ -120,7 +126,7 @@ export default function AdvisorVerifier() {
               disabled={advisorLoading || !advisorName.trim()}
               aria-busy={advisorLoading}
             >
-              {advisorLoading ? '⏳ Vérification...' : '🔍 Vérifier le conseiller'}
+              {advisorLoading ? '⏳ Vérification…' : '🔍 Vérifier le conseiller'}
             </button>
           </div>
         </form>

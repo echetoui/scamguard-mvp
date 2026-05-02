@@ -170,7 +170,7 @@
   font-size: 18px;
   border: 2px solid var(--color-outline);
   border-radius: 12px;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   box-sizing: border-box;
   color: #333;
 }
@@ -205,7 +205,7 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
   margin-bottom: 15px;
   text-align: center;
   text-transform: uppercase;
@@ -239,7 +239,7 @@
   border: 2px solid var(--color-primary);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
   margin-bottom: 10px;
   min-height: 60px;
   display: flex;
@@ -279,7 +279,7 @@
   border: 3px solid var(--color-outline);
   border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   align-items: center;
   gap: 18px;
@@ -438,7 +438,7 @@
   font-size: 24px;
   flex-shrink: 0;
   opacity: 0.6;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   font-weight: bold;
 }
 
@@ -468,7 +468,7 @@
   text-align: center;
   border: 2px solid var(--color-outline);
   border-radius: 12px;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   color: #333;
   background: white;
 }

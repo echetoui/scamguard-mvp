@@ -68,7 +68,7 @@ input:focus-visible {
   background: white;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
   font-size: 14px;
   font-weight: 500;
@@ -184,7 +184,7 @@ input:focus-visible {
   overflow: hidden;
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .guide-card:hover {
@@ -200,8 +200,13 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 16px;
   background: var(--color-background);
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   user-select: none;
   transition: background 0.2s ease;
@@ -373,7 +378,7 @@ input:focus-visible {
   background: white;
   border-radius: 8px;
   border: 1px solid #ddd;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -449,7 +454,7 @@ input:focus-visible {
   background: white;
   border-radius: 8px;
   border: 1px solid #ddd;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   cursor: pointer;
 }
 
@@ -499,8 +504,13 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 16px;
   background: var(--color-background);
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: background 0.2s ease;
   user-select: none;
@@ -696,7 +706,7 @@ input:focus-visible {
   border-radius: 8px;
   background: white;
   position: relative;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .signaling-card:hover {
@@ -753,7 +763,7 @@ input:focus-visible {
   text-decoration: none;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .signal-link:hover {
@@ -831,15 +841,20 @@ input:focus-visible {
 }
 
 .category-header-toggle {
+  width: 100%;
   padding: 16px;
   background: var(--color-background);
+  border: 0;
   border-radius: 8px;
+  color: inherit;
   cursor: pointer;
+  font: inherit;
+  text-align: left;
   user-select: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
   margin-bottom: 12px;
 }
 
@@ -882,7 +897,13 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 14px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: background 0.2s ease;
   user-select: none;
@@ -973,7 +994,7 @@ input:focus-visible {
   border-radius: 8px;
   border: 1px solid #c8e6c9;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .tip-card:hover {
@@ -1026,8 +1047,7 @@ input:focus-visible {
   border: 2px solid #ff9800;
   border-radius: 8px;
   background: #fff9f6;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .emergency-card:hover,
@@ -1045,6 +1065,22 @@ input:focus-visible {
 .country-header h4 {
   margin: 0;
   color: inherit;
+}
+
+.emergency-card-toggle {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.emergency-card-toggle:focus-visible {
+  outline: 3px solid #4CAF50;
+  outline-offset: 4px;
 }
 
 .emergency-details {
@@ -1107,11 +1143,16 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 20px;
   background: var(--color-background);
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .category-header-expandable:hover {
@@ -1182,7 +1223,7 @@ input:focus-visible {
   background: white;
   text-decoration: none;
   color: #333;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .link-card:hover {
@@ -1275,7 +1316,7 @@ input:focus-visible {
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .filter-btn:hover {
@@ -1301,7 +1342,10 @@ input:focus-visible {
   overflow: hidden;
   background: white;
   cursor: pointer;
-  transition: all 0.3s ease;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
 }
@@ -1339,7 +1383,7 @@ input:focus-visible {
   font-size: 24px;
   opacity: 0;
   transform: scale(0.8);
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .video-card:hover .play-button {
@@ -1405,6 +1449,8 @@ input:focus-visible {
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
+  overscroll-behavior: contain;
+  padding: 20px;
 }
 
 .modal-content {
@@ -1414,6 +1460,7 @@ input:focus-visible {
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   position: relative;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
@@ -1432,7 +1479,7 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   z-index: 10;
 }
 

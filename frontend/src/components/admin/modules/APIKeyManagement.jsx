@@ -33,12 +33,14 @@ const APIKeyManagement = ({ institutionId }) => {
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyRateLimit, setNewKeyRateLimit] = useState(1000);
   const [copiedKey, setCopiedKey] = useState(null);
+  const [createError, setCreateError] = useState('');
 
   const handleCreateKey = () => {
     if (!newKeyName.trim()) {
-      alert('Veuillez entrer un nom pour la clé');
+      setCreateError('Veuillez entrer un nom pour la clé.');
       return;
     }
+    setCreateError('');
 
     const newKey = {
       id: `key_${Math.random().toString(36).substr(2, 9)}`,
@@ -99,27 +101,40 @@ const APIKeyManagement = ({ institutionId }) => {
             <label htmlFor="key-name">Nom de la Clé</label>
             <input
               id="key-name"
+              name="key-name"
               type="text"
-              placeholder="Ex: Production, Développement, Test..."
+              placeholder="Ex. Production, Développement, Test…"
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               className="form-input"
+              autoComplete="off"
+              spellCheck={false}
             />
           </div>
           <div className="form-group">
             <label htmlFor="rate-limit">Limite de Taux (requêtes/jour)</label>
             <input
               id="rate-limit"
+              name="rate-limit"
               type="number"
+              inputMode="numeric"
               min="10"
               max="10000"
               step="10"
               value={newKeyRateLimit}
-              onChange={(e) => setNewKeyRateLimit(parseInt(e.target.value))}
+              onChange={(e) => {
+                const nextValue = e.target.value;
+                setNewKeyRateLimit(nextValue === '' ? '' : parseInt(nextValue, 10));
+              }}
               className="form-input"
             />
             <small>Nombre maximum de requêtes autorisées par jour</small>
           </div>
+          {createError && (
+            <div className="form-error" role="alert">
+              {createError}
+            </div>
+          )}
           <div className="form-actions">
             <button className="btn btn-primary" onClick={handleCreateKey}>
               Créer la Clé

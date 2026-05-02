@@ -23,22 +23,19 @@ const ExternalLinksSection = memo(() => {
             <div
               key={emergency.country}
               className={`emergency-card ${selectedCountry === emergency.country ? 'active' : ''}`}
-              onClick={() => setSelectedCountry(
-                selectedCountry === emergency.country ? null : emergency.country
-              )}
-              role="button"
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setSelectedCountry(
-                    selectedCountry === emergency.country ? null : emergency.country
-                  );
-                }
-              }}
             >
-              <div className="country-header">
+              <button
+                type="button"
+                className="country-header emergency-card-toggle"
+                onClick={() => setSelectedCountry(
+                  selectedCountry === emergency.country ? null : emergency.country
+                )}
+                role="button"
+                tabIndex={0}
+                aria-expanded={selectedCountry === emergency.country}
+              >
                 <h4>{emergency.country}</h4>
-              </div>
+              </button>
               {selectedCountry === emergency.country && (
                 <div className="emergency-details">
                   <div className="detail-item">
@@ -68,22 +65,17 @@ const ExternalLinksSection = memo(() => {
       <div className="resources-categories">
         {linksData.categories.map((category) => (
           <div key={category.id} className="resource-category">
-            <div
+            <button
+              type="button"
               className="category-header-expandable"
+              role="button"
+              tabIndex={0}
               onClick={() =>
                 setExpandedCategory(
                   expandedCategory === category.id ? null : category.id
                 )
               }
-              role="button"
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setExpandedCategory(
-                    expandedCategory === category.id ? null : category.id
-                  );
-                }
-              }}
+              aria-expanded={expandedCategory === category.id}
             >
               <div className="header-content">
                 <span className="category-icon">{category.icon}</span>
@@ -92,10 +84,10 @@ const ExternalLinksSection = memo(() => {
                   <p>{category.description}</p>
                 </div>
               </div>
-              <span className={`expand-arrow ${expandedCategory === category.id ? 'expanded' : ''}`}>
+              <span className={`expand-arrow ${expandedCategory === category.id ? 'expanded' : ''}`} aria-hidden="true">
                 ▼
               </span>
-            </div>
+            </button>
 
             {expandedCategory === category.id && (
               <div className="links-grid">

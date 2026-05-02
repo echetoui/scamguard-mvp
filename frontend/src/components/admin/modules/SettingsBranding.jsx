@@ -87,10 +87,12 @@ const SettingsBranding = ({ institutionId }) => {
               <label htmlFor="institution-name">Nom de l'Institution</label>
               <input
                 id="institution-name"
+                name="institution-name"
                 type="text"
                 value={settings.institutionName}
                 onChange={(e) => handleSettingChange('institutionName', e.target.value)}
                 placeholder="Nom complet de l'institution"
+                autoComplete="organization"
               />
               <small>Le nom affiché aux utilisateurs finaux</small>
             </div>
@@ -99,10 +101,14 @@ const SettingsBranding = ({ institutionId }) => {
               <label htmlFor="custom-domain">Domaine Personnalisé</label>
               <input
                 id="custom-domain"
-                type="text"
+                name="custom-domain"
+                type="url"
+                inputMode="url"
                 value={settings.customDomain}
                 onChange={(e) => handleSettingChange('customDomain', e.target.value)}
                 placeholder="https://custom.monentreprise.ca"
+                autoComplete="url"
+                spellCheck={false}
               />
               <small>Laissez vide pour utiliser le domaine par défaut ScamGuard</small>
             </div>
@@ -162,10 +168,14 @@ const SettingsBranding = ({ institutionId }) => {
               <label htmlFor="logo">Logo (URL)</label>
               <input
                 id="logo"
-                type="text"
+                name="logo-url"
+                type="url"
+                inputMode="url"
                 value={settings.logoUrl}
                 onChange={(e) => handleSettingChange('logoUrl', e.target.value)}
                 placeholder="https://votre-cdn.com/logo.png"
+                autoComplete="url"
+                spellCheck={false}
               />
             </div>
 
@@ -181,6 +191,8 @@ const SettingsBranding = ({ institutionId }) => {
                 <img
                   src={settings.logoUrl}
                   alt="Logo"
+                  width="120"
+                  height="120"
                   className="preview-logo"
                   onError={(e) => (e.target.style.display = 'none')}
                 />

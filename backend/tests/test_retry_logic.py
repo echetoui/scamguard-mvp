@@ -107,6 +107,9 @@ class TestDetectionAgentRetry:
         from lambda_.agents.detection_agent import DetectionAgent
         from openai import APITimeoutError
 
+        # APITimeoutError(request) in new openai SDK — request must be an httpx.Request
+        mock_request = MagicMock()
+
         with patch("lambda_.agents.detection_agent.OpenAI") as mock_client:
             # Fail first 2 times, succeed on 3rd
             mock_response = MagicMock()
@@ -116,8 +119,8 @@ class TestDetectionAgentRetry:
             )
 
             mock_client.return_value.chat.completions.create.side_effect = [
-                APITimeoutError("timeout", None, None),
-                APITimeoutError("timeout", None, None),
+                APITimeoutError(request=mock_request),
+                APITimeoutError(request=mock_request),
                 mock_response,
             ]
 
@@ -133,9 +136,11 @@ class TestDetectionAgentRetry:
         from lambda_.agents.detection_agent import DetectionAgent
         from openai import APITimeoutError
 
+        mock_request = MagicMock()
+
         with patch("lambda_.agents.detection_agent.OpenAI") as mock_client:
             mock_client.return_value.chat.completions.create.side_effect = APITimeoutError(
-                "timeout", None, None
+                request=mock_request
             )
 
             agent = DetectionAgent("mock_key")

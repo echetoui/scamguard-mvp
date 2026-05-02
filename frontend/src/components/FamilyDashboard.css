@@ -173,7 +173,7 @@
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
 }
 
@@ -217,7 +217,7 @@
   border-radius: 12px;
   padding: 16px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   cursor: default;
   box-shadow: 0 2px 8px rgba(212, 165, 116, 0.1);
 }
@@ -352,7 +352,7 @@
   border-radius: 12px;
   border-left: 4px solid var(--warm-primary);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .threat-item:hover {
@@ -556,7 +556,7 @@
   font-weight: 600;
   cursor: pointer;
   min-height: 56px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .btn-join:hover:not(:disabled) {

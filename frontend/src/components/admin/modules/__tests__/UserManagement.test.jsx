@@ -29,7 +29,7 @@ describe('UserManagement Module', () => {
 
     it('should render filter inputs', () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
-      expect(screen.getByPlaceholderText('Rechercher par email ou nom...')).toBeTruthy();
+      expect(screen.getByPlaceholderText('Rechercher par courriel ou nom…')).toBeTruthy();
       expect(screen.getByLabelText('Filter by role')).toBeTruthy();
     });
 
@@ -45,7 +45,7 @@ describe('UserManagement Module', () => {
   describe('User Filtering', () => {
     it('should filter users by search term', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
 
       await userEvent.type(searchInput, 'Marie');
 
@@ -63,7 +63,7 @@ describe('UserManagement Module', () => {
 
     it('should show no data message when filter has no results', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
 
       await userEvent.type(searchInput, 'nonexistent');
 
@@ -183,7 +183,7 @@ describe('UserManagement Module', () => {
 
     it('should filter CSV export based on current filters', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
 
       await userEvent.type(searchInput, 'Marie');
       const exportButton = screen.getByText('📥 Exporter CSV');
@@ -257,7 +257,7 @@ describe('UserManagement Module', () => {
     it('should handle combined search and role filter', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
 
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
       const roleFilter = screen.getByLabelText('Filter by role');
 
       // Filter by admin role + search for "admin"
@@ -270,7 +270,7 @@ describe('UserManagement Module', () => {
     it('should clear search and show all users again', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
 
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
 
       // Search for non-existent user
       await userEvent.type(searchInput, 'nonexistent');
@@ -287,7 +287,7 @@ describe('UserManagement Module', () => {
     it('should filter by email search', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
 
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
       await userEvent.type(searchInput, 'senior1');
 
       expect(screen.getByText('Marie Dupont')).toBeTruthy();
@@ -297,7 +297,7 @@ describe('UserManagement Module', () => {
     it('should filter by name search', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
 
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
       await userEvent.type(searchInput, 'Jean');
 
       expect(screen.getByText('Jean Côté')).toBeTruthy();
@@ -307,7 +307,7 @@ describe('UserManagement Module', () => {
     it('should be case-insensitive search', async () => {
       render(<UserManagement institutionId={mockInstitutionId} />);
 
-      const searchInput = screen.getByPlaceholderText('Rechercher par email ou nom...');
+      const searchInput = screen.getByPlaceholderText('Rechercher par courriel ou nom…');
       await userEvent.type(searchInput, 'MARIE');
 
       expect(screen.getByText('Marie Dupont')).toBeTruthy();

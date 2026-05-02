@@ -1,7 +1,10 @@
-import React, { useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 
 const VideosSection = memo(() => {
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const closeButtonRef = useRef(null);
+  const modalContentRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
 
   const videos = [
     {
@@ -68,6 +71,50 @@ const VideosSection = memo(() => {
     ? videos
     : videos.filter(v => v.category === selectedCategory);
 
+  const openVideo = (videoId) => {
+    previouslyFocusedRef.current = document.activeElement;
+    setSelectedVideo(videoId);
+  };
+
+  const closeVideo = () => {
+    setSelectedVideo(null);
+    previouslyFocusedRef.current?.focus?.();
+  };
+
+  useEffect(() => {
+    if (!selectedVideo) return undefined;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closeVideo();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalContentRef.current) {
+        const focusable = modalContentRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (!first || !last) return;
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedVideo]);
+
   return (
     <div className="videos-section">
       <div className="section-intro">
@@ -91,17 +138,13 @@ const VideosSection = memo(() => {
       {/* Videos Grid */}
       <div className="videos-grid">
         {filteredVideos.map((video) => (
-          <div
+          <button
+            type="button"
             key={video.id}
             className="video-card"
-            onClick={() => setSelectedVideo(video.id)}
             role="button"
             tabIndex={0}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setSelectedVideo(video.id);
-              }
-            }}
+            onClick={() => openVideo(video.id)}
           >
             <div className="video-thumbnail">
               <span className="video-icon">{video.thumbnail}</span>
@@ -114,17 +157,25 @@ const VideosSection = memo(() => {
               <p>{video.description}</p>
               <span className="video-category">{video.category}</span>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
       {/* Video Modal */}
       {selectedVideo && (
-        <div className="video-modal" onClick={() => setSelectedVideo(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="video-modal" onClick={closeVideo}>
+          <div
+            ref={modalContentRef}
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="video-modal-title"
+          >
             <button
+              ref={closeButtonRef}
               className="close-btn"
-              onClick={() => setSelectedVideo(null)}
+              onClick={closeVideo}
               aria-label="Fermer la vidéo"
             >
               ✕
@@ -143,7 +194,7 @@ const VideosSection = memo(() => {
             </div>
 
             <div className="modal-info">
-              <h3>{videos.find(v => v.id === selectedVideo)?.title}</h3>
+              <h3 id="video-modal-title">{videos.find(v => v.id === selectedVideo)?.title}</h3>
               <p>{videos.find(v => v.id === selectedVideo)?.description}</p>
               <div className="video-meta">
                 <span className="duration-badge">
