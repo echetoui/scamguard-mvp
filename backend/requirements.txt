@@ -15,7 +15,7 @@ aws-xray-sdk==2.12.0
 psutil==5.9.6
 
 # Environment & Config
-python-dotenv==1.0.0
+python-dotenv==1.2.2
 pydantic
 
 
