@@ -6,7 +6,7 @@
 #
 # pg8000: pure-Python PostgreSQL driver (no C build needed, works in Lambda
 #         without a custom compile step unlike psycopg2-binary)
-pg8000==1.31.2
+pg8000==1.31.5
 
 # aws-lambda-powertools: structured logging, tracing, metrics utilities
 aws-lambda-powertools==3.3.0
